@@ -7,6 +7,9 @@
 /// 19/08/2019 - 18:33 - 19:35 - Finished maze generation algorithm and added basic placehold textures
 /// 20/08/2019 - 11:14 - 11:52 - Added basic AI
 /// 20/08/2019 - 12:44 - 12:50 - Edited rendering order of the tiles and AI to add slight 3D overlap effect
+/// 21/08/2019 - 14:51 - 15:05 - Began editing AI to make them solve the maze a little better
+/// 21/08/2019 - 16:03 - 16:20
+/// 21/08/2019 - 17:55 - 18:02 - Finished editing AI. They now have a 50 chance of changing direction to their left or right whenever a pathway appears 
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

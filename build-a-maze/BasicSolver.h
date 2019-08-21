@@ -4,6 +4,7 @@
 
 #include <SFML\Graphics.hpp>
 #include "Globals.h"
+#include <iostream>
 
 enum class Direction
 {
@@ -46,6 +47,7 @@ public:
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
 	static sf::Vector2i getDirectionVector(Direction t_direction);
+	static Direction getDirection(sf::Vector2i t_directionVec);
 };
 
 #endif // !BASIC_SOLVER_H

@@ -61,9 +61,24 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 {
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 	{
-		if (rand() % 6 == 0) // One in six chance each movement frames to change direction if not found player
+		// Check for new pathways on all sides
+	
+		sf::Vector2i dir = getDirectionVector(m_moveDir);
+
+		// Positive
+		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
 		{
-			m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
+			if (rand() % 2 == 0) {
+				m_moveDir = getDirection({ dir.y, dir.x });
+			}
+		}
+
+		// Negative
+		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+		{
+			if (rand() % 2 == 0) {
+				m_moveDir = getDirection({ dir.y * -1, dir.x * -1 });
+			}
 		}
 
 		m_previousPos = m_pos; // Set the previous position to the current one before moving
@@ -152,5 +167,29 @@ sf::Vector2i BasicSolver::getDirectionVector(Direction t_direction)
 		return sf::Vector2i{ 1,0 };  // Return a east vector
 	default:
 		return sf::Vector2i{ 0,0 }; // Return a null vector for a null direction
+	}
+}
+
+Direction BasicSolver::getDirection(sf::Vector2i t_directionVec)
+{
+	if (t_directionVec == sf::Vector2i{ 0, -1 })
+	{
+		return Direction::North;
+	}
+	else if (t_directionVec == sf::Vector2i{ 0, 1 })
+	{
+		return Direction::South;
+	}
+	else if (t_directionVec == sf::Vector2i{ -1, 0 })
+	{
+		return Direction::West;
+	}
+	if (t_directionVec == sf::Vector2i{ 1, 0 })
+	{
+		return Direction::East;
+	}
+	else
+	{
+		return Direction::None;
 	}
 }
