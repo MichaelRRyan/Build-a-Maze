@@ -30,12 +30,21 @@ private:
 	sf::RenderWindow m_window;
 	bool m_exitGame;
 
+	sf::RectangleShape m_tileSelector;
+	sf::Vector2i m_selectedTile;
+
 	sf::Texture m_tileTextures;
 	sf::Sprite m_textureBlock;
 
 	int m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
 
 	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
+
+	int m_currency;
+
+	sf::Font m_mainFont;
+	sf::Text m_currencyText;
+	sf::Text m_statsText;
 };
 
 #endif // !GAME

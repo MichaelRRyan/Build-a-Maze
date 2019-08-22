@@ -3,10 +3,15 @@
 #include "Game.h"
 
 Game::Game() :
-	m_window{ sf::VideoMode{ 672u, 672u, 32u }, "Basic Game" },
+	m_window{ sf::VideoMode{ 800u, 800u, 32u }, "Basic Game" },
 	m_exitGame{ false }
 {
 	setupShapes();
+
+	m_tileSelector.setSize({ 32, 32 });
+	m_tileSelector.setFillColor(sf::Color::Transparent);
+	m_tileSelector.setOutlineColor(sf::Color::White);
+	m_tileSelector.setOutlineThickness(3.0f);
 
 	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/terrain_atlas.png"))
 	{
@@ -14,6 +19,25 @@ Game::Game() :
 	}
 
 	m_textureBlock.setTexture(m_tileTextures);
+
+	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
+	{
+		std::cout << "Error loading main font (Arial)";
+	}
+
+	m_currencyText.setFont(m_mainFont);
+
+	m_currency = 400;
+
+	m_currencyText.setCharacterSize(34u);
+	m_currencyText.setFillColor(sf::Color::Yellow);
+	m_currencyText.setPosition(400.0f, 740.0f);
+	m_currencyText.setString("Money: 400");
+	m_currencyText.setOrigin(m_currencyText.getGlobalBounds().width / 2, 0.0f);
+
+	m_statsText.setFont(m_mainFont);
+	m_statsText.setCharacterSize(30u);
+	m_statsText.setFillColor(sf::Color::White);
 }
 
 Game::~Game()
@@ -41,6 +65,12 @@ void Game::run()
 	}
 }
 
+/// <summary>
+/// Process all user events.
+/// <para>Close the window when close button pressed.</para>
+/// <para>Resets the maze when the reset button is pressed.</para>
+/// <para>Place/remove blocks when mouse button is pressed over a tile.</para>
+/// </summary>
 void Game::processEvents()
 {
 	sf::Event nextEvent;
@@ -56,9 +86,48 @@ void Game::processEvents()
 				setupShapes();
 			}
 		}
+		if (sf::Event::MouseMoved == nextEvent.type)
+		{
+			sf::Vector2f clickPosition = { static_cast<float>(nextEvent.mouseMove.x), static_cast<float>(nextEvent.mouseMove.y) };
+			sf::Vector2f scaledClickPosition = { (clickPosition.x - 100.0f) - (clickPosition.y * 0.125f), (clickPosition.y - 100.0f) - (clickPosition.y * 0.125f) };
+			m_selectedTile = static_cast<sf::Vector2i>(scaledClickPosition / TILE_SIZE);
+
+			m_statsText.setString("Click Pos: { " + std::to_string(clickPosition.x) + ", " + std::to_string(clickPosition.y) + " }\n"
+				+ "Scaled Click Pos: { " + std::to_string(scaledClickPosition.x) + ", " + std::to_string(scaledClickPosition.y) + " }\n"
+				+ "Selected Tile: { " + std::to_string(m_selectedTile.x) + ", " + std::to_string(m_selectedTile.y) + " }");
+		}
+		if (sf::Event::MouseButtonPressed == nextEvent.type)
+		{
+			if (sf::Mouse::Left == nextEvent.mouseButton.button)
+			{
+				// Make sure the player doesn't remove the outer boundary
+				if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
+					&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
+				{
+					// Check if the player clicked a wall
+					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 10)
+					{
+						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
+						m_currency += 25;
+					} 
+					// Else the player clicked the ground. Make sure there is enough money for a wall
+					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 0 && m_currency >= 30)
+					{
+						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 10;
+						m_currency -= 30;
+					}
+				}
+			}
+		}
 	}
 }
 
+/// <summary>
+/// Main update function for the game.
+/// <para>Updates the AI and moves them.</para>
+/// <para>Updates the money string.</para>
+/// </summary>
+/// <param name="t_deltaTime"></param>
 void Game::update(sf::Time t_deltaTime)
 {
 	if (m_exitGame)
@@ -70,12 +139,23 @@ void Game::update(sf::Time t_deltaTime)
 	{
 		m_basicSolvers[i].move(m_mazeBlocks);
 	}
+
+	m_currencyText.setString("Money: " + std::to_string(m_currency));
 }
 
+/// <summary>
+/// Renders all the objects in the game.
+/// <para>Renders the maze walls and AI in order of row to add overlap of walls and AI.</para>
+/// <para>Draws the GUI to the screen.</para>
+/// </summary>
 void Game::render()
 {
 	m_window.clear();
 
+	sf::View m_playView = sf::View{ { 240.0f, 240.0f }, { 600.0f, 600.0f } };
+	m_window.setView(m_playView);
+
+	// Draw the maze background (Grass)
 	for (int row = 0; row < MAZE_ROWS; row++)
 	{
 		for (int col = 0; col < MAZE_COLS; col++)
@@ -87,16 +167,37 @@ void Game::render()
 		}
 	}
 
+	// Draw the tile selector
+	m_tileSelector.setPosition(m_selectedTile.x * TILE_SIZE, m_selectedTile.y * TILE_SIZE);
+	m_window.draw(m_tileSelector);
+
+	// Draw the walls and AI
+	m_textureBlock.setTextureRect(sf::IntRect{ 0, 832, 32, 64 });
 	for (int row = 0; row < MAZE_ROWS; row++)
 	{
 		for (int col = 0; col < MAZE_COLS; col++)
 		{
 			if (m_mazeBlocks[row][col] == 10)
 			{
-				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE);
-				m_textureBlock.setTextureRect(sf::IntRect{ 0, 832, 32, 64 });
-				m_textureBlock.move(0.0f, -32.0f);
+				if (row == m_selectedTile.y && col == m_selectedTile.x)
+				{
+					m_textureBlock.setColor(sf::Color{200,50,50,245});
+				}
+
+				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 				m_window.draw(m_textureBlock);
+				m_textureBlock.setColor(sf::Color::White);
+			}
+			else if (row == m_selectedTile.y && col == m_selectedTile.x)
+			{
+				if (row == m_selectedTile.y && col == m_selectedTile.x)
+				{
+					m_textureBlock.setColor(sf::Color{ 50,100,200,180 });
+				}
+
+				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
+				m_window.draw(m_textureBlock);
+				m_textureBlock.setColor(sf::Color::White);
 			}
 		}
 
@@ -109,6 +210,11 @@ void Game::render()
 		}
 	}
 
+	m_window.setView(m_window.getDefaultView());
+
+	m_window.draw(m_currencyText);
+	m_window.draw(m_statsText);
+
 	m_window.display();
 }
 
@@ -120,6 +226,9 @@ void Game::setupShapes()
 	{
 		m_basicSolvers[i].setPos(1, 0);
 	}
+
+	// Set the player's currency to 400
+	m_currency = 400;
 }
 
 /// <summary>
