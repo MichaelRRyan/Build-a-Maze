@@ -12,6 +12,7 @@
 /// 21/08/2019: 17:55 - 18:02 - Finished editing AI. They now have a 50 chance of changing direction to their left or right whenever a pathway appears 
 /// 21/08/2019: 23:41 - 22/08/2019: 00:31 - Added money, placing and removing walls, and resized the game screen
 /// 22/08/2019: 10:48 - 11:52 - Edited play screen scaling and wall placing/removing effects as well as a cursor
+/// 22/08/2019: 21:30 - 22:04 - Fixed mouse position scaling, edited cursor to only show over tiles that can be edited
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

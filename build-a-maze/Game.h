@@ -44,7 +44,8 @@ private:
 
 	sf::Font m_mainFont;
 	sf::Text m_currencyText;
-	sf::Text m_statsText;
+
+	const sf::View m_gameplayView{ { 240.0f, 240.0f }, { 600.0f, 600.0f } };
 };
 
 #endif // !GAME

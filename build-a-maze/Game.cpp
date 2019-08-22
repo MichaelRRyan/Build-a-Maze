@@ -30,14 +30,10 @@ Game::Game() :
 	m_currency = 400;
 
 	m_currencyText.setCharacterSize(34u);
-	m_currencyText.setFillColor(sf::Color::Yellow);
+	m_currencyText.setFillColor(sf::Color::Black);
 	m_currencyText.setPosition(400.0f, 740.0f);
 	m_currencyText.setString("Money: 400");
 	m_currencyText.setOrigin(m_currencyText.getGlobalBounds().width / 2, 0.0f);
-
-	m_statsText.setFont(m_mainFont);
-	m_statsText.setCharacterSize(30u);
-	m_statsText.setFillColor(sf::Color::White);
 }
 
 Game::~Game()
@@ -88,13 +84,12 @@ void Game::processEvents()
 		}
 		if (sf::Event::MouseMoved == nextEvent.type)
 		{
-			sf::Vector2f clickPosition = { static_cast<float>(nextEvent.mouseMove.x), static_cast<float>(nextEvent.mouseMove.y) };
-			sf::Vector2f scaledClickPosition = { (clickPosition.x - 100.0f) - (clickPosition.y * 0.125f), (clickPosition.y - 100.0f) - (clickPosition.y * 0.125f) };
-			m_selectedTile = static_cast<sf::Vector2i>(scaledClickPosition / TILE_SIZE);
+			sf::Vector2i clickPosition = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
+			
+			// convert it to world coordinates
+			sf::Vector2f worldPos = m_window.mapPixelToCoords(clickPosition, m_gameplayView);
 
-			m_statsText.setString("Click Pos: { " + std::to_string(clickPosition.x) + ", " + std::to_string(clickPosition.y) + " }\n"
-				+ "Scaled Click Pos: { " + std::to_string(scaledClickPosition.x) + ", " + std::to_string(scaledClickPosition.y) + " }\n"
-				+ "Selected Tile: { " + std::to_string(m_selectedTile.x) + ", " + std::to_string(m_selectedTile.y) + " }");
+			m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 		}
 		if (sf::Event::MouseButtonPressed == nextEvent.type)
 		{
@@ -150,10 +145,9 @@ void Game::update(sf::Time t_deltaTime)
 /// </summary>
 void Game::render()
 {
-	m_window.clear();
+	m_window.clear(sf::Color::White);
 
-	sf::View m_playView = sf::View{ { 240.0f, 240.0f }, { 600.0f, 600.0f } };
-	m_window.setView(m_playView);
+	m_window.setView(m_gameplayView);
 
 	// Draw the maze background (Grass)
 	for (int row = 0; row < MAZE_ROWS; row++)
@@ -168,8 +162,11 @@ void Game::render()
 	}
 
 	// Draw the tile selector
-	m_tileSelector.setPosition(m_selectedTile.x * TILE_SIZE, m_selectedTile.y * TILE_SIZE);
-	m_window.draw(m_tileSelector);
+	if (m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1 && m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1)
+	{
+		m_tileSelector.setPosition(m_selectedTile.x * TILE_SIZE, m_selectedTile.y * TILE_SIZE);
+		m_window.draw(m_tileSelector);
+	}
 
 	// Draw the walls and AI
 	m_textureBlock.setTextureRect(sf::IntRect{ 0, 832, 32, 64 });
@@ -179,7 +176,9 @@ void Game::render()
 		{
 			if (m_mazeBlocks[row][col] == 10)
 			{
-				if (row == m_selectedTile.y && col == m_selectedTile.x)
+				// Draw blocks red to show removing ability
+				if (row == m_selectedTile.y && col == m_selectedTile.x
+					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1)
 				{
 					m_textureBlock.setColor(sf::Color{200,50,50,245});
 				}
@@ -188,13 +187,11 @@ void Game::render()
 				m_window.draw(m_textureBlock);
 				m_textureBlock.setColor(sf::Color::White);
 			}
-			else if (row == m_selectedTile.y && col == m_selectedTile.x)
+			else if (row == m_selectedTile.y && col == m_selectedTile.x
+					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1)
 			{
-				if (row == m_selectedTile.y && col == m_selectedTile.x)
-				{
-					m_textureBlock.setColor(sf::Color{ 50,100,200,180 });
-				}
-
+				
+				m_textureBlock.setColor(sf::Color{ 50,100,200,180 });
 				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 				m_window.draw(m_textureBlock);
 				m_textureBlock.setColor(sf::Color::White);
@@ -213,7 +210,6 @@ void Game::render()
 	m_window.setView(m_window.getDefaultView());
 
 	m_window.draw(m_currencyText);
-	m_window.draw(m_statsText);
 
 	m_window.display();
 }
