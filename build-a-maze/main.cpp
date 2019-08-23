@@ -13,6 +13,7 @@
 /// 21/08/2019: 23:41 - 22/08/2019: 00:31 - Added money, placing and removing walls, and resized the game screen
 /// 22/08/2019: 10:48 - 11:52 - Edited play screen scaling and wall placing/removing effects as well as a cursor
 /// 22/08/2019: 21:30 - 22:04 - Fixed mouse position scaling, edited cursor to only show over tiles that can be edited
+/// 23/08/2019: 13:15 - 14:24 - Changed screen size to a 720p and added a basic shop menu
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

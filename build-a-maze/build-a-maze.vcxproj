@@ -122,6 +122,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />
   </ItemGroup>
@@ -129,6 +130,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Globals.h" />
+    <ClInclude Include="GUI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

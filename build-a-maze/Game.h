@@ -8,6 +8,7 @@
 #include <stack>
 #include "BasicSolver.h"
 #include "Globals.h"
+#include "GUI.h"
 
 class Game
 {
@@ -43,9 +44,12 @@ private:
 	int m_currency;
 
 	sf::Font m_mainFont;
-	sf::Text m_currencyText;
 
-	const sf::View m_gameplayView{ { 240.0f, 240.0f }, { 600.0f, 600.0f } };
+	const sf::View m_gameplayView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} };
+
+	GUI m_gui;
+
+	ConstructionMode m_constructionState;
 };
 
 #endif // !GAME

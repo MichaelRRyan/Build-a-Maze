@@ -3,7 +3,7 @@
 #include "Game.h"
 
 Game::Game() :
-	m_window{ sf::VideoMode{ 800u, 800u, 32u }, "Basic Game" },
+	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Basic Game" },
 	m_exitGame{ false }
 {
 	setupShapes();
@@ -25,15 +25,8 @@ Game::Game() :
 		std::cout << "Error loading main font (Arial)";
 	}
 
-	m_currencyText.setFont(m_mainFont);
-
+	m_constructionState = ConstructionMode::None;
 	m_currency = 400;
-
-	m_currencyText.setCharacterSize(34u);
-	m_currencyText.setFillColor(sf::Color::Black);
-	m_currencyText.setPosition(400.0f, 740.0f);
-	m_currencyText.setString("Money: 400");
-	m_currencyText.setOrigin(m_currencyText.getGlobalBounds().width / 2, 0.0f);
 }
 
 Game::~Game()
@@ -100,20 +93,26 @@ void Game::processEvents()
 					&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
 				{
 					// Check if the player clicked a wall
-					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 10)
+					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 10
+						&& m_constructionState == ConstructionMode::Destroying)
 					{
 						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
 						m_currency += 25;
+						m_constructionState = ConstructionMode::None;
 					} 
 					// Else the player clicked the ground. Make sure there is enough money for a wall
-					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 0 && m_currency >= 30)
+					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 0 && m_currency >= 30
+							&& m_constructionState == ConstructionMode::Placing)
 					{
 						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 10;
 						m_currency -= 30;
+						m_constructionState = ConstructionMode::None;
 					}
 				}
 			}
 		}
+
+		m_gui.processEvents(nextEvent, m_currency, m_constructionState);
 	}
 }
 
@@ -134,8 +133,6 @@ void Game::update(sf::Time t_deltaTime)
 	{
 		m_basicSolvers[i].move(m_mazeBlocks);
 	}
-
-	m_currencyText.setString("Money: " + std::to_string(m_currency));
 }
 
 /// <summary>
@@ -150,13 +147,13 @@ void Game::render()
 	m_window.setView(m_gameplayView);
 
 	// Draw the maze background (Grass)
-	for (int row = 0; row < MAZE_ROWS; row++)
+	for (int row = -2; row < MAZE_ROWS + 2; row++)
 	{
-		for (int col = 0; col < MAZE_COLS; col++)
+		for (int col = -2; col < MAZE_COLS + 2; col++)
 		{
 			m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE);
 
-			m_textureBlock.setTextureRect(sf::IntRect{ 672 + ((row + col) % 3) * 32, 160, 32, 32 });
+			m_textureBlock.setTextureRect(sf::IntRect{ 672 + (abs(row + col) % 3) * 32, 160, 32, 32 });
 			m_window.draw(m_textureBlock);
 		}
 	}
@@ -178,7 +175,8 @@ void Game::render()
 			{
 				// Draw blocks red to show removing ability
 				if (row == m_selectedTile.y && col == m_selectedTile.x
-					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1)
+					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
+					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_textureBlock.setColor(sf::Color{200,50,50,245});
 				}
@@ -188,7 +186,8 @@ void Game::render()
 				m_textureBlock.setColor(sf::Color::White);
 			}
 			else if (row == m_selectedTile.y && col == m_selectedTile.x
-					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1)
+					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
+					&& m_constructionState == ConstructionMode::Placing)
 			{
 				
 				m_textureBlock.setColor(sf::Color{ 50,100,200,180 });
@@ -208,8 +207,8 @@ void Game::render()
 	}
 
 	m_window.setView(m_window.getDefaultView());
-
-	m_window.draw(m_currencyText);
+	m_gui.drawScreens(m_window);
+	
 
 	m_window.display();
 }
