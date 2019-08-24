@@ -18,7 +18,8 @@ enum class Direction
 class BasicSolver
 {
 	// Declare private data members
-	const int MOVEMENT_TIME = 15;
+	const int DEFAULT_MOVE_SPEED = 15;
+	const int SLOW_MOVE_SPEED = 30;
 
 	sf::Texture m_spriteSheet;
 	sf::Sprite m_body;
@@ -26,6 +27,7 @@ class BasicSolver
 	sf::Vector2i m_previousPos; // Used for animation
 	Direction m_moveDir;
 	int m_moveTimer;
+	int m_movementSpeed;
 	int sightRange;
 	bool followingPlayer;
 

@@ -33,6 +33,7 @@ private:
 
 	sf::RectangleShape m_tileSelector;
 	sf::Vector2i m_selectedTile;
+	sf::Vector2i m_mousePosition;
 
 	sf::Texture m_tileTextures;
 	sf::Sprite m_textureBlock;
@@ -50,6 +51,7 @@ private:
 	GUI m_gui;
 
 	ConstructionMode m_constructionState;
+	TileType m_selectedTileType;
 };
 
 #endif // !GAME

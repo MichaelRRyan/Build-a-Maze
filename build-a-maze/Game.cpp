@@ -26,6 +26,7 @@ Game::Game() :
 	}
 
 	m_constructionState = ConstructionMode::None;
+	m_selectedTileType = TileType::None;
 	m_currency = 400;
 }
 
@@ -77,10 +78,10 @@ void Game::processEvents()
 		}
 		if (sf::Event::MouseMoved == nextEvent.type)
 		{
-			sf::Vector2i clickPosition = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
+			m_mousePosition = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
 			
 			// convert it to world coordinates
-			sf::Vector2f worldPos = m_window.mapPixelToCoords(clickPosition, m_gameplayView);
+			sf::Vector2f worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
 
 			m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 		}
@@ -93,7 +94,7 @@ void Game::processEvents()
 					&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
 				{
 					// Check if the player clicked a wall
-					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 10
+					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
 						&& m_constructionState == ConstructionMode::Destroying)
 					{
 						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
@@ -101,10 +102,10 @@ void Game::processEvents()
 						m_constructionState = ConstructionMode::None;
 					} 
 					// Else the player clicked the ground. Make sure there is enough money for a wall
-					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == 0 && m_currency >= 30
+					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
 							&& m_constructionState == ConstructionMode::Placing)
 					{
-						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 10;
+						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
 						m_currency -= 30;
 						m_constructionState = ConstructionMode::None;
 					}
@@ -112,7 +113,7 @@ void Game::processEvents()
 			}
 		}
 
-		m_gui.processEvents(nextEvent, m_currency, m_constructionState);
+		m_gui.processEvents(nextEvent, m_constructionState, m_selectedTileType);
 	}
 }
 
@@ -133,6 +134,8 @@ void Game::update(sf::Time t_deltaTime)
 	{
 		m_basicSolvers[i].move(m_mazeBlocks);
 	}
+
+	m_gui.update(m_mousePosition, m_currency);
 }
 
 /// <summary>
@@ -166,12 +169,11 @@ void Game::render()
 	}
 
 	// Draw the walls and AI
-	m_textureBlock.setTextureRect(sf::IntRect{ 0, 832, 32, 64 });
 	for (int row = 0; row < MAZE_ROWS; row++)
 	{
 		for (int col = 0; col < MAZE_COLS; col++)
 		{
-			if (m_mazeBlocks[row][col] == 10)
+			if (m_mazeBlocks[row][col] != TileType::None)
 			{
 				// Draw blocks red to show removing ability
 				if (row == m_selectedTile.y && col == m_selectedTile.x
@@ -179,6 +181,14 @@ void Game::render()
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_textureBlock.setColor(sf::Color{200,50,50,245});
+				}
+
+				if (m_mazeBlocks[row][col] == TileType::Slow)
+				{
+					m_textureBlock.setTextureRect(PLANT_TEXT_RECT);
+				}
+				else if (m_mazeBlocks[row][col] == TileType::Wall) {
+					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
 				}
 
 				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
@@ -189,7 +199,14 @@ void Game::render()
 					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
 					&& m_constructionState == ConstructionMode::Placing)
 			{
-				
+				if (m_selectedTileType == TileType::Slow)
+				{
+					m_textureBlock.setTextureRect(PLANT_TEXT_RECT);
+				}
+				else if (m_selectedTileType == TileType::Wall) {
+					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
+				}
+
 				m_textureBlock.setColor(sf::Color{ 50,100,200,180 });
 				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 				m_window.draw(m_textureBlock);
@@ -235,7 +252,7 @@ void Game::generateMaze()
 	{
 		for (int col = 0; col < MAZE_COLS; col++)
 		{
-			m_mazeBlocks[row][col] = 10;
+			m_mazeBlocks[row][col] = TileType::Wall;
 		}
 	}
 
@@ -282,7 +299,7 @@ void Game::generateMaze()
 			movementHistory.push(sf::Vector2i{ row, col });
 
 			// Set the current tile to a ground tile
-			m_mazeBlocks[row][col] = 0;
+			m_mazeBlocks[row][col] = TileType::None;
 		}
 
 		// Set all direction checks to false

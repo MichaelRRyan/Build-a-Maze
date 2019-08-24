@@ -14,6 +14,7 @@ BasicSolver::BasicSolver()
 	m_moveTimer = 0;
 	sightRange = 5; // Enemy can see the player five tiles away
 	followingPlayer = false;
+	m_movementSpeed = DEFAULT_MOVE_SPEED;
 }
 
 /// <summary>
@@ -94,9 +95,19 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 				blocked = true; // Movement is blocked
 			}
 
-			// Move if not blocked else change direction
+			// Move if not blocked, else change direction
 			if (!blocked)
 			{
+				if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
+					|| t_maze[desiredPosition.y][desiredPosition.x] == TileType::Slow)
+				{
+					m_movementSpeed = SLOW_MOVE_SPEED;
+				}
+				else
+				{
+					m_movementSpeed = DEFAULT_MOVE_SPEED;
+				}
+
 				m_pos = desiredPosition;
 				break; // Break from the loop if the enemy can move
 			}
@@ -108,16 +119,16 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 		}
 		
 		setTextureDirection(); // Set the texture to the direction
-		m_moveTimer = MOVEMENT_TIME; // Reset the move timer
+		m_moveTimer = m_movementSpeed; // Reset the move timer
 	}
 	else
 	{
 		m_moveTimer--;
 		// Work out the new X and Y with Linear Interpolation
-		float newX = (m_pos.x * 32) * (1.0f - (1.0f * m_moveTimer / MOVEMENT_TIME)) + (m_previousPos.x * 32) * (1.0f * m_moveTimer / MOVEMENT_TIME);
-		float newY = (m_pos.y * 32) * (1.0f - (1.0f * m_moveTimer / MOVEMENT_TIME)) + (m_previousPos.y * 32) * (1.0f * m_moveTimer / MOVEMENT_TIME);
+		float newX = (m_pos.x * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.x * 32) * (1.0f * m_moveTimer / m_movementSpeed);
+		float newY = (m_pos.y * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.y * 32) * (1.0f * m_moveTimer / m_movementSpeed);
 		m_body.setPosition(static_cast<float>(newX), static_cast<float>(newY)); // Set the position to the current cell
-		int frameNum = static_cast<int>((1.0 * m_moveTimer / MOVEMENT_TIME) * 3);
+		int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
 		sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (m_characterNumber.x * frameNum), m_characterNumber.y + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
 		m_body.setTextureRect(frame);
 	}
