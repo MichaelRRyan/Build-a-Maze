@@ -28,8 +28,7 @@ class BasicSolver
 	Direction m_moveDir;
 	int m_moveTimer;
 	int m_movementSpeed;
-	int sightRange;
-	bool followingPlayer;
+	bool m_active;
 
 	// Texture variables
 	sf::Vector2i m_characterNumber;
@@ -41,6 +40,7 @@ public:
 
 	inline sf::Sprite getBody() { return m_body; }
 	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the ghost
+	inline bool getActive() { return m_active; };
 
 	inline void setMoveTimer(int t_moveDelay) { m_moveTimer = t_moveDelay; } // Set the delay between movements
 	void setPos(int t_row, int t_col);

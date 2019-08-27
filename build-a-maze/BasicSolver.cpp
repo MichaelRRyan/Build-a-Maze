@@ -12,8 +12,7 @@ BasicSolver::BasicSolver()
 	loadFiles();
 	m_moveDir = static_cast<Direction>(rand() % 4 + 1);
 	m_moveTimer = 0;
-	sightRange = 5; // Enemy can see the player five tiles away
-	followingPlayer = false;
+	m_active = true;
 	m_movementSpeed = DEFAULT_MOVE_SPEED;
 }
 
@@ -60,77 +59,85 @@ void BasicSolver::setPos(int t_row, int t_col)
 /// <param name="t_ghosts"></param>
 void BasicSolver::move(int t_maze[][MAZE_COLS])
 {
-	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
+	if (m_active)
 	{
-		// Check for new pathways on all sides
-	
-		sf::Vector2i dir = getDirectionVector(m_moveDir);
-
-		// Positive
-		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
+		if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
 		{
-			if (rand() % 2 == 0) {
-				m_moveDir = getDirection({ dir.y, dir.x });
-			}
+			m_active = false;
 		}
 
-		// Negative
-		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+		if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 		{
-			if (rand() % 2 == 0) {
-				m_moveDir = getDirection({ dir.y * -1, dir.x * -1 });
-			}
-		}
+			// Check for new pathways on all sides
 
-		m_previousPos = m_pos; // Set the previous position to the current one before moving
+			sf::Vector2i dir = getDirectionVector(m_moveDir);
 
-		for (int i = 0; i < 4; i++) // Loop until the enemy moves, finds a new direction or it tries four times (to stop infinite loops)
-		{
-			sf::Vector2i desiredPosition = m_pos + getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
-			bool blocked = false; // True if the desired position holds another enemy or wall
-
-			if (t_maze[desiredPosition.y][desiredPosition.x] == 10
-				|| (desiredPosition.y < 0 || desiredPosition.y > MAZE_ROWS || desiredPosition.x < 0 || desiredPosition.x > MAZE_COLS)) // Check if there's a rock blocking movement or trying to leave the maze
+			// Positive
+			if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
 			{
-				blocked = true; // Movement is blocked
+				if (rand() % 2 == 0) {
+					m_moveDir = getDirection({ dir.y, dir.x });
+				}
 			}
 
-			// Move if not blocked, else change direction
-			if (!blocked)
+			// Negative
+			if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
 			{
-				if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
-					|| t_maze[desiredPosition.y][desiredPosition.x] == TileType::Slow)
+				if (rand() % 2 == 0) {
+					m_moveDir = getDirection({ dir.y * -1, dir.x * -1 });
+				}
+			}
+
+			m_previousPos = m_pos; // Set the previous position to the current one before moving
+
+			for (int i = 0; i < 4; i++) // Loop until the enemy moves, finds a new direction or it tries four times (to stop infinite loops)
+			{
+				sf::Vector2i desiredPosition = m_pos + getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
+				bool blocked = false; // True if the desired position holds another enemy or wall
+
+				if (t_maze[desiredPosition.y][desiredPosition.x] == 10
+					|| (desiredPosition.y < 0 || desiredPosition.y > MAZE_ROWS || desiredPosition.x < 0 || desiredPosition.x > MAZE_COLS)) // Check if there's a rock blocking movement or trying to leave the maze
 				{
-					m_movementSpeed = SLOW_MOVE_SPEED;
+					blocked = true; // Movement is blocked
+				}
+
+				// Move if not blocked, else change direction
+				if (!blocked)
+				{
+					if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
+						|| t_maze[desiredPosition.y][desiredPosition.x] == TileType::Slow)
+					{
+						m_movementSpeed = SLOW_MOVE_SPEED;
+					}
+					else
+					{
+						m_movementSpeed = DEFAULT_MOVE_SPEED;
+					}
+
+					m_pos = desiredPosition;
+					break; // Break from the loop if the enemy can move
 				}
 				else
 				{
-					m_movementSpeed = DEFAULT_MOVE_SPEED;
+					m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
 				}
 
-				m_pos = desiredPosition;
-				break; // Break from the loop if the enemy can move
 			}
-			else
-			{
-				m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
-			}
-				
+
+			setTextureDirection(); // Set the texture to the direction
+			m_moveTimer = m_movementSpeed; // Reset the move timer
 		}
-		
-		setTextureDirection(); // Set the texture to the direction
-		m_moveTimer = m_movementSpeed; // Reset the move timer
-	}
-	else
-	{
-		m_moveTimer--;
-		// Work out the new X and Y with Linear Interpolation
-		float newX = (m_pos.x * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.x * 32) * (1.0f * m_moveTimer / m_movementSpeed);
-		float newY = (m_pos.y * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.y * 32) * (1.0f * m_moveTimer / m_movementSpeed);
-		m_body.setPosition(static_cast<float>(newX), static_cast<float>(newY)); // Set the position to the current cell
-		int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
-		sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (m_characterNumber.x * frameNum), m_characterNumber.y + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
-		m_body.setTextureRect(frame);
+		else
+		{
+			m_moveTimer--;
+			// Work out the new X and Y with Linear Interpolation
+			float newX = (m_pos.x * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.x * 32) * (1.0f * m_moveTimer / m_movementSpeed);
+			float newY = (m_pos.y * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.y * 32) * (1.0f * m_moveTimer / m_movementSpeed);
+			m_body.setPosition(static_cast<float>(newX), static_cast<float>(newY)); // Set the position to the current cell
+			int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
+			sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (m_characterNumber.x * frameNum), m_characterNumber.y + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
+			m_body.setTextureRect(frame);
+		}
 	}
 }
 

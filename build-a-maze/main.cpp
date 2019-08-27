@@ -15,6 +15,7 @@
 /// 22/08/2019: 21:30 - 22:04 - Fixed mouse position scaling, edited cursor to only show over tiles that can be edited
 /// 23/08/2019: 13:15 - 14:24 - Changed screen size to a 720p and added a basic shop menu
 /// 24/08/2019: 11:43 - 13:02 - Tidied some code and changed it to allow for more tiles. Added plant tile that makes AI move slower
+/// 27/08/2019: 14:16 - 14:35 - Fixed a bug with maze generation that made the maze unsolvable. Made AI disappear after completing the maze
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

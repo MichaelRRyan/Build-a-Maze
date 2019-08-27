@@ -218,7 +218,10 @@ void Game::render()
 		{
 			if (m_basicSolvers[i].getPos().y == row)
 			{
-				m_window.draw(m_basicSolvers[i].getBody());
+				if (m_basicSolvers[i].getActive())
+				{
+					m_window.draw(m_basicSolvers[i].getBody());
+				}
 			}
 		}
 	}
@@ -248,6 +251,7 @@ void Game::setupShapes()
 /// </summary>
 void Game::generateMaze()
 {
+	// Set all the blocks to walls
 	for (int row = 0; row < MAZE_ROWS; row++)
 	{
 		for (int col = 0; col < MAZE_COLS; col++)
@@ -271,25 +275,23 @@ void Game::generateMaze()
 	// Set complete to false and start looping
 	bool complete = false;
 	while (!complete) {
+
+		// If the maze hits a dead end
 		if (deadEnd)
 		{
 			if (!movementHistory.empty())
 			{
 				movementHistory.pop();
-
-				if (movementHistory.empty())
-				{
-					complete = true;
-					break;
-				}
 			}
-			else
+
+			if (movementHistory.empty()) // if empty
 			{
 				complete = true;
 				break;
 			}
-			row = movementHistory.top().y;
-			col = movementHistory.top().x;
+
+			row = movementHistory.top().x;
+			col = movementHistory.top().y;
 
 			deadEnd = false;
 		}
@@ -339,40 +341,36 @@ void Game::generateMaze()
 			switch (dir) {
 			case 0:
 				// Up
-				if (row - 2 >= 0 && m_mazeBlocks[row - 2][col] != 0) {
-					row--;
-					m_mazeBlocks[row][col] = 0;
-					row--;
+				if (row - 2 >= 0 && m_mazeBlocks[row - 2][col] != TileType::None) {
+					m_mazeBlocks[row-1][col] = TileType::None;
+					row -= 2;
 					foundDir = true;
 				}
 				upChecked = true;
 				break;
 			case 1:
 				// Down
-				if (row + 2 < MAZE_ROWS && m_mazeBlocks[row + 2][col] != 0) {
-					row++;
-					m_mazeBlocks[row][col] = 0;
-					row++;
+				if (row + 2 < MAZE_ROWS && m_mazeBlocks[row + 2][col] != TileType::None) {
+					m_mazeBlocks[row+1][col] = TileType::None;
+					row += 2;
 					foundDir = true;
 				}
 				downChecked = true;
 				break;
 			case 2:
 				// Left
-				if (col - 2 >= 0 && m_mazeBlocks[row][col - 2] != 0) {
-					col--;
-					m_mazeBlocks[row][col] = 0;
-					col--;
+				if (col - 2 >= 0 && m_mazeBlocks[row][col - 2] != TileType::None) {
+					m_mazeBlocks[row][col-1] = TileType::None;
+					col -= 2;
 					foundDir = true;
 				}
 				leftChecked = true;
 				break;
 			case 3:
 				// Right
-				if (col + 2 < MAZE_COLS && m_mazeBlocks[row][col + 2] != 0) {
-					col++;
-					m_mazeBlocks[row][col] = 0;
-					col++;
+				if (col + 2 < MAZE_COLS && m_mazeBlocks[row][col + 2] != TileType::None) {
+					m_mazeBlocks[row][col+1] = TileType::None;
+					col += 2;
 					foundDir = true;
 				}
 				rightChecked = true;
