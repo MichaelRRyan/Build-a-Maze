@@ -16,6 +16,9 @@
 /// 23/08/2019: 13:15 - 14:24 - Changed screen size to a 720p and added a basic shop menu
 /// 24/08/2019: 11:43 - 13:02 - Tidied some code and changed it to allow for more tiles. Added plant tile that makes AI move slower
 /// 27/08/2019: 14:16 - 14:35 - Fixed a bug with maze generation that made the maze unsolvable. Made AI disappear after completing the maze
+/// 27/08/2019: 18:50 - 19:21 - Added game states (Simulation &  BuildMode) and gave the user the ability to switch between them. Sped up AI movement. Added text to display how many AI are left in the maze
+/// 28/08/2019: 13:19 - 13:34 - Minor tweaks to code
+/// 30/08/2019: 12:08 - 12:45 - Gave AI the ability to see the goal within 3 tiles away to stop them walking right past it. Player now earns money at the end of a sim. Added zero in front of single digit second values display for 'time to complete'
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

@@ -4,30 +4,12 @@
 
 Game::Game() :
 	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Basic Game" },
-	m_exitGame{ false }
+	m_exitGame{ false },
+	m_gamestate{ GameState::BuildMode }, // Set the start game state to 'BuildMode'
+	m_timeModifier{ 1 }
 {
 	setupShapes();
-
-	m_tileSelector.setSize({ 32, 32 });
-	m_tileSelector.setFillColor(sf::Color::Transparent);
-	m_tileSelector.setOutlineColor(sf::Color::White);
-	m_tileSelector.setOutlineThickness(3.0f);
-
-	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/terrain_atlas.png"))
-	{
-		std::cout << "Error loading terrain textures";
-	}
-
-	m_textureBlock.setTexture(m_tileTextures);
-
-	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
-	{
-		std::cout << "Error loading main font (Arial)";
-	}
-
-	m_constructionState = ConstructionMode::None;
-	m_selectedTileType = TileType::None;
-	m_currency = 400;
+	setupGame();
 }
 
 Game::~Game()
@@ -70,50 +52,123 @@ void Game::processEvents()
 		{
 			m_window.close();
 		}
+
 		if (sf::Event::KeyPressed == nextEvent.type) {
-			if (sf::Keyboard::Space == nextEvent.key.code)
+#ifdef _DEBUG
+			if (sf::Keyboard::R == nextEvent.key.code)
 			{
 				setupShapes();
+			}
+#endif // _DEBUG
+			if (sf::Keyboard::Space == nextEvent.key.code)
+			{
+				if (m_gamestate == GameState::BuildMode)
+				{
+					m_gamestate = GameState::Simulation;
+
+					// Reset all AI's positions to the start of the maze
+					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					{
+						m_basicSolvers[i].setPos(1, 0);
+						m_basicSolvers[i].setActive(true);
+						m_basicSolvers[i].setMoveTimer(i * 60);
+						m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+					}
+
+					m_prevTimeToComplete = 0;
+					m_timeToComplete = 0;
+					m_moneyEarned = 0;
+				}
+				else if (m_gamestate == GameState::Simulation)
+				{
+					m_gamestate = GameState::BuildMode;
+				}
+			}
+			if (sf::Keyboard::Num1 == nextEvent.key.code)
+			{
+				if (m_timeModifier > 0.25)
+				{
+					m_timeModifier *= 0.5f;
+
+					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					{
+						m_basicSolvers[i].setTimeModifier(m_timeModifier);
+					}
+					std::cout << "Time set to " << m_timeModifier << std::endl;
+				}
+				else
+				{
+					std::cout << "Time already maximum speed" << std::endl;
+				}
+			}
+			else if (sf::Keyboard::Num2 == nextEvent.key.code)
+			{
+				m_timeModifier = 1;
+				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+				{
+					m_basicSolvers[i].setTimeModifier(1);
+				}
+				std::cout << "Time set to 1" << std::endl;
+			}
+			else if (sf::Keyboard::Num3 == nextEvent.key.code)
+			{
+				if (m_timeModifier < 4)
+				{
+					m_timeModifier *= 2.0f;
+
+					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					{
+						m_basicSolvers[i].setTimeModifier(m_timeModifier);
+					}
+					std::cout << "Time set to " << m_timeModifier << std::endl;
+				}
+				else
+				{
+					std::cout << "Time already minimum speed" << std::endl;
+				}
 			}
 		}
 		if (sf::Event::MouseMoved == nextEvent.type)
 		{
 			m_mousePosition = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
-			
+
 			// convert it to world coordinates
 			sf::Vector2f worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
 
 			m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 		}
-		if (sf::Event::MouseButtonPressed == nextEvent.type)
+		if (m_gamestate == GameState::BuildMode)
 		{
-			if (sf::Mouse::Left == nextEvent.mouseButton.button)
+			if (sf::Event::MouseButtonPressed == nextEvent.type)
 			{
-				// Make sure the player doesn't remove the outer boundary
-				if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
-					&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
+				if (sf::Mouse::Left == nextEvent.mouseButton.button)
 				{
-					// Check if the player clicked a wall
-					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
-						&& m_constructionState == ConstructionMode::Destroying)
+					// Make sure the player doesn't remove the outer boundary
+					if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
+						&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
 					{
-						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
-						m_currency += 25;
-						m_constructionState = ConstructionMode::None;
-					} 
-					// Else the player clicked the ground. Make sure there is enough money for a wall
-					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
+						// Check if the player clicked a wall
+						if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
+							&& m_constructionState == ConstructionMode::Destroying)
+						{
+							m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
+							m_currency += 25;
+							m_constructionState = ConstructionMode::None;
+						}
+						// Else the player clicked the ground. Make sure there is enough money for a wall
+						else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
 							&& m_constructionState == ConstructionMode::Placing)
-					{
-						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
-						m_currency -= 30;
-						m_constructionState = ConstructionMode::None;
+						{
+							m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
+							m_currency -= 30;
+							m_constructionState = ConstructionMode::None;
+						}
 					}
 				}
 			}
-		}
 
-		m_gui.processEvents(nextEvent, m_constructionState, m_selectedTileType);
+			m_gui.processEvents(nextEvent, m_constructionState, m_selectedTileType);
+		}
 	}
 }
 
@@ -130,12 +185,53 @@ void Game::update(sf::Time t_deltaTime)
 		m_window.close();
 	}
 
-	for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+	if (m_gamestate == GameState::Simulation)
 	{
-		m_basicSolvers[i].move(m_mazeBlocks);
+		int noOfAI = 0;
+
+		for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+		{
+			if (m_basicSolvers[i].getActive())
+			{
+				m_basicSolvers[i].move(m_mazeBlocks);
+				noOfAI++;
+			}
+		}
+
+		if (noOfAI > 0)
+		{
+			m_timeToComplete += t_deltaTime.asSeconds() / m_timeModifier;
+		}
+		else
+		{
+			m_currency += m_moneyEarned;
+			m_gamestate = GameState::BuildMode;
+		}
+
+		if (static_cast<int>(floor(m_prevTimeToComplete)) < static_cast<int>(floor(m_timeToComplete)))
+		{
+			m_moneyEarned += noOfAI;
+			m_prevTimeToComplete = m_timeToComplete;
+		}
+
+		// Work out minutes and seconds and set the string
+		int seconds = static_cast<int>(floor(m_timeToComplete)) % 60;
+		int minutes = static_cast<int>(floor(m_timeToComplete)) / 60;
+
+		if (seconds < 10) // if below 10 seconds, add a zero before the seconds as to display correctly as a time
+		{
+			m_aiInfoText.setString(std::to_string(noOfAI) + "/" + std::to_string(BASIC_SOLVERS_MAX) + "Guests left in the maze\nTime: " + std::to_string(minutes) + ":0" + std::to_string(seconds) + "\nMoney earned: " + std::to_string(m_moneyEarned));
+		}
+		else
+		{
+			m_aiInfoText.setString(std::to_string(noOfAI) + "/" + std::to_string(BASIC_SOLVERS_MAX) + "Guests left in the maze\nTime: " + std::to_string(minutes) + ":" + std::to_string(seconds) + "\nMoney earned: " + std::to_string(m_moneyEarned));
+		}
 	}
 
-	m_gui.update(m_mousePosition, m_currency);
+	if (m_gamestate == GameState::BuildMode)
+	{
+		m_gui.update(m_mousePosition, m_currency);
+	}
 }
 
 /// <summary>
@@ -178,7 +274,8 @@ void Game::render()
 				// Draw blocks red to show removing ability
 				if (row == m_selectedTile.y && col == m_selectedTile.x
 					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
-					&& m_constructionState == ConstructionMode::Destroying)
+					&& m_constructionState == ConstructionMode::Destroying
+					&& m_gamestate == GameState::BuildMode)
 				{
 					m_textureBlock.setColor(sf::Color{200,50,50,245});
 				}
@@ -195,9 +292,11 @@ void Game::render()
 				m_window.draw(m_textureBlock);
 				m_textureBlock.setColor(sf::Color::White);
 			}
+			// Draw ghost blocks when placing a tile
 			else if (row == m_selectedTile.y && col == m_selectedTile.x
 					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
-					&& m_constructionState == ConstructionMode::Placing)
+					&& m_constructionState == ConstructionMode::Placing
+					&& m_gamestate == GameState::BuildMode)
 			{
 				if (m_selectedTileType == TileType::Slow)
 				{
@@ -214,13 +313,17 @@ void Game::render()
 			}
 		}
 
-		for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+		// Draw the AI if in simulation mode
+		if (m_gamestate == GameState::Simulation)
 		{
-			if (m_basicSolvers[i].getPos().y == row)
+			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 			{
-				if (m_basicSolvers[i].getActive())
+				if (m_basicSolvers[i].getPos().y == row)
 				{
-					m_window.draw(m_basicSolvers[i].getBody());
+					if (m_basicSolvers[i].getActive())
+					{
+						m_window.draw(m_basicSolvers[i].getBody());
+					}
 				}
 			}
 		}
@@ -229,18 +332,51 @@ void Game::render()
 	m_window.setView(m_window.getDefaultView());
 	m_gui.drawScreens(m_window);
 	
+	if (m_gamestate == GameState::Simulation)
+	{
+		m_window.draw(m_aiInfoText);
+	}
 
 	m_window.display();
+}
+
+/// <summary>
+/// Sets up the game
+/// </summary>
+void Game::setupGame()
+{
+	m_tileSelector.setSize({ 32, 32 });
+	m_tileSelector.setFillColor(sf::Color::Transparent);
+	m_tileSelector.setOutlineColor(sf::Color::White);
+	m_tileSelector.setOutlineThickness(3.0f);
+
+	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/terrain_atlas.png"))
+	{
+		std::cout << "Error loading terrain textures";
+	}
+
+	m_textureBlock.setTexture(m_tileTextures);
+
+	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
+	{
+		std::cout << "Error loading main font (Arial)";
+	}
+
+	m_aiInfoText.setFont(m_mainFont);
+	m_aiInfoText.setFillColor(sf::Color::Black);
+	m_aiInfoText.setStyle(sf::Text::Style::Bold);
+	m_aiInfoText.setPosition(200.0f, 20.0f);
+	m_aiInfoText.setOutlineColor(sf::Color{ 225,225,225 });
+	m_aiInfoText.setOutlineThickness(2.5f);
+
+	m_constructionState = ConstructionMode::None;
+	m_selectedTileType = TileType::None;
+	m_currency = 400;
 }
 
 void Game::setupShapes()
 {
 	generateMaze();
-
-	for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-	{
-		m_basicSolvers[i].setPos(1, 0);
-	}
 
 	// Set the player's currency to 400
 	m_currency = 400;

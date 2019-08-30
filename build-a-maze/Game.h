@@ -10,6 +10,14 @@
 #include "Globals.h"
 #include "GUI.h"
 
+enum class GameState {
+	None,
+	TitleScreen,
+	BuildMode,
+	Simulation,
+	Pause
+};
+
 class Game
 {
 public:
@@ -25,6 +33,7 @@ private:
 	void update(sf::Time t_deltaTime);
 	void render();
 
+	void setupGame();
 	void setupShapes();
 	void generateMaze();
 
@@ -45,13 +54,20 @@ private:
 	int m_currency;
 
 	sf::Font m_mainFont;
+	sf::Text m_aiInfoText;
 
 	const sf::View m_gameplayView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} };
 
 	GUI m_gui;
+	GameState m_gamestate;
 
 	ConstructionMode m_constructionState;
 	TileType m_selectedTileType;
+
+	float m_timeModifier;
+	float m_prevTimeToComplete;
+	float m_timeToComplete;
+	int m_moneyEarned;
 };
 
 #endif // !GAME

@@ -18,8 +18,8 @@ enum class Direction
 class BasicSolver
 {
 	// Declare private data members
-	const int DEFAULT_MOVE_SPEED = 15;
-	const int SLOW_MOVE_SPEED = 30;
+	const int DEFAULT_MOVE_SPEED = 16;
+	const int SLOW_MOVE_SPEED = 32;
 
 	sf::Texture m_spriteSheet;
 	sf::Sprite m_body;
@@ -28,6 +28,7 @@ class BasicSolver
 	Direction m_moveDir;
 	int m_moveTimer;
 	int m_movementSpeed;
+	float m_timeModifier;
 	bool m_active;
 
 	// Texture variables
@@ -44,6 +45,9 @@ public:
 
 	inline void setMoveTimer(int t_moveDelay) { m_moveTimer = t_moveDelay; } // Set the delay between movements
 	void setPos(int t_row, int t_col);
+	inline void setActive(bool t_active) { m_active = t_active; }
+	inline void setCharacterDirection(int t_dir) { m_characterDirection = t_dir; }
+	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
 	void move(int t_maze[][MAZE_COLS]); // Move the enemy if not blocked by an enemy or wall
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
