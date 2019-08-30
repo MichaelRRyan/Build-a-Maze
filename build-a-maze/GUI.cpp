@@ -55,6 +55,9 @@ void GUI::setupFontAndText()
 	m_shopText.setFont(m_mainFont);
 	m_priceText.setFont(m_mainFont);
 	m_moneyText.setFont(m_mainFont);
+	m_numAIText.setFont(m_mainFont);
+	m_timeToCompleteText.setFont(m_mainFont);
+	m_moneyEarnedText.setFont(m_mainFont);
 
 	// Setup the shop text
 	m_shopText.setString("CONSTRUCTION SHOP");
@@ -67,15 +70,27 @@ void GUI::setupFontAndText()
 	m_moneyText.setString("BALANCE: 400");
 	m_moneyText.setFillColor(sf::Color{ 120, 112, 65 });
 	m_moneyText.setOrigin(m_moneyText.getGlobalBounds().width / 2, 0.0f);
+
+	// Setup the num AI text
+	m_numAIText.setPosition(1050, 200);
+	m_numAIText.setFillColor(sf::Color{ 120, 112, 65 });
+
+	// Setup the time to complete text
+	m_timeToCompleteText.setPosition(1050, 300);
+	m_timeToCompleteText.setFillColor(sf::Color{ 120, 112, 65 });
+
+	// Setup the money earned text
+	m_moneyEarnedText.setPosition(1050, 400);
+	m_moneyEarnedText.setFillColor(sf::Color{ 120, 112, 65 });
 }
 
 /// <summary>
-/// Draw all the game screens.
+/// Draw the GUI for the constuction game state
 /// </summary>
-/// <param name="t_window">Render Window</param>
-void GUI::drawScreens(sf::RenderWindow & t_window)
+/// <param name="t_window">Render window</param>
+void GUI::drawConstructionGUI(sf::RenderWindow & t_window)
 {
-	// Draw the shop background
+	// Draw the panel background
 	t_window.draw(m_shopBackground);
 
 	m_shopItem.setPosition(SHOP_DESTROY_TOOL_POS);
@@ -106,6 +121,43 @@ void GUI::drawScreens(sf::RenderWindow & t_window)
 
 	t_window.draw(m_shopText);
 	t_window.draw(m_moneyText);
+}
+
+/// <summary>
+/// Draw the GUI for the simulation game state
+/// </summary>
+/// <param name="t_window"></param>
+/// <param name="t_noOfAI"></param>
+/// <param name="t_timeToComplete"></param>
+/// <param name="t_moneyEarned"></param>
+void GUI::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
+{
+	// Draw the panel background
+	t_window.draw(m_shopBackground);
+
+	// Work out minutes and seconds and set the string
+	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
+	int minutes = static_cast<int>(floor(t_timeToComplete)) / 60;
+
+	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(BASIC_SOLVERS_MAX) + " Guests left in the maze");
+	m_moneyEarnedText.setString("Money earned: " + std::to_string(t_moneyEarned));
+
+	if (seconds < 10) // if below 10 seconds, add a zero before the seconds as to display correctly as a time
+	{
+		m_timeToCompleteText.setString("Time: " + std::to_string(minutes) + ":0" + std::to_string(seconds));
+	}
+	else
+	{
+		m_timeToCompleteText.setString("Time: " + std::to_string(minutes) + ":" + std::to_string(seconds));
+	}
+
+	m_numAIText.setOrigin(m_numAIText.getGlobalBounds().width / 2, 0.0f);
+	m_moneyEarnedText.setOrigin(m_moneyEarnedText.getGlobalBounds().width / 2, 0.0f);
+	m_timeToCompleteText.setOrigin(m_timeToCompleteText.getGlobalBounds().width / 2, 0.0f);
+
+	t_window.draw(m_numAIText);
+	t_window.draw(m_moneyEarnedText);
+	t_window.draw(m_timeToCompleteText);
 }
 
 void GUI::processEvents(sf::Event t_event, ConstructionMode & t_constructionState, TileType &t_selectedTileType)

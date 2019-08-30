@@ -146,11 +146,11 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 				if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
 					|| t_maze[desiredPosition.y][desiredPosition.x] == TileType::Slow)
 				{
-					m_movementSpeed = SLOW_MOVE_SPEED * m_timeModifier;
+					m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 				}
 				else
 				{
-					m_movementSpeed = DEFAULT_MOVE_SPEED * m_timeModifier;
+					m_movementSpeed = static_cast<int>(DEFAULT_MOVE_SPEED * m_timeModifier);
 				}
 
 				m_pos = desiredPosition;

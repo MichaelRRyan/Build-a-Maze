@@ -15,6 +15,8 @@ const unsigned WINDOW_HEIGHT{ 720u };
 const sf::IntRect WALL_TEXT_RECT{ 0, 832, 32, 64 };
 const sf::IntRect PLANT_TEXT_RECT{ 480, 768, 32, 64 };
 
+const float GAMEPLAY_SECTION_END{ 800.0f };
+
 enum class ConstructionMode
 {
 	None,
@@ -28,6 +30,13 @@ enum TileType {
 	Wall = 10
 };
 
+enum class GameState {
+	None,
+	TitleScreen,
+	BuildMode,
+	Simulation,
+	Pause
+};
 
 #endif // !GLOBALS_H
 

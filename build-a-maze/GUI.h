@@ -25,11 +25,16 @@ class GUI
 	sf::Text m_priceText;
 	sf::Text m_moneyText;
 
+	sf::Text m_numAIText;
+	sf::Text m_timeToCompleteText;
+	sf::Text m_moneyEarnedText;
+
 public:
 	GUI();
 	void setupShopScreen();
 	void setupFontAndText();
-	void drawScreens(sf::RenderWindow &t_window);
+	void drawConstructionGUI(sf::RenderWindow &t_window);
+	void drawSimulationGUI(sf::RenderWindow &t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 	void processEvents(sf::Event t_event, ConstructionMode &t_constructionState, TileType &t_selectedTileType);
 	void update(sf::Vector2i t_mousePosition, int & t_money);
 };

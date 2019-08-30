@@ -19,6 +19,7 @@
 /// 27/08/2019: 18:50 - 19:21 - Added game states (Simulation &  BuildMode) and gave the user the ability to switch between them. Sped up AI movement. Added text to display how many AI are left in the maze
 /// 28/08/2019: 13:19 - 13:34 - Minor tweaks to code
 /// 30/08/2019: 12:08 - 12:45 - Gave AI the ability to see the goal within 3 tiles away to stop them walking right past it. Player now earns money at the end of a sim. Added zero in front of single digit second values display for 'time to complete'
+/// 30/08/2019: 22:40 - 23:40 - Moved sim details to side panel and made them viewable after sim ends. Stopped rendering constuction shop panel while in sim mode. Tidied and commented some code. Added pause screen
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

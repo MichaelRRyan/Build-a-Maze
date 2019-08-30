@@ -10,14 +10,6 @@
 #include "Globals.h"
 #include "GUI.h"
 
-enum class GameState {
-	None,
-	TitleScreen,
-	BuildMode,
-	Simulation,
-	Pause
-};
-
 class Game
 {
 public:
@@ -28,46 +20,61 @@ public:
 	void run();
 
 private:
-
+	// Private functions
+	// Main functions
 	void processEvents();
 	void update(sf::Time t_deltaTime);
 	void render();
 
+	// Specific functions
 	void setupGame();
 	void setupShapes();
 	void generateMaze();
 
+	// Render window and views
 	sf::RenderWindow m_window;
+	const sf::View m_gameplayView;
+
+	// Bools
 	bool m_exitGame;
+	bool m_simDetailsDisplay;
+	bool m_gamePaused;
 
-	sf::RectangleShape m_tileSelector;
-	sf::Vector2i m_selectedTile;
-	sf::Vector2i m_mousePosition;
-
-	sf::Texture m_tileTextures;
-	sf::Sprite m_textureBlock;
-
-	int m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
-
-	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
-
-	int m_currency;
-
-	sf::Font m_mainFont;
-	sf::Text m_aiInfoText;
-
-	const sf::View m_gameplayView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} };
-
-	GUI m_gui;
-	GameState m_gamestate;
-
-	ConstructionMode m_constructionState;
-	TileType m_selectedTileType;
-
+	// Numeric variables
 	float m_timeModifier;
 	float m_prevTimeToComplete;
 	float m_timeToComplete;
+	int m_currency;
 	int m_moneyEarned;
+	int m_noOfAI;
+
+	// Maze array
+	int m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
+
+	// Vectors
+	sf::Vector2i m_selectedTile;
+	sf::Vector2i m_mousePosition;
+
+	// Shapes
+	sf::RectangleShape m_tileSelector;
+	sf::RectangleShape m_pauseScreenFade; // Shape to give the pause screen a fade effect
+
+	// Sprites and textures
+	sf::Texture m_tileTextures;
+	sf::Sprite m_textureBlock;
+
+	// Font and text
+	sf::Font m_mainFont;
+	sf::Text m_pauseText;
+
+	// Objects
+	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
+
+	// Enum variables
+	GUI m_gui;
+	GameState m_gamestate;
+	ConstructionMode m_constructionState;
+	TileType m_selectedTileType;
 };
 
 #endif // !GAME

@@ -6,7 +6,8 @@ Game::Game() :
 	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Basic Game" },
 	m_exitGame{ false },
 	m_gamestate{ GameState::BuildMode }, // Set the start game state to 'BuildMode'
-	m_timeModifier{ 1 }
+	m_timeModifier{ 1 },
+	m_gameplayView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} }
 {
 	setupShapes();
 	setupGame();
@@ -64,25 +65,41 @@ void Game::processEvents()
 			{
 				if (m_gamestate == GameState::BuildMode)
 				{
-					m_gamestate = GameState::Simulation;
-
-					// Reset all AI's positions to the start of the maze
-					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					if (m_simDetailsDisplay)
 					{
-						m_basicSolvers[i].setPos(1, 0);
-						m_basicSolvers[i].setActive(true);
-						m_basicSolvers[i].setMoveTimer(i * 60);
-						m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+						m_simDetailsDisplay = false;
 					}
+					else
+					{
+						m_gamestate = GameState::Simulation;
 
-					m_prevTimeToComplete = 0;
-					m_timeToComplete = 0;
-					m_moneyEarned = 0;
+						// Reset all AI's positions to the start of the maze
+						for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+						{
+							m_basicSolvers[i].setPos(1, 0);
+							m_basicSolvers[i].setActive(true);
+							m_basicSolvers[i].setMoveTimer(i * 60);
+							m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+						}
+
+						m_prevTimeToComplete = 0;
+						m_timeToComplete = 0;
+						m_moneyEarned = 0;
+					}
 				}
 				else if (m_gamestate == GameState::Simulation)
 				{
 					m_gamestate = GameState::BuildMode;
+					m_gamePaused = false;
 				}
+			}
+			if (sf::Keyboard::P == nextEvent.key.code)
+			{
+				if (m_gamestate == GameState::Simulation)
+				{
+					m_gamePaused = !m_gamePaused;
+				}
+				
 			}
 			if (sf::Keyboard::Num1 == nextEvent.key.code)
 			{
@@ -185,49 +202,47 @@ void Game::update(sf::Time t_deltaTime)
 		m_window.close();
 	}
 
-	if (m_gamestate == GameState::Simulation)
+	if (!m_gamePaused)
 	{
-		int noOfAI = 0;
-
-		for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+		// If the game state is simulation
+		if (m_gamestate == GameState::Simulation)
 		{
-			if (m_basicSolvers[i].getActive())
+			// Reset AI count
+			m_noOfAI = 0;
+
+			// Loop through and update all AI. Count those that are still active
+			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 			{
-				m_basicSolvers[i].move(m_mazeBlocks);
-				noOfAI++;
+				if (m_basicSolvers[i].getActive())
+				{
+					m_basicSolvers[i].move(m_mazeBlocks);
+					m_noOfAI++;
+				}
 			}
-		}
 
-		if (noOfAI > 0)
-		{
-			m_timeToComplete += t_deltaTime.asSeconds() / m_timeModifier;
-		}
-		else
-		{
-			m_currency += m_moneyEarned;
-			m_gamestate = GameState::BuildMode;
-		}
+			// If there are AI in the maze count the time
+			if (m_noOfAI > 0)
+			{
+				m_timeToComplete += t_deltaTime.asSeconds() / m_timeModifier;
+			}
+			// Else add the money earned to currency and switch modes
+			else
+			{
+				m_currency += m_moneyEarned;
+				m_gamestate = GameState::BuildMode;
+				m_simDetailsDisplay = true;
+			}
 
-		if (static_cast<int>(floor(m_prevTimeToComplete)) < static_cast<int>(floor(m_timeToComplete)))
-		{
-			m_moneyEarned += noOfAI;
-			m_prevTimeToComplete = m_timeToComplete;
-		}
-
-		// Work out minutes and seconds and set the string
-		int seconds = static_cast<int>(floor(m_timeToComplete)) % 60;
-		int minutes = static_cast<int>(floor(m_timeToComplete)) / 60;
-
-		if (seconds < 10) // if below 10 seconds, add a zero before the seconds as to display correctly as a time
-		{
-			m_aiInfoText.setString(std::to_string(noOfAI) + "/" + std::to_string(BASIC_SOLVERS_MAX) + "Guests left in the maze\nTime: " + std::to_string(minutes) + ":0" + std::to_string(seconds) + "\nMoney earned: " + std::to_string(m_moneyEarned));
-		}
-		else
-		{
-			m_aiInfoText.setString(std::to_string(noOfAI) + "/" + std::to_string(BASIC_SOLVERS_MAX) + "Guests left in the maze\nTime: " + std::to_string(minutes) + ":" + std::to_string(seconds) + "\nMoney earned: " + std::to_string(m_moneyEarned));
+			// Update the money earned from a sim each second
+			if (static_cast<int>(floor(m_prevTimeToComplete)) < static_cast<int>(floor(m_timeToComplete)))
+			{
+				m_moneyEarned += m_noOfAI;
+				m_prevTimeToComplete = m_timeToComplete;
+			}
 		}
 	}
 
+	// Update the build mode GUI
 	if (m_gamestate == GameState::BuildMode)
 	{
 		m_gui.update(m_mousePosition, m_currency);
@@ -330,11 +345,20 @@ void Game::render()
 	}
 
 	m_window.setView(m_window.getDefaultView());
-	m_gui.drawScreens(m_window);
-	
-	if (m_gamestate == GameState::Simulation)
+
+	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
 	{
-		m_window.draw(m_aiInfoText);
+		m_gui.drawConstructionGUI(m_window);
+	}
+	else
+	{
+		m_gui.drawSimulationGUI(m_window, m_noOfAI, m_timeToComplete, m_moneyEarned);
+
+		if (m_gamePaused)
+		{
+			m_window.draw(m_pauseScreenFade);
+			m_window.draw(m_pauseText);
+		}
 	}
 
 	m_window.display();
@@ -350,6 +374,9 @@ void Game::setupGame()
 	m_tileSelector.setOutlineColor(sf::Color::White);
 	m_tileSelector.setOutlineThickness(3.0f);
 
+	m_pauseScreenFade.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
+	m_pauseScreenFade.setFillColor(sf::Color{ 255, 255, 255, 100 });
+
 	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/terrain_atlas.png"))
 	{
 		std::cout << "Error loading terrain textures";
@@ -362,16 +389,18 @@ void Game::setupGame()
 		std::cout << "Error loading main font (Arial)";
 	}
 
-	m_aiInfoText.setFont(m_mainFont);
-	m_aiInfoText.setFillColor(sf::Color::Black);
-	m_aiInfoText.setStyle(sf::Text::Style::Bold);
-	m_aiInfoText.setPosition(200.0f, 20.0f);
-	m_aiInfoText.setOutlineColor(sf::Color{ 225,225,225 });
-	m_aiInfoText.setOutlineThickness(2.5f);
+	m_pauseText.setString("PAUSED");
+	m_pauseText.setCharacterSize(100u);
+	m_pauseText.setFont(m_mainFont);
+	m_pauseText.setFillColor(sf::Color{0, 0, 0, 150});
+	m_pauseText.setPosition(GAMEPLAY_SECTION_END / 2.0f, static_cast<float>(WINDOW_HEIGHT) / 2.5f);
+	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 
 	m_constructionState = ConstructionMode::None;
 	m_selectedTileType = TileType::None;
 	m_currency = 400;
+	m_simDetailsDisplay = false;
+	m_gamePaused = false;
 }
 
 void Game::setupShapes()
