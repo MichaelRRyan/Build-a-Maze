@@ -16,6 +16,7 @@ const sf::IntRect WALL_TEXT_RECT{ 0, 832, 32, 64 };
 const sf::IntRect PLANT_TEXT_RECT{ 480, 768, 32, 64 };
 
 const float GAMEPLAY_SECTION_END{ 800.0f };
+const float SIM_PANEL_START{ 1000 };
 
 enum class ConstructionMode
 {
@@ -33,9 +34,9 @@ enum TileType {
 enum class GameState {
 	None,
 	TitleScreen,
+	SettingsScreen,
 	BuildMode,
-	Simulation,
-	Pause
+	Simulation
 };
 
 #endif // !GLOBALS_H

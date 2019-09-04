@@ -34,6 +34,7 @@ private:
 	// Render window and views
 	sf::RenderWindow m_window;
 	const sf::View m_gameplayView;
+	const sf::View m_constructionView;
 
 	// Bools
 	bool m_exitGame;

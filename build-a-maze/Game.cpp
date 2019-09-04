@@ -3,11 +3,12 @@
 #include "Game.h"
 
 Game::Game() :
-	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Basic Game" },
+	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
 	m_exitGame{ false },
-	m_gamestate{ GameState::BuildMode }, // Set the start game state to 'BuildMode'
-	m_timeModifier{ 1 },
-	m_gameplayView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} }
+	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'BuildMode'
+	m_timeModifier{ 1.0f },
+	m_gameplayView{ { 240.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
+	m_constructionView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} }
 {
 	setupShapes();
 	setupGame();
@@ -85,6 +86,12 @@ void Game::processEvents()
 						m_prevTimeToComplete = 0;
 						m_timeToComplete = 0;
 						m_moneyEarned = 0;
+						m_timeModifier = 1.0f;
+						for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+						{
+							m_basicSolvers[i].setTimeModifier(1);
+						}
+						std::cout << "Time set to 1" << std::endl;
 					}
 				}
 				else if (m_gamestate == GameState::Simulation)
@@ -144,13 +151,32 @@ void Game::processEvents()
 					std::cout << "Time already minimum speed" << std::endl;
 				}
 			}
+			if (sf::Keyboard::Escape == nextEvent.key.code)
+			{
+				if (m_gamestate == GameState::BuildMode)
+				{
+					if (m_constructionState == ConstructionMode::None)
+					{
+						m_gamestate = GameState::TitleScreen;
+					}
+				}
+			}
 		}
 		if (sf::Event::MouseMoved == nextEvent.type)
 		{
 			m_mousePosition = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
 
 			// convert it to world coordinates
-			sf::Vector2f worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
+			sf::Vector2f worldPos;
+
+			if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
+			{
+				worldPos = m_window.mapPixelToCoords(m_mousePosition, m_constructionView);
+			}
+			else
+			{
+				worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
+			}
 
 			m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 		}
@@ -185,6 +211,10 @@ void Game::processEvents()
 			}
 
 			m_gui.processEvents(nextEvent, m_constructionState, m_selectedTileType);
+		}
+		if (m_gamestate == GameState::TitleScreen)
+		{
+			m_gui.processTitleEvents(nextEvent, m_gamestate, m_exitGame);
 		}
 	}
 }
@@ -258,12 +288,18 @@ void Game::render()
 {
 	m_window.clear(sf::Color::White);
 
-	m_window.setView(m_gameplayView);
+	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay) {
+		m_window.setView(m_constructionView);
+	}
+	else
+	{
+		m_window.setView(m_gameplayView);
+	}
 
 	// Draw the maze background (Grass)
 	for (int row = -2; row < MAZE_ROWS + 2; row++)
 	{
-		for (int col = -2; col < MAZE_COLS + 2; col++)
+		for (int col = -8; col < MAZE_COLS + 2; col++)
 		{
 			m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE);
 
@@ -345,8 +381,11 @@ void Game::render()
 	}
 
 	m_window.setView(m_window.getDefaultView());
-
-	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
+	if (m_gamestate == GameState::TitleScreen)
+	{
+		m_gui.drawTitleScreen(m_window);
+	}
+	else if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
 	{
 		m_gui.drawConstructionGUI(m_window);
 	}
@@ -393,7 +432,7 @@ void Game::setupGame()
 	m_pauseText.setCharacterSize(100u);
 	m_pauseText.setFont(m_mainFont);
 	m_pauseText.setFillColor(sf::Color{0, 0, 0, 150});
-	m_pauseText.setPosition(GAMEPLAY_SECTION_END / 2.0f, static_cast<float>(WINDOW_HEIGHT) / 2.5f);
+	m_pauseText.setPosition(WINDOW_WIDTH / 2, static_cast<float>(WINDOW_HEIGHT) / 2.5f);
 	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 
 	m_constructionState = ConstructionMode::None;

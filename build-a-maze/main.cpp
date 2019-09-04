@@ -20,6 +20,10 @@
 /// 28/08/2019: 13:19 - 13:34 - Minor tweaks to code
 /// 30/08/2019: 12:08 - 12:45 - Gave AI the ability to see the goal within 3 tiles away to stop them walking right past it. Player now earns money at the end of a sim. Added zero in front of single digit second values display for 'time to complete'
 /// 30/08/2019: 22:40 - 23:40 - Moved sim details to side panel and made them viewable after sim ends. Stopped rendering constuction shop panel while in sim mode. Tidied and commented some code. Added pause screen
+/// 31/08/2019: 01:41 - 02:20 - Added basic title screen
+/// 02/09/2019: 01:47 - 02:17 - Added simulation stats icons and shortened the side panel during sim mode
+/// 04/09/2019: 19:04 - 19:44 - Slightly changed title screen, side panel and pause screen a bit.
+
 
 #ifdef _DEBUG 
 #pragma comment(lib,"sfml-graphics-d.lib") 

@@ -9,6 +9,14 @@ GUI::GUI()
 {
 	setupShopScreen();
 	setupFontAndText();
+
+	m_titleScreenBackground.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
+	m_titleScreenBackground.setFillColor(sf::Color{ sf::Color{ 247, 230, 134 } });
+
+	m_titleScreenButton.setPosition(PLAY_BUTTON_POSITION);
+	m_titleScreenButton.setSize(PLAY_BUTTON_SIZE);
+	m_titleScreenButton.setOutlineColor(sf::Color{ 120, 112, 65 });
+	m_titleScreenButton.setOutlineThickness(5.0f);
 }
 
 /// <summary>
@@ -35,9 +43,18 @@ void GUI::setupShopScreen()
 		std::cout << "Error loading terrain textures";
 	}
 
+	if (!m_iconsTexture.loadFromFile("ASSETS/IMAGES/icons.png"))
+	{
+		std::cout << "Error loading icons textures";
+	}
+
 	// setup the shop item image sprite
 	m_shopItemImage.setTexture(m_tilesTexture);
 	m_shopItemImage.setScale(1.8f, 1.8f);
+
+	m_iconsSprite.setTexture(m_iconsTexture);
+	m_iconsSprite.setTextureRect(sf::IntRect{ 0,0,32,32 });
+	m_iconsSprite.setScale(1.8f, 1.8f);
 }
 
 /// <summary>
@@ -58,6 +75,8 @@ void GUI::setupFontAndText()
 	m_numAIText.setFont(m_mainFont);
 	m_timeToCompleteText.setFont(m_mainFont);
 	m_moneyEarnedText.setFont(m_mainFont);
+	m_titleScreenButtonText.setFont(m_mainFont);
+	m_titleText.setFont(m_mainFont);
 
 	// Setup the shop text
 	m_shopText.setString("CONSTRUCTION SHOP");
@@ -66,22 +85,34 @@ void GUI::setupFontAndText()
 	m_shopText.setOrigin(m_shopText.getGlobalBounds().width / 2, 0.0f);
 
 	// Setup the money text
-	m_moneyText.setPosition(1050, 80);
+	m_moneyText.setPosition(1050.0f, 80.0f);
 	m_moneyText.setString("BALANCE: 400");
 	m_moneyText.setFillColor(sf::Color{ 120, 112, 65 });
 	m_moneyText.setOrigin(m_moneyText.getGlobalBounds().width / 2, 0.0f);
 
 	// Setup the num AI text
-	m_numAIText.setPosition(1050, 200);
+	m_numAIText.setPosition(SIM_ICONS_START_POS + SIM_ICONS_TEXT_SPACING);
 	m_numAIText.setFillColor(sf::Color{ 120, 112, 65 });
 
 	// Setup the time to complete text
-	m_timeToCompleteText.setPosition(1050, 300);
+	m_timeToCompleteText.setPosition(SIM_ICONS_START_POS + SIM_ICONS_TEXT_SPACING + SIM_ICONS_SPACING);
 	m_timeToCompleteText.setFillColor(sf::Color{ 120, 112, 65 });
 
 	// Setup the money earned text
-	m_moneyEarnedText.setPosition(1050, 400);
+	m_moneyEarnedText.setPosition(SIM_ICONS_START_POS + SIM_ICONS_TEXT_SPACING + SIM_ICONS_SPACING * 2.0f);
 	m_moneyEarnedText.setFillColor(sf::Color{ 120, 112, 65 });
+
+	// Setup the title screen button text
+	m_titleScreenButtonText.setFillColor(sf::Color::Black);
+	m_titleScreenButtonText.setCharacterSize(40u);
+
+	// Setup title text
+	m_titleText.setString("Build-a-Maze!");
+	m_titleText.setPosition(WINDOW_WIDTH / 2, 80.0f);
+	m_titleText.setFillColor(sf::Color::Black);
+	m_titleText.setCharacterSize(120u);
+	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2, 0.0f);
+	
 }
 
 /// <summary>
@@ -91,6 +122,7 @@ void GUI::setupFontAndText()
 void GUI::drawConstructionGUI(sf::RenderWindow & t_window)
 {
 	// Draw the panel background
+	m_shopBackground.setPosition(GAMEPLAY_SECTION_END, 0.0f);
 	t_window.draw(m_shopBackground);
 
 	m_shopItem.setPosition(SHOP_DESTROY_TOOL_POS);
@@ -133,31 +165,101 @@ void GUI::drawConstructionGUI(sf::RenderWindow & t_window)
 void GUI::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Draw the panel background
+	m_shopBackground.setPosition(SIM_PANEL_START, 0.0f);
+
 	t_window.draw(m_shopBackground);
 
 	// Work out minutes and seconds and set the string
 	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
 	int minutes = static_cast<int>(floor(t_timeToComplete)) / 60;
 
-	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(BASIC_SOLVERS_MAX) + " Guests left in the maze");
-	m_moneyEarnedText.setString("Money earned: " + std::to_string(t_moneyEarned));
+	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(BASIC_SOLVERS_MAX));
+	
+	// Draw the icons
+	m_iconsSprite.setPosition(SIM_ICONS_START_POS);
+	for (int i = 0; i < 3; i++)
+	{
+		// Money earned icon
+		m_iconsSprite.setTextureRect(sf::IntRect{ 32 * i,0,32,32 });
+		t_window.draw(m_iconsSprite);
+		m_iconsSprite.move(SIM_ICONS_SPACING);
+	}
 
 	if (seconds < 10) // if below 10 seconds, add a zero before the seconds as to display correctly as a time
 	{
-		m_timeToCompleteText.setString("Time: " + std::to_string(minutes) + ":0" + std::to_string(seconds));
+		m_timeToCompleteText.setString(std::to_string(minutes) + ":0" + std::to_string(seconds));
 	}
 	else
 	{
-		m_timeToCompleteText.setString("Time: " + std::to_string(minutes) + ":" + std::to_string(seconds));
+		m_timeToCompleteText.setString(std::to_string(minutes) + ":" + std::to_string(seconds));
 	}
 
-	m_numAIText.setOrigin(m_numAIText.getGlobalBounds().width / 2, 0.0f);
-	m_moneyEarnedText.setOrigin(m_moneyEarnedText.getGlobalBounds().width / 2, 0.0f);
-	m_timeToCompleteText.setOrigin(m_timeToCompleteText.getGlobalBounds().width / 2, 0.0f);
+	m_moneyEarnedText.setString(std::to_string(t_moneyEarned));
 
 	t_window.draw(m_numAIText);
 	t_window.draw(m_moneyEarnedText);
 	t_window.draw(m_timeToCompleteText);
+}
+
+/// <summary>
+/// Draw the title screen
+/// </summary>
+/// <param name="t_window"></param>
+void GUI::drawTitleScreen(sf::RenderWindow & t_window)
+{
+	t_window.draw(m_titleScreenBackground);
+
+	t_window.draw(m_titleText);
+
+	m_titleScreenButton.setPosition(PLAY_BUTTON_POSITION);
+	m_titleScreenButtonText.setPosition(PLAY_BUTTON_POSITION.x + PLAY_BUTTON_SIZE.x / 2.0f, PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y / 2.0f - 10.0f);
+	for (int i = 0; i < 3; i++)
+	{
+		t_window.draw(m_titleScreenButton);
+		m_titleScreenButton.move(0.0f, PLAY_BUTTON_SIZE.y * 1.5f);
+
+		if (i == 0)
+		{
+			m_titleScreenButtonText.setString("START");
+		}
+		else if (i == 1)
+		{
+			m_titleScreenButtonText.setString("SETTINGS");
+		}
+		else
+		{
+			m_titleScreenButtonText.setString("EXIT");
+		}
+		
+		m_titleScreenButtonText.setOrigin(m_titleScreenButtonText.getGlobalBounds().width / 2, m_titleScreenButtonText.getGlobalBounds().height / 2);
+		t_window.draw(m_titleScreenButtonText);
+		m_titleScreenButtonText.move(0.0f, PLAY_BUTTON_SIZE.y * 1.5f);
+	}
+}
+
+void GUI::processTitleEvents(sf::Event t_event, GameState &t_gameState, bool &t_exitGame)
+{
+	if (sf::Event::MouseButtonPressed == t_event.type)
+	{
+		if (sf::Mouse::Left == t_event.mouseButton.button)
+		{
+			if (t_event.mouseButton.x > PLAY_BUTTON_POSITION.x
+				&& t_event.mouseButton.x < PLAY_BUTTON_POSITION.x + PLAY_BUTTON_SIZE.x)
+			{
+				if (t_event.mouseButton.y > PLAY_BUTTON_POSITION.y
+					&& t_event.mouseButton.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y)
+				{
+					t_gameState = GameState::BuildMode;
+				}
+
+				if (t_event.mouseButton.y > PLAY_BUTTON_POSITION.y + (PLAY_BUTTON_SIZE.y * 3)
+					&& t_event.mouseButton.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y + (PLAY_BUTTON_SIZE.y * 3))
+				{
+					t_exitGame = true;
+				}
+			}
+		}
+	}
 }
 
 void GUI::processEvents(sf::Event t_event, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
