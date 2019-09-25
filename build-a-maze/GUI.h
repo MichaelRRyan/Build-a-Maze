@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "Globals.h"
+#include "XBox360Controller.h"
 
 class GUI
 {
@@ -62,7 +63,7 @@ public:
 	void drawTitleScreen(sf::RenderWindow &t_window);
 
 	void processTitleEvents(sf::Event t_event, GameState &t_gameState, bool &t_exitGame);
-	void processEvents(sf::Event t_event, ConstructionMode &t_constructionState, TileType &t_selectedTileType);
+	void processEvents(sf::Event t_event, sf::Vector2i t_mousePos, XBox360Controller t_controller, ConstructionMode &t_constructionState, TileType &t_selectedTileType);
 	void update(sf::Vector2i t_mousePosition, int & t_money);
 };
 

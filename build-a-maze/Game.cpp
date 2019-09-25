@@ -12,6 +12,7 @@ Game::Game() :
 {
 	setupShapes();
 	setupGame();
+	m_controller.connect();
 }
 
 Game::~Game()
@@ -210,7 +211,7 @@ void Game::processEvents()
 				}
 			}
 
-			m_gui.processEvents(nextEvent, m_constructionState, m_selectedTileType);
+			m_gui.processEvents(nextEvent, m_mousePosition, m_controller, m_constructionState, m_selectedTileType);
 		}
 		if (m_gamestate == GameState::TitleScreen)
 		{
@@ -276,6 +277,73 @@ void Game::update(sf::Time t_deltaTime)
 	if (m_gamestate == GameState::BuildMode)
 	{
 		m_gui.update(m_mousePosition, m_currency);
+	}
+
+	if (m_constructionState == ConstructionMode::Placing)
+	{
+		m_cursor.setTextureRect(sf::IntRect{ { 128, 0 }, { 64, 64 } });
+	}
+	else if (m_constructionState == ConstructionMode::Destroying)
+	{
+		m_cursor.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
+	}
+	else
+	{
+		m_cursor.setTextureRect(sf::IntRect{ { 0, 0 }, { 64, 64 } });
+	}
+
+	m_controller.update();
+
+	// Controller Right
+	if (m_controller.currentState.LeftThumbStick.x > 15.0f)
+	{
+		if (m_mousePosition.x < WINDOW_WIDTH - m_cursor.getGlobalBounds().width / 2.0f)
+		{
+			m_mousePosition.x += m_controller.currentState.LeftThumbStick.x / 2.0f;
+		}
+		else
+		{
+			m_mousePosition.x = WINDOW_WIDTH - m_cursor.getGlobalBounds().width / 2.0f;
+		}
+	}
+
+	// Controller Left
+	if (m_controller.currentState.LeftThumbStick.x < -15.0f)
+	{
+		if (m_mousePosition.x > 0.0f)
+		{
+			m_mousePosition.x += m_controller.currentState.LeftThumbStick.x / 2.0f;
+		}
+		else
+		{
+			m_mousePosition.x = 0.0f;
+		}
+	}
+
+	// Controller Down
+	if (m_controller.currentState.LeftThumbStick.y > 15.0f)
+	{
+		if (m_mousePosition.y < WINDOW_HEIGHT - m_cursor.getGlobalBounds().height / 2.0f)
+		{
+			m_mousePosition.y += m_controller.currentState.LeftThumbStick.y / 2.0f;
+		}
+		else
+		{
+			m_mousePosition.y = WINDOW_HEIGHT - m_cursor.getGlobalBounds().height / 2.0f;
+		}
+	}
+
+	// Controller Up
+	if (m_controller.currentState.LeftThumbStick.y < -15.0f)
+	{
+		if (m_mousePosition.y > 0.0f)
+		{
+			m_mousePosition.y += m_controller.currentState.LeftThumbStick.y / 2.0f;
+		}
+		else
+		{
+			m_mousePosition.y = 0.0f;
+		}
 	}
 }
 
@@ -400,6 +468,9 @@ void Game::render()
 		}
 	}
 
+	m_cursor.setPosition(static_cast<sf::Vector2f>(m_mousePosition));
+	m_window.draw(m_cursor);
+
 	m_window.display();
 }
 
@@ -408,6 +479,8 @@ void Game::render()
 /// </summary>
 void Game::setupGame()
 {
+	m_window.setMouseCursorVisible(false);
+
 	m_tileSelector.setSize({ 32, 32 });
 	m_tileSelector.setFillColor(sf::Color::Transparent);
 	m_tileSelector.setOutlineColor(sf::Color::White);
@@ -421,7 +494,15 @@ void Game::setupGame()
 		std::cout << "Error loading terrain textures";
 	}
 
+	if (!m_cursorTexture.loadFromFile("ASSETS/IMAGES/Cursors.png"))
+	{
+		std::cout << "Error loading cursor texture";
+	}
+
 	m_textureBlock.setTexture(m_tileTextures);
+	m_cursor.setTexture(m_cursorTexture);
+	m_cursor.setTextureRect(sf::IntRect{ { 0,0 }, { 64,64 } });
+	m_cursor.setOrigin(12.0f, 0.0f);
 
 	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
 	{

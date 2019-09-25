@@ -23,6 +23,7 @@
 /// 31/08/2019: 01:41 - 02:20 - Added basic title screen
 /// 02/09/2019: 01:47 - 02:17 - Added simulation stats icons and shortened the side panel during sim mode
 /// 04/09/2019: 19:04 - 19:44 - Slightly changed title screen, side panel and pause screen a bit.
+/// 25/09/2019: 13:50 - 15:00 - Added basic controller support and added three new cursors
 
 
 #ifdef _DEBUG 

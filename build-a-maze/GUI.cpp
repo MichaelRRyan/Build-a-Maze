@@ -262,38 +262,38 @@ void GUI::processTitleEvents(sf::Event t_event, GameState &t_gameState, bool &t_
 	}
 }
 
-void GUI::processEvents(sf::Event t_event, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
+void GUI::processEvents(sf::Event t_event, sf::Vector2i t_mousePos, XBox360Controller t_controller, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
 {
 	// Check for a mouse click event
-	if (sf::Event::MouseButtonPressed == t_event.type)
+	if ((sf::Event::MouseButtonPressed == t_event.type && sf::Mouse::Left == t_event.mouseButton.button)
+		|| (t_controller.currentState.A && t_controller.previousState.A))
 	{
-		if (sf::Mouse::Left == t_event.mouseButton.button)
+
+		// Wall item
+		if (t_mousePos.x > SHOP_ITEM_START_POS.x && t_mousePos.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SIZE.x
+			&& t_mousePos.y > SHOP_ITEM_START_POS.y && t_mousePos.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
 		{
-			// Wall item
-			if (t_event.mouseButton.x > SHOP_ITEM_START_POS.x && t_event.mouseButton.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SIZE.x
-				&& t_event.mouseButton.y > SHOP_ITEM_START_POS.y && t_event.mouseButton.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
-			{
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::Wall;
-				std::cout << "Mode Switched to 'Placing' the 'Wall' tile" << std::endl;
-			}
-
-			if (t_event.mouseButton.x > SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x && t_event.mouseButton.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x + SHOP_ITEM_SIZE.x
-				&& t_event.mouseButton.y > SHOP_ITEM_START_POS.y && t_event.mouseButton.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
-			{
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::Slow;
-				std::cout << "Mode Switched to 'Placing' the 'Plant' tile" << std::endl;
-			}
-
-			// Destroy tool
-			if (t_event.mouseButton.x > SHOP_DESTROY_TOOL_POS.x && t_event.mouseButton.x < SHOP_DESTROY_TOOL_POS.x + SHOP_ITEM_SIZE.x
-				&& t_event.mouseButton.y > SHOP_DESTROY_TOOL_POS.y && t_event.mouseButton.y < SHOP_DESTROY_TOOL_POS.y + SHOP_ITEM_SIZE.y)
-			{
-				t_constructionState = ConstructionMode::Destroying;
-				std::cout << "Mode Switched to 'Destroying'" << std::endl;
-			}
+			t_constructionState = ConstructionMode::Placing;
+			t_selectedTileType = TileType::Wall;
+			std::cout << "Mode Switched to 'Placing' the 'Wall' tile" << std::endl;
 		}
+
+		if (t_mousePos.x > SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x && t_mousePos.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x + SHOP_ITEM_SIZE.x
+			&& t_mousePos.y > SHOP_ITEM_START_POS.y && t_mousePos.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
+		{
+			t_constructionState = ConstructionMode::Placing;
+			t_selectedTileType = TileType::Slow;
+			std::cout << "Mode Switched to 'Placing' the 'Plant' tile" << std::endl;
+		}
+
+		// Destroy tool
+		if (t_mousePos.x > SHOP_DESTROY_TOOL_POS.x && t_mousePos.x < SHOP_DESTROY_TOOL_POS.x + SHOP_ITEM_SIZE.x
+			&& t_mousePos.y > SHOP_DESTROY_TOOL_POS.y && t_mousePos.y < SHOP_DESTROY_TOOL_POS.y + SHOP_ITEM_SIZE.y)
+		{
+			t_constructionState = ConstructionMode::Destroying;
+			std::cout << "Mode Switched to 'Destroying'" << std::endl;
+		}
+
 	}
 	if (sf::Event::KeyPressed == t_event.type)
 	{

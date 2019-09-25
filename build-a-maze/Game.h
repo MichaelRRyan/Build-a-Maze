@@ -9,18 +9,19 @@
 #include "BasicSolver.h"
 #include "Globals.h"
 #include "GUI.h"
+#include "XBox360Controller.h"
 
 class Game
 {
 public:
-
+	// ********************** Public Functions **********************
 	Game();
 	~Game();
 
 	void run();
 
 private:
-	// Private functions
+	// ********************* Private Functions *********************
 	// Main functions
 	void processEvents();
 	void update(sf::Time t_deltaTime);
@@ -30,6 +31,8 @@ private:
 	void setupGame();
 	void setupShapes();
 	void generateMaze();
+
+	// ************************* Variables *************************
 
 	// Render window and views
 	sf::RenderWindow m_window;
@@ -62,7 +65,9 @@ private:
 
 	// Sprites and textures
 	sf::Texture m_tileTextures;
+	sf::Texture m_cursorTexture;
 	sf::Sprite m_textureBlock;
+	sf::Sprite m_cursor;
 
 	// Font and text
 	sf::Font m_mainFont;
@@ -70,6 +75,7 @@ private:
 
 	// Objects
 	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
+	XBox360Controller m_controller;
 
 	// Enum variables
 	GUI m_gui;
