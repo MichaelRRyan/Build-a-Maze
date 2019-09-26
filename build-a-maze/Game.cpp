@@ -12,7 +12,7 @@ Game::Game() :
 {
 	setupShapes();
 	setupGame();
-	m_controller.connect();
+	m_controllerConnected = m_controller.connect();
 }
 
 Game::~Game()
@@ -55,167 +55,186 @@ void Game::processEvents()
 		{
 			m_window.close();
 		}
+		processKeyboardEvents(nextEvent);
+		processMouseEvents(nextEvent);
 
-		if (sf::Event::KeyPressed == nextEvent.type) {
-#ifdef _DEBUG
-			if (sf::Keyboard::R == nextEvent.key.code)
-			{
-				setupShapes();
-			}
-#endif // _DEBUG
-			if (sf::Keyboard::Space == nextEvent.key.code)
-			{
-				if (m_gamestate == GameState::BuildMode)
-				{
-					if (m_simDetailsDisplay)
-					{
-						m_simDetailsDisplay = false;
-					}
-					else
-					{
-						m_gamestate = GameState::Simulation;
-
-						// Reset all AI's positions to the start of the maze
-						for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-						{
-							m_basicSolvers[i].setPos(1, 0);
-							m_basicSolvers[i].setActive(true);
-							m_basicSolvers[i].setMoveTimer(i * 60);
-							m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
-						}
-
-						m_prevTimeToComplete = 0;
-						m_timeToComplete = 0;
-						m_moneyEarned = 0;
-						m_timeModifier = 1.0f;
-						for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-						{
-							m_basicSolvers[i].setTimeModifier(1);
-						}
-						std::cout << "Time set to 1" << std::endl;
-					}
-				}
-				else if (m_gamestate == GameState::Simulation)
-				{
-					m_gamestate = GameState::BuildMode;
-					m_gamePaused = false;
-				}
-			}
-			if (sf::Keyboard::P == nextEvent.key.code)
-			{
-				if (m_gamestate == GameState::Simulation)
-				{
-					m_gamePaused = !m_gamePaused;
-				}
-				
-			}
-			if (sf::Keyboard::Num1 == nextEvent.key.code)
-			{
-				if (m_timeModifier > 0.25)
-				{
-					m_timeModifier *= 0.5f;
-
-					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-					{
-						m_basicSolvers[i].setTimeModifier(m_timeModifier);
-					}
-					std::cout << "Time set to " << m_timeModifier << std::endl;
-				}
-				else
-				{
-					std::cout << "Time already maximum speed" << std::endl;
-				}
-			}
-			else if (sf::Keyboard::Num2 == nextEvent.key.code)
-			{
-				m_timeModifier = 1;
-				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-				{
-					m_basicSolvers[i].setTimeModifier(1);
-				}
-				std::cout << "Time set to 1" << std::endl;
-			}
-			else if (sf::Keyboard::Num3 == nextEvent.key.code)
-			{
-				if (m_timeModifier < 4)
-				{
-					m_timeModifier *= 2.0f;
-
-					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-					{
-						m_basicSolvers[i].setTimeModifier(m_timeModifier);
-					}
-					std::cout << "Time set to " << m_timeModifier << std::endl;
-				}
-				else
-				{
-					std::cout << "Time already minimum speed" << std::endl;
-				}
-			}
-			if (sf::Keyboard::Escape == nextEvent.key.code)
-			{
-				if (m_gamestate == GameState::BuildMode)
-				{
-					if (m_constructionState == ConstructionMode::None)
-					{
-						m_gamestate = GameState::TitleScreen;
-					}
-				}
-			}
-		}
-		if (sf::Event::MouseMoved == nextEvent.type)
-		{
-			m_mousePosition = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
-
-			// convert it to world coordinates
-			sf::Vector2f worldPos;
-
-			if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
-			{
-				worldPos = m_window.mapPixelToCoords(m_mousePosition, m_constructionView);
-			}
-			else
-			{
-				worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
-			}
-
-			m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
-		}
-		if (m_gamestate == GameState::BuildMode)
-		{
-			if (sf::Event::MouseButtonPressed == nextEvent.type)
-			{
-				if (sf::Mouse::Left == nextEvent.mouseButton.button)
-				{
-					// Make sure the player doesn't remove the outer boundary
-					if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
-						&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
-					{
-						// Check if the player clicked a wall
-						if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
-							&& m_constructionState == ConstructionMode::Destroying)
-						{
-							m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
-							m_currency += 25;
-							m_constructionState = ConstructionMode::None;
-						}
-						// Else the player clicked the ground. Make sure there is enough money for a wall
-						else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
-							&& m_constructionState == ConstructionMode::Placing)
-						{
-							m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
-							m_currency -= 30;
-							m_constructionState = ConstructionMode::None;
-						}
-					}
-				}
-			}
-
-			m_gui.processEvents(nextEvent, m_mousePosition, m_controller, m_constructionState, m_selectedTileType);
-		}
 		if (m_gamestate == GameState::TitleScreen)
 		{
 			m_gui.processTitleEvents(nextEvent, m_gamestate, m_exitGame);
+		}
+
+		m_gui.processEvents(nextEvent, m_mousePosition, m_controller, m_constructionState, m_selectedTileType);
+
+	} // End while poll event
+}
+
+/// <summary>
+/// Processes user keyboard events in the game
+/// </summary>
+/// <param name="t_event">Current Event</param>
+void Game::processKeyboardEvents(sf::Event t_event)
+{
+	if (sf::Event::KeyPressed == t_event.type)
+	{
+		if (sf::Keyboard::Space == t_event.key.code)
+		{
+			if (m_gamestate == GameState::BuildMode)
+			{
+				if (m_simDetailsDisplay)
+				{
+					m_simDetailsDisplay = false;
+				}
+				else
+				{
+					m_gamestate = GameState::Simulation;
+
+					// Reset all AI's positions to the start of the maze
+					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					{
+						m_basicSolvers[i].setPos(1, 0);
+						m_basicSolvers[i].setActive(true);
+						m_basicSolvers[i].setMoveTimer(i * 60);
+						m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+					}
+
+					m_constructionState = ConstructionMode::None;
+					m_prevTimeToComplete = 0;
+					m_timeToComplete = 0;
+					m_moneyEarned = 0;
+					m_timeModifier = 1.0f;
+					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					{
+						m_basicSolvers[i].setTimeModifier(1);
+					}
+					std::cout << "Time set to 1" << std::endl;
+				}
+			}
+			else if (m_gamestate == GameState::Simulation)
+			{
+				m_gamestate = GameState::BuildMode;
+				m_gamePaused = false;
+			}
+		}
+
+		if (sf::Keyboard::P == t_event.key.code)
+		{
+			if (m_gamestate == GameState::Simulation)
+			{
+				m_gamePaused = !m_gamePaused;
+			}
+
+		}
+
+		if (sf::Keyboard::Num1 == t_event.key.code)
+		{
+			if (m_timeModifier > 0.25)
+			{
+				m_timeModifier *= 0.5f;
+
+				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+				{
+					m_basicSolvers[i].setTimeModifier(m_timeModifier);
+				}
+				std::cout << "Time set to " << m_timeModifier << std::endl;
+			}
+			else
+			{
+				std::cout << "Time already maximum speed" << std::endl;
+			}
+		}
+		else if (sf::Keyboard::Num2 == t_event.key.code)
+		{
+			m_timeModifier = 1;
+			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+			{
+				m_basicSolvers[i].setTimeModifier(1);
+			}
+			std::cout << "Time set to 1" << std::endl;
+		}
+		else if (sf::Keyboard::Num3 == t_event.key.code)
+		{
+			if (m_timeModifier < 4)
+			{
+				m_timeModifier *= 2.0f;
+
+				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+				{
+					m_basicSolvers[i].setTimeModifier(m_timeModifier);
+				}
+				std::cout << "Time set to " << m_timeModifier << std::endl;
+			}
+			else
+			{
+				std::cout << "Time already minimum speed" << std::endl;
+			}
+		}
+
+		if (sf::Keyboard::Escape == t_event.key.code)
+		{
+			if (m_gamestate == GameState::BuildMode)
+			{
+				if (m_constructionState == ConstructionMode::None)
+				{
+					m_gamestate = GameState::TitleScreen;
+				}
+			}
+		}
+	}
+}
+
+/// <summary>
+/// Processes the user mouse events for the game
+/// </summary>
+/// <param name="t_event">Current event</param>
+void Game::processMouseEvents(sf::Event t_event)
+{
+	if (sf::Event::MouseMoved == t_event.type)
+	{
+		m_mousePosition = { static_cast<int>(t_event.mouseMove.x), static_cast<int>(t_event.mouseMove.y) };
+
+		// convert it to world coordinates
+		sf::Vector2f worldPos;
+
+		if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
+		{
+			worldPos = m_window.mapPixelToCoords(m_mousePosition, m_constructionView);
+		}
+		else
+		{
+			worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
+		}
+
+		m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
+	}
+	if (sf::Event::MouseButtonPressed == t_event.type)
+	{
+		if (sf::Mouse::Left == t_event.mouseButton.button)
+		{
+			if (m_gamestate == GameState::BuildMode)
+			{
+		
+				// Make sure the player doesn't remove the outer boundary
+				if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
+					&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
+				{
+					// Check if the player clicked a wall
+					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
+						&& m_constructionState == ConstructionMode::Destroying)
+					{
+						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
+						m_currency += 25;
+						m_constructionState = ConstructionMode::None;
+					}
+					// Else the player clicked the ground. Make sure there is enough money for a wall
+					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
+						&& m_constructionState == ConstructionMode::Placing)
+					{
+						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
+						m_currency -= 30;
+						m_constructionState = ConstructionMode::None;
+					}
+				}
+			}
 		}
 	}
 }
@@ -292,6 +311,18 @@ void Game::update(sf::Time t_deltaTime)
 		m_cursor.setTextureRect(sf::IntRect{ { 0, 0 }, { 64, 64 } });
 	}
 
+	// Update the controller if connected
+	if (m_controllerConnected)
+	{
+		updateController();
+	}
+}
+
+/// <summary>
+/// Update the controller and take input
+/// </summary>
+void Game::updateController()
+{
 	m_controller.update();
 
 	// Controller Right
@@ -448,6 +479,7 @@ void Game::render()
 		}
 	}
 
+	// Draws GUI
 	m_window.setView(m_window.getDefaultView());
 	if (m_gamestate == GameState::TitleScreen)
 	{

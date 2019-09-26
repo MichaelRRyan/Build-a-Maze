@@ -24,7 +24,10 @@ private:
 	// ********************* Private Functions *********************
 	// Main functions
 	void processEvents();
+	void processKeyboardEvents(sf::Event t_event);
+	void processMouseEvents(sf::Event t_event);
 	void update(sf::Time t_deltaTime);
+	void updateController();
 	void render();
 
 	// Specific functions
@@ -43,6 +46,7 @@ private:
 	bool m_exitGame;
 	bool m_simDetailsDisplay;
 	bool m_gamePaused;
+	bool m_controllerConnected;
 
 	// Numeric variables
 	float m_timeModifier;
