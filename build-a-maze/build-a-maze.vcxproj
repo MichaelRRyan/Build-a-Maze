@@ -125,6 +125,7 @@
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />
+    <ClCompile Include="Mathematician.cpp" />
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +133,7 @@
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="Mathematician.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stack>
 #include "BasicSolver.h"
+#include "Mathematician.h"
 #include "Globals.h"
 #include "GUI.h"
 #include "XBox360Controller.h"
@@ -79,6 +80,7 @@ private:
 
 	// Objects
 	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
+	Mathematician m_mathematician;
 	XBox360Controller m_controller;
 
 	// Enum variables

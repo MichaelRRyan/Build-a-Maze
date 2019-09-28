@@ -1,12 +1,13 @@
 /// @Author Michael Rainsford Ryan
-#ifndef BASIC_SOLVER_H
-#define BASIC_SOLVER_H
+/// @Date 28/09/2019
+#ifndef MATHEMATICIAN_H
+#define MATHEMATICIAN_
 
 #include <SFML\Graphics.hpp>
 #include "Globals.h"
 #include <iostream>
 
-class BasicSolver
+class Mathematician
 {
 	// Declare private data members
 	const int DEFAULT_MOVE_SPEED = 16;
@@ -21,13 +22,14 @@ class BasicSolver
 	int m_movementSpeed;
 	float m_timeModifier;
 	bool m_active;
+	bool m_takeLefts; // True take all left turns, false take all right turns
 
 	// Texture variables
 	sf::Vector2i m_characterNumber;
 	int m_characterDirection;
 
 public:
-	BasicSolver();
+	Mathematician();
 	void loadFiles();
 
 	inline sf::Sprite getBody() { return m_body; }
@@ -41,10 +43,12 @@ public:
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
 	void move(int t_maze[][MAZE_COLS]); // Move the enemy if not blocked by an enemy or wall
+	void checkForExit(int t_maze[][MAZE_COLS]); // Check if the exit of the maze is within sight, set direction towards it
+	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
 	static sf::Vector2i getDirectionVector(Direction t_direction);
 	static Direction getDirection(sf::Vector2i t_directionVec);
 };
 
-#endif // !BASIC_SOLVER_H
+#endif // !MATHEMATICIAN_H

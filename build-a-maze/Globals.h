@@ -39,5 +39,14 @@ enum class GameState {
 	Simulation
 };
 
+enum class Direction
+{
+	None,
+	North,
+	South,
+	West,
+	East
+};
+
 #endif // !GLOBALS_H
 

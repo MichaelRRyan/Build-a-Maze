@@ -97,6 +97,12 @@ void Game::processKeyboardEvents(sf::Event t_event)
 						m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
 					}
 
+
+					m_mathematician.setPos(1, 0);
+					m_mathematician.setActive(true);
+					m_mathematician.setMoveTimer(BASIC_SOLVERS_MAX * 60);
+					m_mathematician.setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+
 					m_constructionState = ConstructionMode::None;
 					m_prevTimeToComplete = 0;
 					m_timeToComplete = 0;
@@ -106,6 +112,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 					{
 						m_basicSolvers[i].setTimeModifier(1);
 					}
+
+					m_mathematician.setTimeModifier(1);
+
 					std::cout << "Time set to 1" << std::endl;
 				}
 			}
@@ -135,6 +144,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				{
 					m_basicSolvers[i].setTimeModifier(m_timeModifier);
 				}
+
+				m_mathematician.setTimeModifier(m_timeModifier);
+
 				std::cout << "Time set to " << m_timeModifier << std::endl;
 			}
 			else
@@ -149,6 +161,8 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			{
 				m_basicSolvers[i].setTimeModifier(1);
 			}
+
+			m_mathematician.setTimeModifier(1);
 			std::cout << "Time set to 1" << std::endl;
 		}
 		else if (sf::Keyboard::Num3 == t_event.key.code)
@@ -161,6 +175,8 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				{
 					m_basicSolvers[i].setTimeModifier(m_timeModifier);
 				}
+
+				m_mathematician.setTimeModifier(m_timeModifier);
 				std::cout << "Time set to " << m_timeModifier << std::endl;
 			}
 			else
@@ -269,6 +285,13 @@ void Game::update(sf::Time t_deltaTime)
 					m_noOfAI++;
 				}
 			}
+
+			if (m_mathematician.getActive())
+			{
+				m_mathematician.move(m_mazeBlocks);
+				m_noOfAI++;
+			}
+			
 
 			// If there are AI in the maze count the time
 			if (m_noOfAI > 0)
@@ -476,6 +499,16 @@ void Game::render()
 					}
 				}
 			}
+
+
+			if (m_mathematician.getPos().y == row)
+			{
+				if (m_mathematician.getActive())
+				{
+					m_window.draw(m_mathematician.getBody());
+				}
+			}
+			
 		}
 	}
 
