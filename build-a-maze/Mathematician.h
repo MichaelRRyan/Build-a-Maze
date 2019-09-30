@@ -10,8 +10,8 @@
 class Mathematician
 {
 	// Declare private data members
-	const int DEFAULT_MOVE_SPEED = 16;
-	const int SLOW_MOVE_SPEED = 32;
+	const int DEFAULT_MOVE_SPEED = 20;
+	const int SLOW_MOVE_SPEED = 40;
 
 	sf::Texture m_spriteSheet;
 	sf::Sprite m_body;

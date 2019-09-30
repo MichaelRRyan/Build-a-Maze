@@ -88,6 +88,12 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				{
 					m_gamestate = GameState::Simulation;
 
+					m_constructionState = ConstructionMode::None;
+					m_prevTimeToComplete = 0;
+					m_timeToComplete = 0;
+					m_moneyEarned = 0;
+					m_timeModifier = 1.0f;
+
 					// Reset all AI's positions to the start of the maze
 					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 					{
@@ -95,25 +101,18 @@ void Game::processKeyboardEvents(sf::Event t_event)
 						m_basicSolvers[i].setActive(true);
 						m_basicSolvers[i].setMoveTimer(i * 60);
 						m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
-					}
-
-
-					m_mathematician.setPos(1, 0);
-					m_mathematician.setActive(true);
-					m_mathematician.setMoveTimer(BASIC_SOLVERS_MAX * 60);
-					m_mathematician.setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
-
-					m_constructionState = ConstructionMode::None;
-					m_prevTimeToComplete = 0;
-					m_timeToComplete = 0;
-					m_moneyEarned = 0;
-					m_timeModifier = 1.0f;
-					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-					{
 						m_basicSolvers[i].setTimeModifier(1);
 					}
 
-					m_mathematician.setTimeModifier(1);
+					// Reset all AI's positions to the start of the maze
+					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					{
+						m_mathematicians[i].setPos(1, 0);
+						m_mathematicians[i].setActive(true);
+						m_mathematicians[i].setMoveTimer(i * 60 + BASIC_SOLVERS_MAX);
+						m_mathematicians[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+						m_mathematicians[i].setTimeModifier(1);
+					}
 
 					std::cout << "Time set to 1" << std::endl;
 				}
@@ -143,9 +142,8 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 				{
 					m_basicSolvers[i].setTimeModifier(m_timeModifier);
+					m_mathematicians[i].setTimeModifier(m_timeModifier);
 				}
-
-				m_mathematician.setTimeModifier(m_timeModifier);
 
 				std::cout << "Time set to " << m_timeModifier << std::endl;
 			}
@@ -160,9 +158,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 			{
 				m_basicSolvers[i].setTimeModifier(1);
+				m_mathematicians[i].setTimeModifier(1);
 			}
 
-			m_mathematician.setTimeModifier(1);
 			std::cout << "Time set to 1" << std::endl;
 		}
 		else if (sf::Keyboard::Num3 == t_event.key.code)
@@ -174,9 +172,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 				{
 					m_basicSolvers[i].setTimeModifier(m_timeModifier);
+					m_mathematicians[i].setTimeModifier(m_timeModifier);
 				}
-
-				m_mathematician.setTimeModifier(m_timeModifier);
+				
 				std::cout << "Time set to " << m_timeModifier << std::endl;
 			}
 			else
@@ -284,15 +282,14 @@ void Game::update(sf::Time t_deltaTime)
 					m_basicSolvers[i].move(m_mazeBlocks);
 					m_noOfAI++;
 				}
-			}
 
-			if (m_mathematician.getActive())
-			{
-				m_mathematician.move(m_mazeBlocks);
-				m_noOfAI++;
+				if (m_mathematicians[i].getActive())
+				{
+					m_mathematicians[i].move(m_mazeBlocks);
+					m_noOfAI++;
+				}
 			}
 			
-
 			// If there are AI in the maze count the time
 			if (m_noOfAI > 0)
 			{
@@ -498,17 +495,15 @@ void Game::render()
 						m_window.draw(m_basicSolvers[i].getBody());
 					}
 				}
-			}
 
-
-			if (m_mathematician.getPos().y == row)
-			{
-				if (m_mathematician.getActive())
+				if (m_mathematicians[i].getPos().y == row)
 				{
-					m_window.draw(m_mathematician.getBody());
+					if (m_mathematicians[i].getActive())
+					{
+						m_window.draw(m_mathematicians[i].getBody());
+					}
 				}
 			}
-			
 		}
 	}
 

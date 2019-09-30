@@ -80,7 +80,7 @@ private:
 
 	// Objects
 	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
-	Mathematician m_mathematician;
+	Mathematician m_mathematicians[BASIC_SOLVERS_MAX];
 	XBox360Controller m_controller;
 
 	// Enum variables
