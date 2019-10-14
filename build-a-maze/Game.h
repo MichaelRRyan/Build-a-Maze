@@ -11,6 +11,7 @@
 #include "Globals.h"
 #include "GUI.h"
 #include "XBox360Controller.h"
+#include "Cursor.h"
 
 class Game
 {
@@ -56,13 +57,14 @@ private:
 	int m_currency;
 	int m_moneyEarned;
 	int m_noOfAI;
+	float m_controllerSensitivity;
 
 	// Maze array
 	int m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
 
 	// Vectors
 	sf::Vector2i m_selectedTile;
-	sf::Vector2i m_mousePosition;
+	//sf::Vector2i m_mousePosition;
 
 	// Shapes
 	sf::RectangleShape m_tileSelector;
@@ -70,9 +72,7 @@ private:
 
 	// Sprites and textures
 	sf::Texture m_tileTextures;
-	sf::Texture m_cursorTexture;
 	sf::Sprite m_textureBlock;
-	sf::Sprite m_cursor;
 
 	// Font and text
 	sf::Font m_mainFont;
@@ -82,6 +82,7 @@ private:
 	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
 	Mathematician m_mathematicians[BASIC_SOLVERS_MAX];
 	XBox360Controller m_controller;
+	Cursor m_cursor;
 
 	// Enum variables
 	GUI m_gui;

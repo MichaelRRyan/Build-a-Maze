@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Globals.h"
 #include "XBox360Controller.h"
+#include "Cursor.h"
 
 class GUI
 {
@@ -62,8 +63,8 @@ public:
 	void drawSimulationGUI(sf::RenderWindow &t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 	void drawTitleScreen(sf::RenderWindow &t_window);
 
-	void processTitleEvents(sf::Event t_event, GameState &t_gameState, bool &t_exitGame);
-	void processEvents(sf::Event t_event, sf::Vector2i t_mousePos, XBox360Controller t_controller, ConstructionMode &t_constructionState, TileType &t_selectedTileType);
+	void processTitleEvents(Cursor t_cursor, GameState &t_gameState, bool &t_exitGame);
+	void processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode &t_constructionState, TileType &t_selectedTileType);
 	void update(sf::Vector2i t_mousePosition, int & t_money);
 };
 

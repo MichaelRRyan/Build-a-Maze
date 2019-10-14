@@ -237,49 +237,47 @@ void GUI::drawTitleScreen(sf::RenderWindow & t_window)
 	}
 }
 
-void GUI::processTitleEvents(sf::Event t_event, GameState &t_gameState, bool &t_exitGame)
+void GUI::processTitleEvents(Cursor t_cursor, GameState &t_gameState, bool &t_exitGame)
 {
-	if (sf::Event::MouseButtonPressed == t_event.type)
+	if (t_cursor.m_clicked)
 	{
-		if (sf::Mouse::Left == t_event.mouseButton.button)
+		if (t_cursor.m_position.x > PLAY_BUTTON_POSITION.x
+			&& t_cursor.m_position.x < PLAY_BUTTON_POSITION.x + PLAY_BUTTON_SIZE.x)
 		{
-			if (t_event.mouseButton.x > PLAY_BUTTON_POSITION.x
-				&& t_event.mouseButton.x < PLAY_BUTTON_POSITION.x + PLAY_BUTTON_SIZE.x)
+			if (t_cursor.m_position.y > PLAY_BUTTON_POSITION.y
+				&& t_cursor.m_position.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y)
 			{
-				if (t_event.mouseButton.y > PLAY_BUTTON_POSITION.y
-					&& t_event.mouseButton.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y)
-				{
-					t_gameState = GameState::BuildMode;
-				}
+				t_gameState = GameState::BuildMode;
+			}
 
-				if (t_event.mouseButton.y > PLAY_BUTTON_POSITION.y + (PLAY_BUTTON_SIZE.y * 3)
-					&& t_event.mouseButton.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y + (PLAY_BUTTON_SIZE.y * 3))
-				{
-					t_exitGame = true;
-				}
+			if (t_cursor.m_position.y > PLAY_BUTTON_POSITION.y + (PLAY_BUTTON_SIZE.y * 3)
+				&& t_cursor.m_position.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y + (PLAY_BUTTON_SIZE.y * 3))
+			{
+				t_exitGame = true;
 			}
 		}
+
 	}
 }
 
-void GUI::processEvents(sf::Event t_event, sf::Vector2i t_mousePos, XBox360Controller t_controller, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
+void GUI::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
 {
 	// Check for a mouse click event
-	if ((sf::Event::MouseButtonPressed == t_event.type && sf::Mouse::Left == t_event.mouseButton.button)
-		|| (t_controller.currentState.A && t_controller.previousState.A))
+	if (t_cursor.m_clicked)
 	{
 
 		// Wall item
-		if (t_mousePos.x > SHOP_ITEM_START_POS.x && t_mousePos.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SIZE.x
-			&& t_mousePos.y > SHOP_ITEM_START_POS.y && t_mousePos.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
+		if (t_cursor.m_position.x > SHOP_ITEM_START_POS.x && t_cursor.m_position.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SIZE.x
+			&& t_cursor.m_position.y > SHOP_ITEM_START_POS.y && t_cursor.m_position.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
 		{
 			t_constructionState = ConstructionMode::Placing;
 			t_selectedTileType = TileType::Wall;
 			std::cout << "Mode Switched to 'Placing' the 'Wall' tile" << std::endl;
 		}
 
-		if (t_mousePos.x > SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x && t_mousePos.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x + SHOP_ITEM_SIZE.x
-			&& t_mousePos.y > SHOP_ITEM_START_POS.y && t_mousePos.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
+		// Plant item
+		if (t_cursor.m_position.x > SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x && t_cursor.m_position.x < SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x + SHOP_ITEM_SIZE.x
+			&& t_cursor.m_position.y > SHOP_ITEM_START_POS.y && t_cursor.m_position.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
 		{
 			t_constructionState = ConstructionMode::Placing;
 			t_selectedTileType = TileType::Slow;
@@ -287,22 +285,19 @@ void GUI::processEvents(sf::Event t_event, sf::Vector2i t_mousePos, XBox360Contr
 		}
 
 		// Destroy tool
-		if (t_mousePos.x > SHOP_DESTROY_TOOL_POS.x && t_mousePos.x < SHOP_DESTROY_TOOL_POS.x + SHOP_ITEM_SIZE.x
-			&& t_mousePos.y > SHOP_DESTROY_TOOL_POS.y && t_mousePos.y < SHOP_DESTROY_TOOL_POS.y + SHOP_ITEM_SIZE.y)
+		if (t_cursor.m_position.x > SHOP_DESTROY_TOOL_POS.x && t_cursor.m_position.x < SHOP_DESTROY_TOOL_POS.x + SHOP_ITEM_SIZE.x
+			&& t_cursor.m_position.y > SHOP_DESTROY_TOOL_POS.y && t_cursor.m_position.y < SHOP_DESTROY_TOOL_POS.y + SHOP_ITEM_SIZE.y)
 		{
 			t_constructionState = ConstructionMode::Destroying;
 			std::cout << "Mode Switched to 'Destroying'" << std::endl;
 		}
 
 	}
-	if (sf::Event::KeyPressed == t_event.type)
+	if (t_cursor.m_cancelClicked)
 	{
-		if (sf::Keyboard::Escape == t_event.key.code)
-		{
-			t_constructionState = ConstructionMode::None;
-			t_selectedTileType = TileType::None;
-			std::cout << "Mode Switched to 'None'" << std::endl;
-		}
+		t_constructionState = ConstructionMode::None;
+		t_selectedTileType = TileType::None;
+		std::cout << "Mode Switched to 'None'" << std::endl;
 	}
 }
 

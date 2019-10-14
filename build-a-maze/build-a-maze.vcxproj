@@ -134,6 +134,7 @@
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Mathematician.h" />
+    <ClInclude Include="Cursor.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

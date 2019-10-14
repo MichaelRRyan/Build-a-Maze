@@ -5,10 +5,12 @@
 Game::Game() :
 	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
 	m_exitGame{ false },
-	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'BuildMode'
+	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
 	m_timeModifier{ 1.0f },
 	m_gameplayView{ { 240.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
-	m_constructionView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} }
+	m_constructionView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
+	m_controllerSensitivity{ 0.25f },
+	m_cursor{ 0 }
 {
 	setupShapes();
 	setupGame();
@@ -60,10 +62,10 @@ void Game::processEvents()
 
 		if (m_gamestate == GameState::TitleScreen)
 		{
-			m_gui.processTitleEvents(nextEvent, m_gamestate, m_exitGame);
+			m_gui.processTitleEvents(m_cursor, m_gamestate, m_exitGame);
 		}
 
-		m_gui.processEvents(nextEvent, m_mousePosition, m_controller, m_constructionState, m_selectedTileType);
+		m_gui.processEvents(nextEvent, m_cursor, m_constructionState, m_selectedTileType);
 
 	} // End while poll event
 }
@@ -204,52 +206,37 @@ void Game::processMouseEvents(sf::Event t_event)
 {
 	if (sf::Event::MouseMoved == t_event.type)
 	{
-		m_mousePosition = { static_cast<int>(t_event.mouseMove.x), static_cast<int>(t_event.mouseMove.y) };
-
-		// convert it to world coordinates
-		sf::Vector2f worldPos;
-
-		if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
-		{
-			worldPos = m_window.mapPixelToCoords(m_mousePosition, m_constructionView);
-		}
-		else
-		{
-			worldPos = m_window.mapPixelToCoords(m_mousePosition, m_gameplayView);
-		}
-
-		m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
+		m_cursor.m_position = { static_cast<int>(t_event.mouseMove.x), static_cast<int>(t_event.mouseMove.y) };
 	}
-	if (sf::Event::MouseButtonPressed == t_event.type)
+
+	if (m_cursor.m_clicked)
 	{
-		if (sf::Mouse::Left == t_event.mouseButton.button)
+		if (m_gamestate == GameState::BuildMode)
 		{
-			if (m_gamestate == GameState::BuildMode)
+
+			// Make sure the player doesn't remove the outer boundary
+			if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
+				&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
 			{
-		
-				// Make sure the player doesn't remove the outer boundary
-				if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
-					&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
+				// Check if the player clicked a wall
+				if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
+					&& m_constructionState == ConstructionMode::Destroying)
 				{
-					// Check if the player clicked a wall
-					if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
-						&& m_constructionState == ConstructionMode::Destroying)
-					{
-						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
-						m_currency += 25;
-						m_constructionState = ConstructionMode::None;
-					}
-					// Else the player clicked the ground. Make sure there is enough money for a wall
-					else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
-						&& m_constructionState == ConstructionMode::Placing)
-					{
-						m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
-						m_currency -= 30;
-						m_constructionState = ConstructionMode::None;
-					}
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
+					m_currency += 25;
+					m_constructionState = ConstructionMode::None;
+				}
+				// Else the player clicked the ground. Make sure there is enough money for a wall
+				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
+					&& m_constructionState == ConstructionMode::Placing)
+				{
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
+					m_currency -= 30;
+					m_constructionState = ConstructionMode::None;
 				}
 			}
 		}
+
 	}
 }
 
@@ -315,20 +302,34 @@ void Game::update(sf::Time t_deltaTime)
 	// Update the build mode GUI
 	if (m_gamestate == GameState::BuildMode)
 	{
-		m_gui.update(m_mousePosition, m_currency);
+		m_gui.update(m_cursor.m_position, m_currency);
 	}
 
 	if (m_constructionState == ConstructionMode::Placing)
 	{
-		m_cursor.setTextureRect(sf::IntRect{ { 128, 0 }, { 64, 64 } });
+		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 128, 0 }, { 64, 64 } });
 	}
 	else if (m_constructionState == ConstructionMode::Destroying)
 	{
-		m_cursor.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
+		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
 	}
 	else
 	{
-		m_cursor.setTextureRect(sf::IntRect{ { 0, 0 }, { 64, 64 } });
+		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 0, 0 }, { 64, 64 } });
+	}
+
+	// Reset the cursor click
+	m_cursor.m_clicked = false;
+	m_cursor.m_cancelClicked = false;
+
+	// Check if the mouse has been pressed
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		m_cursor.m_clicked = true;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	{
+		m_cursor.m_cancelClicked = true;
 	}
 
 	// Update the controller if connected
@@ -336,6 +337,19 @@ void Game::update(sf::Time t_deltaTime)
 	{
 		updateController();
 	}
+
+	// convert it to world coordinates
+	sf::Vector2f worldPos;
+	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
+	{
+		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_constructionView);
+	}
+	else
+	{
+		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_gameplayView);
+	}
+
+	m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 }
 
 /// <summary>
@@ -348,53 +362,63 @@ void Game::updateController()
 	// Controller Right
 	if (m_controller.currentState.LeftThumbStick.x > 15.0f)
 	{
-		if (m_mousePosition.x < WINDOW_WIDTH - m_cursor.getGlobalBounds().width / 2.0f)
+		if (m_cursor.m_position.x < WINDOW_WIDTH - m_cursor.m_sprite.getGlobalBounds().width / 2.0f)
 		{
-			m_mousePosition.x += m_controller.currentState.LeftThumbStick.x / 2.0f;
+			m_cursor.m_position.x += static_cast<int>(m_controller.currentState.LeftThumbStick.x * m_controllerSensitivity);
 		}
 		else
 		{
-			m_mousePosition.x = WINDOW_WIDTH - m_cursor.getGlobalBounds().width / 2.0f;
+			m_cursor.m_position.x = WINDOW_WIDTH - static_cast<int>(m_cursor.m_sprite.getGlobalBounds().width / 2.0f);
 		}
 	}
 
 	// Controller Left
 	if (m_controller.currentState.LeftThumbStick.x < -15.0f)
 	{
-		if (m_mousePosition.x > 0.0f)
+		if (m_cursor.m_position.x > 0.0f)
 		{
-			m_mousePosition.x += m_controller.currentState.LeftThumbStick.x / 2.0f;
+			m_cursor.m_position.x += static_cast<int>(m_controller.currentState.LeftThumbStick.x * m_controllerSensitivity);
 		}
 		else
 		{
-			m_mousePosition.x = 0.0f;
+			m_cursor.m_position.x = 0;
 		}
 	}
 
 	// Controller Down
 	if (m_controller.currentState.LeftThumbStick.y > 15.0f)
 	{
-		if (m_mousePosition.y < WINDOW_HEIGHT - m_cursor.getGlobalBounds().height / 2.0f)
+		if (m_cursor.m_position.y < WINDOW_HEIGHT - m_cursor.m_sprite.getGlobalBounds().height / 2.0f)
 		{
-			m_mousePosition.y += m_controller.currentState.LeftThumbStick.y / 2.0f;
+			m_cursor.m_position.y += static_cast<int>(m_controller.currentState.LeftThumbStick.y * m_controllerSensitivity);
 		}
 		else
 		{
-			m_mousePosition.y = WINDOW_HEIGHT - m_cursor.getGlobalBounds().height / 2.0f;
+			m_cursor.m_position.y = WINDOW_HEIGHT - static_cast<int>(m_cursor.m_sprite.getGlobalBounds().height / 2.0f);
 		}
 	}
 
 	// Controller Up
 	if (m_controller.currentState.LeftThumbStick.y < -15.0f)
 	{
-		if (m_mousePosition.y > 0.0f)
+		if (m_cursor.m_position.y > 0.0f)
 		{
-			m_mousePosition.y += m_controller.currentState.LeftThumbStick.y / 2.0f;
+			m_cursor.m_position.y += static_cast<int>(m_controller.currentState.LeftThumbStick.y * m_controllerSensitivity);
 		}
 		else
 		{
-			m_mousePosition.y = 0.0f;
+			m_cursor.m_position.y = 0;
 		}
+	}
+
+	// Check if either the controller has been clicked
+	if (m_controller.currentState.A)
+	{
+		m_cursor.m_clicked = true;
+	}
+	if (m_controller.currentState.B)
+	{
+		m_cursor.m_cancelClicked = true;
 	}
 }
 
@@ -528,8 +552,8 @@ void Game::render()
 		}
 	}
 
-	m_cursor.setPosition(static_cast<sf::Vector2f>(m_mousePosition));
-	m_window.draw(m_cursor);
+	m_cursor.m_sprite.setPosition(static_cast<sf::Vector2f>(m_cursor.m_position));
+	m_window.draw(m_cursor.m_sprite);
 
 	m_window.display();
 }
@@ -554,15 +578,15 @@ void Game::setupGame()
 		std::cout << "Error loading terrain textures";
 	}
 
-	if (!m_cursorTexture.loadFromFile("ASSETS/IMAGES/Cursors.png"))
+	if (!m_cursor.m_texture.loadFromFile("ASSETS/IMAGES/Cursors.png"))
 	{
 		std::cout << "Error loading cursor texture";
 	}
 
 	m_textureBlock.setTexture(m_tileTextures);
-	m_cursor.setTexture(m_cursorTexture);
-	m_cursor.setTextureRect(sf::IntRect{ { 0,0 }, { 64,64 } });
-	m_cursor.setOrigin(12.0f, 0.0f);
+	m_cursor.m_sprite.setTexture(m_cursor.m_texture);
+	m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 0,0 }, { 64,64 } });
+	m_cursor.m_sprite.setOrigin(12.0f, 0.0f);
 
 	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
 	{
