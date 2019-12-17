@@ -48,5 +48,52 @@ enum class Direction
 	East
 };
 
+class Global
+{
+public:
+	static sf::Vector2i getDirectionVector(Direction t_direction)
+	{
+		switch (t_direction)
+		{
+		case Direction::None:
+			return sf::Vector2i{ 0,0 }; // Return a null vector for a null direction
+		case Direction::North:
+			return sf::Vector2i{ 0,-1 }; // Return a north vector
+		case Direction::South:
+			return sf::Vector2i{ 0,1 };  // Return a south vector
+		case Direction::West:
+			return sf::Vector2i{ -1,0 };  // Return a west vector
+		case Direction::East:
+			return sf::Vector2i{ 1,0 };  // Return a east vector
+		default:
+			return sf::Vector2i{ 0,0 }; // Return a null vector for a null direction
+		}
+	}
+
+	static Direction getDirection(sf::Vector2i t_directionVec)
+	{
+		if (t_directionVec == sf::Vector2i{ 0, -1 })
+		{
+			return Direction::North;
+		}
+		else if (t_directionVec == sf::Vector2i{ 0, 1 })
+		{
+			return Direction::South;
+		}
+		else if (t_directionVec == sf::Vector2i{ -1, 0 })
+		{
+			return Direction::West;
+		}
+		if (t_directionVec == sf::Vector2i{ 1, 0 })
+		{
+			return Direction::East;
+		}
+		else
+		{
+			return Direction::None;
+		}
+	}
+};
+
 #endif // !GLOBALS_H
 

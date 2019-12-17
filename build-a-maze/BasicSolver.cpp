@@ -34,21 +34,6 @@ void BasicSolver::loadFiles()
 }
 
 /// <summary>
-/// <para>Set the row and column of the enemy.</para>
-/// <para>Set the previous position and the sprite position.</para>
-/// </summary>
-/// <param name="t_row">Row</param>
-/// <param name="t_col">Column</param>
-void BasicSolver::setPos(int t_row, int t_col)
-{
-	m_pos.x = t_col; // Set the column
-	m_pos.y = t_row; // Set the row
-
-	m_previousPos = m_pos; // Set the previous position for animation
-	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * 32)); // Set the position to the current cell
-}
-
-/// <summary>
 /// <para>Move the enemy in its current move direction.</para>
 /// <para>Checks each frame for a player and switch direction if found</para>
 /// <para>Enemy has a one in six chance to change direction randomly.</para>
@@ -69,13 +54,13 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 	{
 		// Check for new pathways on all sides
-		sf::Vector2i dir = getDirectionVector(m_moveDir);
+		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 		// Positive
 		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
 		{
 			if (rand() % 2 == 0) {
-				m_moveDir = getDirection({ dir.y, dir.x });
+				m_moveDir = Global::getDirection({ dir.y, dir.x });
 			}
 		}
 
@@ -83,7 +68,7 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
 		{
 			if (rand() % 2 == 0) {
-				m_moveDir = getDirection({ dir.y * -1, dir.x * -1 });
+				m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
 			}
 		}
 
@@ -131,7 +116,7 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 
 		for (int i = 0; i < 4; i++) // Loop until the enemy moves, finds a new direction or it tries four times (to stop infinite loops)
 		{
-			sf::Vector2i desiredPosition = m_pos + getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
+			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 			bool blocked = false; // True if the desired position holds another enemy or wall
 
 			if (t_maze[desiredPosition.y][desiredPosition.x] == 10
@@ -165,22 +150,22 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 				{
 					if (rand() % 2 == 0)
 					{
-						m_moveDir = getDirection({ dir.y, dir.x });
+						m_moveDir = Global::getDirection({ dir.y, dir.x });
 					}
 					else
 					{
-						m_moveDir = getDirection({ dir.y * -1, dir.x * -1 });
+						m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
 					}
 				}
 				// Positive
 				else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
 				{
-					m_moveDir = getDirection({ dir.y, dir.x });
+					m_moveDir = Global::getDirection({ dir.y, dir.x });
 				}
 				// Negative
 				else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10) 
 				{
-					m_moveDir = getDirection({ dir.y * -1, dir.x * -1 });
+					m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
 				}
 				else {
 					m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
@@ -204,75 +189,4 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 		m_body.setTextureRect(frame);
 	}
 
-}
-
-/// <summary>
-/// Switch the texture rectangle to change the facing direction
-/// </summary>
-void BasicSolver::setTextureDirection()
-{
-	switch (m_moveDir)
-	{
-	case Direction::North: // Set the sprite to the look up texture
-		m_characterDirection = 2;
-		break;
-	case Direction::South: // Set the sprite to the look down texture
-		m_characterDirection = 0;
-		break;
-	case Direction::West: // Set the sprite to the look left texture
-		m_characterDirection = 1;
-		m_body.setScale(-1.0f, 1.0f);
-		m_body.setOrigin(static_cast<float>(32), m_body.getOrigin().y);
-		break;
-	case Direction::East: // Set the sprite to the look right texture
-		m_characterDirection = 1;
-		m_body.setScale(1.0f, 1.0f);
-		m_body.setOrigin(0.0f, m_body.getOrigin().y);
-		break;
-	default:
-		break;
-	}
-}
-
-sf::Vector2i BasicSolver::getDirectionVector(Direction t_direction)
-{
-	switch (t_direction)
-	{
-	case Direction::None:
-		return sf::Vector2i{ 0,0 }; // Return a null vector for a null direction
-	case Direction::North:
-		return sf::Vector2i{ 0,-1 }; // Return a north vector
-	case Direction::South:
-		return sf::Vector2i{ 0,1 };  // Return a south vector
-	case Direction::West:
-		return sf::Vector2i{ -1,0 };  // Return a west vector
-	case Direction::East:
-		return sf::Vector2i{ 1,0 };  // Return a east vector
-	default:
-		return sf::Vector2i{ 0,0 }; // Return a null vector for a null direction
-	}
-}
-
-Direction BasicSolver::getDirection(sf::Vector2i t_directionVec)
-{
-	if (t_directionVec == sf::Vector2i{ 0, -1 })
-	{
-		return Direction::North;
-	}
-	else if (t_directionVec == sf::Vector2i{ 0, 1 })
-	{
-		return Direction::South;
-	}
-	else if (t_directionVec == sf::Vector2i{ -1, 0 })
-	{
-		return Direction::West;
-	}
-	if (t_directionVec == sf::Vector2i{ 1, 0 })
-	{
-		return Direction::East;
-	}
-	else
-	{
-		return Direction::None;
-	}
 }

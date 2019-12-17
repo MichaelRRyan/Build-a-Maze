@@ -15,6 +15,19 @@ Game::Game() :
 	setupShapes();
 	setupGame();
 	m_controllerConnected = m_controller.connect();
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (rand() % 2) // Picks either one or zero and goes into the appropriate statement
+		{
+			m_mazeSolverPtrs.push_back(new Mathematician);
+		}
+		else
+		{
+			m_mazeSolverPtrs.push_back(new BasicSolver);
+		}
+		
+	}
 }
 
 Game::~Game()
@@ -97,23 +110,15 @@ void Game::processKeyboardEvents(sf::Event t_event)
 					m_timeModifier = 1.0f;
 
 					// Reset all AI's positions to the start of the maze
-					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+					int moveDelayCounter = 0; // Counts the number of maze solvers and uses this to set the delay on movement
+					for (MazeSolver* solver : m_mazeSolverPtrs)
 					{
-						m_basicSolvers[i].setPos(1, 0);
-						m_basicSolvers[i].setActive(true);
-						m_basicSolvers[i].setMoveTimer(i * 60);
-						m_basicSolvers[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
-						m_basicSolvers[i].setTimeModifier(1);
-					}
-
-					// Reset all AI's positions to the start of the maze
-					for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-					{
-						m_mathematicians[i].setPos(1, 0);
-						m_mathematicians[i].setActive(true);
-						m_mathematicians[i].setMoveTimer(i * 60 + BASIC_SOLVERS_MAX);
-						m_mathematicians[i].setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
-						m_mathematicians[i].setTimeModifier(1);
+						solver->setPos(1, 0);
+						solver->setActive(true);
+						solver->setMoveTimer(moveDelayCounter * 60);
+						solver->setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+						solver->setTimeModifier(1);
+						moveDelayCounter++;
 					}
 
 					std::cout << "Time set to 1" << std::endl;
@@ -141,10 +146,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			{
 				m_timeModifier *= 0.5f;
 
-				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+				for (MazeSolver* solver : m_mazeSolverPtrs)
 				{
-					m_basicSolvers[i].setTimeModifier(m_timeModifier);
-					m_mathematicians[i].setTimeModifier(m_timeModifier);
+					solver->setTimeModifier(m_timeModifier);
 				}
 
 				std::cout << "Time set to " << m_timeModifier << std::endl;
@@ -157,10 +161,10 @@ void Game::processKeyboardEvents(sf::Event t_event)
 		else if (sf::Keyboard::Num2 == t_event.key.code)
 		{
 			m_timeModifier = 1;
-			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+
+			for (MazeSolver* solver : m_mazeSolverPtrs)
 			{
-				m_basicSolvers[i].setTimeModifier(1);
-				m_mathematicians[i].setTimeModifier(1);
+				solver->setTimeModifier(m_timeModifier);
 			}
 
 			std::cout << "Time set to 1" << std::endl;
@@ -171,10 +175,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			{
 				m_timeModifier *= 2.0f;
 
-				for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+				for (MazeSolver* solver : m_mazeSolverPtrs)
 				{
-					m_basicSolvers[i].setTimeModifier(m_timeModifier);
-					m_mathematicians[i].setTimeModifier(m_timeModifier);
+					solver->setTimeModifier(m_timeModifier);
 				}
 				
 				std::cout << "Time set to " << m_timeModifier << std::endl;
@@ -262,17 +265,11 @@ void Game::update(sf::Time t_deltaTime)
 			m_noOfAI = 0;
 
 			// Loop through and update all AI. Count those that are still active
-			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+			for (MazeSolver* solver : m_mazeSolverPtrs)
 			{
-				if (m_basicSolvers[i].getActive())
+				if (solver->getActive())
 				{
-					m_basicSolvers[i].move(m_mazeBlocks);
-					m_noOfAI++;
-				}
-
-				if (m_mathematicians[i].getActive())
-				{
-					m_mathematicians[i].move(m_mazeBlocks);
+					solver->move(m_mazeBlocks);
 					m_noOfAI++;
 				}
 			}
@@ -510,21 +507,13 @@ void Game::render()
 		// Draw the AI if in simulation mode
 		if (m_gamestate == GameState::Simulation)
 		{
-			for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
+			for (MazeSolver* solver : m_mazeSolverPtrs)
 			{
-				if (m_basicSolvers[i].getPos().y == row)
+				if (solver->getActive())
 				{
-					if (m_basicSolvers[i].getActive())
+					if (solver->getPos().y == row)
 					{
-						m_window.draw(m_basicSolvers[i].getBody());
-					}
-				}
-
-				if (m_mathematicians[i].getPos().y == row)
-				{
-					if (m_mathematicians[i].getActive())
-					{
-						m_window.draw(m_mathematicians[i].getBody());
+						m_window.draw(solver->getBody());
 					}
 				}
 			}

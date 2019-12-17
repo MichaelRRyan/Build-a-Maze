@@ -4,6 +4,7 @@
 #define GAME
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 #include <iostream>
 #include <stack>
 #include "BasicSolver.h"
@@ -12,6 +13,7 @@
 #include "GUI.h"
 #include "XBox360Controller.h"
 #include "Cursor.h"
+#include "MazeSolver.h"
 
 class Game
 {
@@ -79,8 +81,10 @@ private:
 	sf::Text m_pauseText;
 
 	// Objects
-	BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
-	Mathematician m_mathematicians[BASIC_SOLVERS_MAX];
+	std::vector<MazeSolver *> m_mazeSolverPtrs;
+
+	//BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
+	//Mathematician m_mathematicians[BASIC_SOLVERS_MAX];
 	XBox360Controller m_controller;
 	Cursor m_cursor;
 

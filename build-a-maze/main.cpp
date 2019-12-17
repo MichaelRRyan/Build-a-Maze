@@ -27,6 +27,8 @@
 /// 26/09/2019: 12:30 - 12:50 - Added functions to clean up code and added comments
 /// 28/09/2019: 20:00 - 21:00 - Added the mathematician AI
 /// 30/09/2019: 16:35 - 16:45 - Made the mathematician into an array
+/// 14/10/2019: 18:00 - 20:00 - Added cursor struct and better controller support
+/// 17/12/2019: 15:00 - 16:00 - Added maze solver abstract class for all solvers to inherit from
 
 
 #ifdef _DEBUG 
