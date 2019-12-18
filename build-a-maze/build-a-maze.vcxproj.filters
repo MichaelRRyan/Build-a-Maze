@@ -13,15 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Solvers">
+      <UniqueIdentifier>{887e5548-a313-4beb-845c-d9987f850300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Solvers">
+      <UniqueIdentifier>{cd35a497-f37d-4ee3-a38a-80f42b8689e9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BasicSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GUI.cpp">
@@ -31,17 +34,20 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mathematician.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicSolver.cpp">
+      <Filter>Source Files\Solvers</Filter>
     </ClCompile>
     <ClCompile Include="MazeSolver.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="Cartographer.cpp">
+      <Filter>Source Files\Solvers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BasicSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Globals.h">
@@ -53,14 +59,20 @@
     <ClInclude Include="XBox360Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mathematician.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Cursor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BasicSolver.h">
+      <Filter>Header Files\Solvers</Filter>
+    </ClInclude>
     <ClInclude Include="MazeSolver.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="Mathematician.h">
+      <Filter>Header Files\Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="Cartographer.h">
+      <Filter>Header Files\Solvers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

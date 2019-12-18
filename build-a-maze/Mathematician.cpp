@@ -80,16 +80,9 @@ void Mathematician::move(int t_maze[][MAZE_COLS])
 		for (int i = 0; i < 4; i++) // Loop until the enemy moves, finds a new direction or it tries four times (to stop infinite loops)
 		{
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
-			bool blocked = false; // True if the desired position holds another enemy or wall
-
-			if (t_maze[desiredPosition.y][desiredPosition.x] == 10
-				|| (desiredPosition.y < 0 || desiredPosition.y > MAZE_ROWS || desiredPosition.x < 0 || desiredPosition.x > MAZE_COLS)) // Check if there's a rock blocking movement or trying to leave the maze
-			{
-				blocked = true; // Movement is blocked
-			}
 
 			// Move if not blocked, else change direction
-			if (!blocked)
+			if (t_maze[desiredPosition.y][desiredPosition.x] != 10)
 			{
 				if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
 					|| t_maze[desiredPosition.y][desiredPosition.x] == TileType::Slow)
@@ -106,35 +99,8 @@ void Mathematician::move(int t_maze[][MAZE_COLS])
 			}
 			else
 			{
-				// If front blocked, always go left or right before going back
-				// Both positive and negative (T junction)
-				if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10
-					&& t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
-				{
-					if (rand() % 2 == 0)
-					{
-						m_moveDir = Global::getDirection({ dir.y, dir.x });
-					}
-					else
-					{
-						m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
-					}
-				}
-				// Positive
-				else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
-				{
-					m_moveDir = Global::getDirection({ dir.y, dir.x });
-				}
-				// Negative
-				else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
-				{
-					m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
-				}
-				else {
-					m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
-				}
+				findNewDirection(t_maze);
 			}
-
 		}
 
 		setTextureDirection(); // Set the texture to the direction

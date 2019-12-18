@@ -24,6 +24,7 @@ public:
 	inline void setCharacterDirection(int t_dir) { m_characterDirection = t_dir; }
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
+	void findNewDirection(int t_maze[][MAZE_COLS]); // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
 	void checkForExit(int t_maze[][MAZE_COLS]); // Check if the exit of the maze is within sight, set direction towards it
 	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing

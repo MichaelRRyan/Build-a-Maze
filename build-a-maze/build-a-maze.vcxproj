@@ -121,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cartographer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="main.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cartographer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Globals.h" />

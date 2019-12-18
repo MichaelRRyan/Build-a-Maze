@@ -12,6 +12,41 @@ void MazeSolver::setPos(int t_row, int t_col)
 	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * 32)); // Set the position to the current cell
 }
 
+void MazeSolver::findNewDirection(int t_maze[][MAZE_COLS])
+{
+	sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
+
+	// If front blocked, always go left or right before going back
+	// Both positive and negative (T junction)
+	if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10
+		&& t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+	{
+		if (rand() % 2 == 0)
+		{
+			m_moveDir = Global::getDirection({ dir.y, dir.x });
+		}
+		else
+		{
+			m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
+		}
+	}
+
+	// Positive
+	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
+	{
+		m_moveDir = Global::getDirection({ dir.y, dir.x });
+	}
+
+	// Negative
+	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+	{
+		m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
+	}
+	else {
+		m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
+	}
+}
+
 void MazeSolver::checkForExit(int t_maze[][MAZE_COLS])
 {
 	// Check Vertically

@@ -1,13 +1,12 @@
 /// @Author Michael Rainsford Ryan
-#include "BasicSolver.h"
-
+#include "Cartographer.h"
 
 /// <summary>
 /// <para>Enemy default constructer.</para>
 /// <para>Load texture files, set the move direction, set the move timer,</para>
 /// <para>set the sight range and following player bool</para>
 /// </summary>
-BasicSolver::BasicSolver()
+Cartographer::Cartographer()
 {
 	loadFiles();
 	m_moveDir = static_cast<Direction>(rand() % 4 + 1);
@@ -20,16 +19,16 @@ BasicSolver::BasicSolver()
 /// <summary>
 /// Load the texture file and apply it to the sprite.
 /// </summary>
-void BasicSolver::loadFiles()
+void Cartographer::loadFiles()
 {
-	m_characterNumber = { 54, 64 * 3 };
+	m_characterNumber = { 54, 64 * 19 };
 
 	if (!m_spriteSheet.loadFromFile("ASSETS\\IMAGES\\characters.png"))
 	{
 		// Error loading image
 	}
 	m_body.setTexture(m_spriteSheet); // Set the character texture
-	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x * 2,m_characterNumber.y,32,64 }); // Set the character
+	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x * 2, m_characterNumber.y, 32, 64 }); // Set the character
 	m_body.setOrigin(0.0f, static_cast<float>(32)); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
@@ -41,11 +40,9 @@ void BasicSolver::loadFiles()
 /// <para>Changes direction if blocked, move in direction if not.</para>
 /// <para>Set the texture direction and move timer.</para>
 /// </summary>
-/// <param name="t_maze"></param>
-/// <param name="t_ghosts"></param>
-void BasicSolver::move(int t_maze[][MAZE_COLS])
+/// <param name="t_maze">maze array</param>
+void Cartographer::move(int t_maze[][MAZE_COLS])
 {
-
 	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
 	{
 		m_active = false;
@@ -81,7 +78,7 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 		{
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 
-			// Move if not blocked, else change direction
+			// Move if not blocked by a wall, else change direction
 			if (t_maze[desiredPosition.y][desiredPosition.x] != 10)
 			{
 				if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
@@ -92,6 +89,16 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 				else
 				{
 					m_movementSpeed = static_cast<int>(DEFAULT_MOVE_SPEED * m_timeModifier);
+				}
+
+				// If we're retracing steps
+				if (!m_previousTiles.empty() && desiredPosition == m_previousTiles.top())
+				{
+					m_previousTiles.pop();
+				}
+				else
+				{
+					m_previousTiles.push(m_pos);
 				}
 
 				m_pos = desiredPosition;
@@ -111,5 +118,9 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 		m_moveTimer--;
 		animate();
 	}
+}
 
+std::stack<sf::Vector2i> Cartographer::getPreviousTiles()
+{
+	return m_previousTiles;
 }

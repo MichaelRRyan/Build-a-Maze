@@ -29,7 +29,6 @@
 /// 30/09/2019: 16:35 - 16:45 - Made the mathematician into an array
 /// 14/10/2019: 18:00 - 20:00 - Added cursor struct and better controller support
 /// 17/12/2019: 15:00 - 16:00 - Added maze solver abstract class for all solvers to inherit from
-/// 17/12/2019: 17:00 - 18:00 - Began adding cartographer solver. Cleaned up some solver code
 
 
 #ifdef _DEBUG 

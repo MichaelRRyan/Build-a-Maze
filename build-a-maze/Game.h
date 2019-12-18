@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <stack>
+#include <typeinfo>
 #include "BasicSolver.h"
 #include "Mathematician.h"
 #include "Globals.h"
@@ -14,6 +15,7 @@
 #include "XBox360Controller.h"
 #include "Cursor.h"
 #include "MazeSolver.h"
+#include "Cartographer.h"
 
 class Game
 {

@@ -18,21 +18,30 @@ Game::Game() :
 
 	for (int i = 0; i < 6; i++)
 	{
-		if (rand() % 2) // Picks either one or zero and goes into the appropriate statement
+		switch (rand() % 3)
 		{
-			m_mazeSolverPtrs.push_back(new Mathematician);
-		}
-		else
-		{
+		case 0:
 			m_mazeSolverPtrs.push_back(new BasicSolver);
+			break;
+
+		case 1:
+			m_mazeSolverPtrs.push_back(new Mathematician);
+			break;
+
+		case 2:
+			m_mazeSolverPtrs.push_back(new Cartographer);
+			break;
 		}
-		
 	}
 }
 
 Game::~Game()
 {
-
+	for (MazeSolver* solver : m_mazeSolverPtrs)
+	{
+		delete solver;
+	}
+	m_mazeSolverPtrs.clear();
 }
 
 void Game::run()
@@ -514,6 +523,20 @@ void Game::render()
 					if (solver->getPos().y == row)
 					{
 						m_window.draw(solver->getBody());
+
+						if (typeid(*solver).name() == typeid(Cartographer).name())
+						{
+							std::stack<sf::Vector2i> prevTiles = dynamic_cast<Cartographer*>(solver)->getPreviousTiles();
+							sf::RectangleShape prevTilesShape({ TILE_SIZE, TILE_SIZE });
+							prevTilesShape.setFillColor(sf::Color{ 255,0,0,100 });
+
+							while (!prevTiles.empty())
+							{
+								prevTilesShape.setPosition(static_cast<sf::Vector2f>(prevTiles.top()) * TILE_SIZE);
+								m_window.draw(prevTilesShape);
+								prevTiles.pop();
+							}
+						}
 					}
 				}
 			}
