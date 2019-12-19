@@ -59,8 +59,9 @@ void Game::run()
 			timeSinceLastUpdate -= timePerFrame;
 			processEvents(); // Run at a minimum of 60 fps
 			update(timePerFrame); // 60 fps
+			render(); // Run as many times as possible
 		}
-		render(); // Run as many times as possible
+		
 	}
 }
 

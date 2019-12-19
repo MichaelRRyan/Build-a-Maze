@@ -75,4 +75,23 @@
       <Filter>Header Files\Solvers</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="ASSETS\FONTS\arial.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ASSETS\IMAGES\characters.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ASSETS\IMAGES\cursors.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ASSETS\IMAGES\icons.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ASSETS\IMAGES\terrain_atlas.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

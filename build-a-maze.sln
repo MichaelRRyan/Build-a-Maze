@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2041
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "build-a-maze", "build-a-maze\build-a-maze.vcxproj", "{A8B2808C-04C6-4D93-9BB3-0B5E69C96F43}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Build-a-Maze!", "Build-a-Maze!\Build-a-Maze!.vdproj", "{8AF0A686-5387-4142-B6A6-A1761CE9E44B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{A8B2808C-04C6-4D93-9BB3-0B5E69C96F43}.Release|x64.Build.0 = Release|x64
 		{A8B2808C-04C6-4D93-9BB3-0B5E69C96F43}.Release|x86.ActiveCfg = Release|Win32
 		{A8B2808C-04C6-4D93-9BB3-0B5E69C96F43}.Release|x86.Build.0 = Release|Win32
+		{8AF0A686-5387-4142-B6A6-A1761CE9E44B}.Debug|x64.ActiveCfg = Debug
+		{8AF0A686-5387-4142-B6A6-A1761CE9E44B}.Debug|x86.ActiveCfg = Debug
+		{8AF0A686-5387-4142-B6A6-A1761CE9E44B}.Release|x64.ActiveCfg = Release
+		{8AF0A686-5387-4142-B6A6-A1761CE9E44B}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
