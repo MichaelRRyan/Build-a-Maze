@@ -16,7 +16,7 @@ Game::Game() :
 	setupGame();
 	m_controllerConnected = m_controller.connect();
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
 	{
 		switch (rand() % 3)
 		{
@@ -123,11 +123,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 					int moveDelayCounter = 0; // Counts the number of maze solvers and uses this to set the delay on movement
 					for (MazeSolver* solver : m_mazeSolverPtrs)
 					{
-						solver->setPos(1, 0);
-						solver->setActive(true);
-						solver->setMoveTimer(moveDelayCounter * 60);
-						solver->setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
-						solver->setTimeModifier(1);
+						solver->reset(moveDelayCounter * 60);
 						moveDelayCounter++;
 					}
 
@@ -279,7 +275,7 @@ void Game::update(sf::Time t_deltaTime)
 			{
 				if (solver->getActive())
 				{
-					solver->move(m_mazeBlocks);
+					solver->update(m_mazeBlocks);
 					m_noOfAI++;
 				}
 			}
@@ -523,21 +519,7 @@ void Game::render()
 				{
 					if (solver->getPos().y == row)
 					{
-						m_window.draw(solver->getBody());
-
-						if (typeid(*solver).name() == typeid(Cartographer).name())
-						{
-							std::stack<sf::Vector2i> prevTiles = dynamic_cast<Cartographer*>(solver)->getPreviousTiles();
-							sf::RectangleShape prevTilesShape({ TILE_SIZE, TILE_SIZE });
-							prevTilesShape.setFillColor(sf::Color{ 255,0,0,100 });
-
-							while (!prevTiles.empty())
-							{
-								prevTilesShape.setPosition(static_cast<sf::Vector2f>(prevTiles.top()) * TILE_SIZE);
-								m_window.draw(prevTilesShape);
-								prevTiles.pop();
-							}
-						}
+						solver->draw(m_window);
 					}
 				}
 			}

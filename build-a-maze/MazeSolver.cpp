@@ -3,6 +3,11 @@
 /// @Author Michael Rainsford Ryan
 /// @Date 28/09/2019
 
+void MazeSolver::draw(sf::RenderWindow& t_window) const
+{
+	t_window.draw(m_body);
+}
+
 void MazeSolver::setPos(int t_row, int t_col)
 {
 	m_pos.x = t_col; // Set the column
@@ -10,6 +15,21 @@ void MazeSolver::setPos(int t_row, int t_col)
 
 	m_previousPos = m_pos; // Set the previous position for animation
 	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * 32)); // Set the position to the current cell
+}
+
+void MazeSolver::move(int t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
+{
+	if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
+		|| t_maze[t_newPosition.y][t_newPosition.x] == TileType::Slow)
+	{
+		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
+	}
+	else
+	{
+		m_movementSpeed = static_cast<int>(DEFAULT_MOVE_SPEED * m_timeModifier);
+	}
+
+	m_pos = t_newPosition;
 }
 
 void MazeSolver::findNewDirection(int t_maze[][MAZE_COLS])
@@ -45,6 +65,15 @@ void MazeSolver::findNewDirection(int t_maze[][MAZE_COLS])
 	else {
 		m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
 	}
+}
+
+void MazeSolver::reset(int t_moveDelay)
+{
+	setPos(1, 0);
+	m_active = true;
+	setMoveTimer(t_moveDelay);
+	setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+	setTimeModifier(1);
 }
 
 void MazeSolver::checkForExit(int t_maze[][MAZE_COLS])

@@ -43,7 +43,7 @@ void BasicSolver::loadFiles()
 /// </summary>
 /// <param name="t_maze"></param>
 /// <param name="t_ghosts"></param>
-void BasicSolver::move(int t_maze[][MAZE_COLS])
+void BasicSolver::update(int t_maze[][MAZE_COLS])
 {
 
 	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
@@ -84,17 +84,7 @@ void BasicSolver::move(int t_maze[][MAZE_COLS])
 			// Move if not blocked, else change direction
 			if (t_maze[desiredPosition.y][desiredPosition.x] != 10)
 			{
-				if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
-					|| t_maze[desiredPosition.y][desiredPosition.x] == TileType::Slow)
-				{
-					m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
-				}
-				else
-				{
-					m_movementSpeed = static_cast<int>(DEFAULT_MOVE_SPEED * m_timeModifier);
-				}
-
-				m_pos = desiredPosition;
+				move(t_maze, desiredPosition);
 				break; // Break from the loop if the enemy can move
 			}
 			else

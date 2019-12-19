@@ -30,6 +30,7 @@
 /// 14/10/2019: 18:00 - 20:00 - Added cursor struct and better controller support
 /// 17/12/2019: 15:00 - 16:00 - Added maze solver abstract class for all solvers to inherit from
 /// 17/12/2019: 17:00 - 18:00 - Began adding cartographer solver. Cleaned up some solver code
+/// 19/12/2019: 17:00 - 18:00 - Finished adding cartographer solver. Cleaned up more solver code
 
 
 //#ifdef _DEBUG 
@@ -47,7 +48,7 @@
 //#endif
 
 #ifndef SFML_STATIC 
-#ifdef _DEBUG  
+#ifdef _DEBUG
 #pragma comment(lib,"sfml-graphics-d.lib") 
 #pragma comment(lib,"sfml-system-d.lib")  
 #pragma comment(lib,"sfml-window-d.lib")  
