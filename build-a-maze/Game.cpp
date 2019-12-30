@@ -12,27 +12,13 @@ Game::Game() :
 	m_controllerSensitivity{ 0.25f },
 	m_cursor{ 0 }
 {
-	setupShapes();
+	MazeGenerator::generateMaze(m_mazeBlocks);
 	setupGame();
+
+	// Set the player's currency to 400
+	m_currency = 400;
+
 	m_controllerConnected = m_controller.connect();
-
-	for (int i = 0; i < BASIC_SOLVERS_MAX; i++)
-	{
-		switch (rand() % 3)
-		{
-		case 0:
-			m_mazeSolverPtrs.push_back(new BasicSolver);
-			break;
-
-		case 1:
-			m_mazeSolverPtrs.push_back(new Mathematician);
-			break;
-
-		case 2:
-			m_mazeSolverPtrs.push_back(new Cartographer);
-			break;
-		}
-	}
 }
 
 Game::~Game()
@@ -112,22 +98,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				else
 				{
 					m_gamestate = GameState::Simulation;
-
-					m_constructionState = ConstructionMode::None;
-					m_prevTimeToComplete = 0;
-					m_timeToComplete = 0;
-					m_moneyEarned = 0;
-					m_timeModifier = 1.0f;
-
-					// Reset all AI's positions to the start of the maze
-					int moveDelayCounter = 0; // Counts the number of maze solvers and uses this to set the delay on movement
-					for (MazeSolver* solver : m_mazeSolverPtrs)
-					{
-						solver->reset(moveDelayCounter * 60);
-						moveDelayCounter++;
-					}
-
-					std::cout << "Time set to 1" << std::endl;
+					resetSimulation();
 				}
 			}
 			else if (m_gamestate == GameState::Simulation)
@@ -137,6 +108,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			}
 		}
 
+		// Pause the game
 		if (sf::Keyboard::P == t_event.key.code)
 		{
 			if (m_gamestate == GameState::Simulation)
@@ -146,53 +118,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 
 		}
 
-		if (sf::Keyboard::Num1 == t_event.key.code)
-		{
-			if (m_timeModifier > 0.25)
-			{
-				m_timeModifier *= 0.5f;
-
-				for (MazeSolver* solver : m_mazeSolverPtrs)
-				{
-					solver->setTimeModifier(m_timeModifier);
-				}
-
-				std::cout << "Time set to " << m_timeModifier << std::endl;
-			}
-			else
-			{
-				std::cout << "Time already maximum speed" << std::endl;
-			}
-		}
-		else if (sf::Keyboard::Num2 == t_event.key.code)
-		{
-			m_timeModifier = 1;
-
-			for (MazeSolver* solver : m_mazeSolverPtrs)
-			{
-				solver->setTimeModifier(m_timeModifier);
-			}
-
-			std::cout << "Time set to 1" << std::endl;
-		}
-		else if (sf::Keyboard::Num3 == t_event.key.code)
-		{
-			if (m_timeModifier < 4)
-			{
-				m_timeModifier *= 2.0f;
-
-				for (MazeSolver* solver : m_mazeSolverPtrs)
-				{
-					solver->setTimeModifier(m_timeModifier);
-				}
-				
-				std::cout << "Time set to " << m_timeModifier << std::endl;
-			}
-			else
-			{
-				std::cout << "Time already minimum speed" << std::endl;
-			}
-		}
+		processTimeModifierEvents(t_event);
 
 		if (sf::Keyboard::Escape == t_event.key.code)
 		{
@@ -231,7 +157,7 @@ void Game::processMouseEvents(sf::Event t_event)
 				if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
-					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = 0;
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = TileType::None;
 					m_currency += 25;
 					m_constructionState = ConstructionMode::None;
 				}
@@ -308,121 +234,7 @@ void Game::update(sf::Time t_deltaTime)
 		m_gui.update(m_cursor.m_position, m_currency);
 	}
 
-	if (m_constructionState == ConstructionMode::Placing)
-	{
-		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 128, 0 }, { 64, 64 } });
-	}
-	else if (m_constructionState == ConstructionMode::Destroying)
-	{
-		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
-	}
-	else
-	{
-		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 0, 0 }, { 64, 64 } });
-	}
-
-	// Reset the cursor click
-	m_cursor.m_clicked = false;
-	m_cursor.m_cancelClicked = false;
-
-	// Check if the mouse has been pressed
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-	{
-		m_cursor.m_clicked = true;
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-	{
-		m_cursor.m_cancelClicked = true;
-	}
-
-	// Update the controller if connected
-	if (m_controllerConnected)
-	{
-		updateController();
-	}
-
-	// convert it to world coordinates
-	sf::Vector2f worldPos;
-	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
-	{
-		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_constructionView);
-	}
-	else
-	{
-		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_gameplayView);
-	}
-
-	m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
-}
-
-/// <summary>
-/// Update the controller and take input
-/// </summary>
-void Game::updateController()
-{
-	m_controller.update();
-
-	// Controller Right
-	if (m_controller.currentState.LeftThumbStick.x > 15.0f)
-	{
-		if (m_cursor.m_position.x < WINDOW_WIDTH - m_cursor.m_sprite.getGlobalBounds().width / 2.0f)
-		{
-			m_cursor.m_position.x += static_cast<int>(m_controller.currentState.LeftThumbStick.x * m_controllerSensitivity);
-		}
-		else
-		{
-			m_cursor.m_position.x = WINDOW_WIDTH - static_cast<int>(m_cursor.m_sprite.getGlobalBounds().width / 2.0f);
-		}
-	}
-
-	// Controller Left
-	if (m_controller.currentState.LeftThumbStick.x < -15.0f)
-	{
-		if (m_cursor.m_position.x > 0.0f)
-		{
-			m_cursor.m_position.x += static_cast<int>(m_controller.currentState.LeftThumbStick.x * m_controllerSensitivity);
-		}
-		else
-		{
-			m_cursor.m_position.x = 0;
-		}
-	}
-
-	// Controller Down
-	if (m_controller.currentState.LeftThumbStick.y > 15.0f)
-	{
-		if (m_cursor.m_position.y < WINDOW_HEIGHT - m_cursor.m_sprite.getGlobalBounds().height / 2.0f)
-		{
-			m_cursor.m_position.y += static_cast<int>(m_controller.currentState.LeftThumbStick.y * m_controllerSensitivity);
-		}
-		else
-		{
-			m_cursor.m_position.y = WINDOW_HEIGHT - static_cast<int>(m_cursor.m_sprite.getGlobalBounds().height / 2.0f);
-		}
-	}
-
-	// Controller Up
-	if (m_controller.currentState.LeftThumbStick.y < -15.0f)
-	{
-		if (m_cursor.m_position.y > 0.0f)
-		{
-			m_cursor.m_position.y += static_cast<int>(m_controller.currentState.LeftThumbStick.y * m_controllerSensitivity);
-		}
-		else
-		{
-			m_cursor.m_position.y = 0;
-		}
-	}
-
-	// Check if either the controller has been clicked
-	if (m_controller.currentState.A)
-	{
-		m_cursor.m_clicked = true;
-	}
-	if (m_controller.currentState.B)
-	{
-		m_cursor.m_cancelClicked = true;
-	}
+	updateCursor();
 }
 
 /// <summary>
@@ -466,7 +278,7 @@ void Game::render()
 	{
 		for (int col = 0; col < MAZE_COLS; col++)
 		{
-			if (m_mazeBlocks[row][col] != TileType::None)
+			if (static_cast<TileType>(m_mazeBlocks[row][col]) != TileType::None)
 			{
 				// Draw blocks red to show removing ability
 				if (row == m_selectedTile.y && col == m_selectedTile.x
@@ -477,11 +289,11 @@ void Game::render()
 					m_textureBlock.setColor(sf::Color{200,50,50,245});
 				}
 
-				if (m_mazeBlocks[row][col] == TileType::Slow)
+				if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Slow)
 				{
 					m_textureBlock.setTextureRect(PLANT_TEXT_RECT);
 				}
-				else if (m_mazeBlocks[row][col] == TileType::Wall) {
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Wall) {
 					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
 				}
 
@@ -600,150 +412,224 @@ void Game::setupGame()
 	m_currency = 400;
 	m_simDetailsDisplay = false;
 	m_gamePaused = false;
-}
 
-void Game::setupShapes()
-{
-	generateMaze();
+	// Add a random selection of AI to the maze
+	m_mazeSolverPtrs.clear(); // Clear any previous AI
+	for (int i = 0; i < SOLVERS_MAX; i++)
+	{
+		switch (rand() % 3)
+		{
+		case 0:
+			m_mazeSolverPtrs.push_back(new BasicSolver);
+			break;
 
-	// Set the player's currency to 400
-	m_currency = 400;
+		case 1:
+			m_mazeSolverPtrs.push_back(new Mathematician);
+			break;
+
+		case 2:
+			m_mazeSolverPtrs.push_back(new Cartographer);
+			break;
+		}
+	}
 }
 
 /// <summary>
-///  Generate the maze
+/// @brief resets all the game data used for simulation
 /// </summary>
-void Game::generateMaze()
+void Game::resetSimulation()
 {
-	// Set all the blocks to walls
-	for (int row = 0; row < MAZE_ROWS; row++)
+	m_constructionState = ConstructionMode::None;
+	m_prevTimeToComplete = 0;
+	m_timeToComplete = 0;
+	m_moneyEarned = 0;
+	m_timeModifier = 1.0f;
+
+	// Reset all AI's positions to the start of the maze
+	int moveDelayCounter = 0; // Counts the number of maze solvers and uses this to set the delay on movement
+	for (MazeSolver* solver : m_mazeSolverPtrs)
 	{
-		for (int col = 0; col < MAZE_COLS; col++)
-		{
-			m_mazeBlocks[row][col] = TileType::Wall;
-		}
+		solver->reset(moveDelayCounter * 60);
+		moveDelayCounter++;
 	}
 
-	// Create a stack to store the history of maze movements
-	std::stack <sf::Vector2i> movementHistory;
-	
-	// Start the maze at the top left corner
-	int row = 1;
-	int col = 1;
+	std::cout << "Time set to 1" << std::endl;
+}
 
-	// Create the direction checked bools
-	bool leftChecked, rightChecked, upChecked, downChecked;
-
-	bool deadEnd = false;
-
-	// Set complete to false and start looping
-	bool complete = false;
-	while (!complete) {
-
-		// If the maze hits a dead end
-		if (deadEnd)
+/// <summary>
+/// @brief process events related to the time modifier
+/// </summary>
+/// <param name="t_event">user event</param>
+void Game::processTimeModifierEvents(sf::Event t_event)
+{
+	if (sf::Keyboard::Num1 == t_event.key.code)
+	{
+		if (m_timeModifier > 0.25)
 		{
-			if (!movementHistory.empty())
+			m_timeModifier *= 0.5f;
+
+			for (MazeSolver* solver : m_mazeSolverPtrs)
 			{
-				movementHistory.pop();
+				solver->setTimeModifier(m_timeModifier);
 			}
 
-			if (movementHistory.empty()) // if empty
-			{
-				complete = true;
-				break;
-			}
-
-			row = movementHistory.top().x;
-			col = movementHistory.top().y;
-
-			deadEnd = false;
+			std::cout << "Time set to " << m_timeModifier << std::endl;
 		}
 		else
 		{
-			// Add the current position to the stack
-			movementHistory.push(sf::Vector2i{ row, col });
+			std::cout << "Time already maximum speed" << std::endl;
+		}
+	}
+	else if (sf::Keyboard::Num2 == t_event.key.code)
+	{
+		m_timeModifier = 1;
 
-			// Set the current tile to a ground tile
-			m_mazeBlocks[row][col] = TileType::None;
+		for (MazeSolver* solver : m_mazeSolverPtrs)
+		{
+			solver->setTimeModifier(m_timeModifier);
 		}
 
-		// Set all direction checks to false
-		leftChecked = false;
-		rightChecked = false;
-		upChecked = false;
-		downChecked = false;
-
-		// Create a foundDir bool and start looping
-		bool foundDir = false;
-		while (!foundDir)
+		std::cout << "Time set to 1" << std::endl;
+	}
+	else if (sf::Keyboard::Num3 == t_event.key.code)
+	{
+		if (m_timeModifier < 4)
 		{
-			// If all directions have been checked, break out
-			if (leftChecked && rightChecked && upChecked && downChecked) {
-				deadEnd = true;
-				break;
+			m_timeModifier *= 2.0f;
+
+			for (MazeSolver* solver : m_mazeSolverPtrs)
+			{
+				solver->setTimeModifier(m_timeModifier);
 			}
 
-			// Choose a random direction
-			int dir = rand() % 4;
+			std::cout << "Time set to " << m_timeModifier << std::endl;
+		}
+		else
+		{
+			std::cout << "Time already minimum speed" << std::endl;
+		}
+	}
+}
 
-			// Check the direction has not already been checked, if it has, choose a new direction
-			if (dir == 0 && upChecked) {
-				continue;
-			}
-			if (dir == 1 && downChecked) {
-				continue;
-			}
-			if (dir == 2 && leftChecked) {
-				continue;
-			}
-			if (dir == 3 && rightChecked) {
-				continue;
-			}
+/// <summary>
+/// @brief update the cursor
+/// </summary>
+void Game::updateCursor()
+{
+	// Keep the cursor image up to date
+	if (m_constructionState == ConstructionMode::Placing)
+	{
+		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 128, 0 }, { 64, 64 } });
+	}
+	else if (m_constructionState == ConstructionMode::Destroying)
+	{
+		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
+	}
+	else
+	{
+		m_cursor.m_sprite.setTextureRect(sf::IntRect{ { 0, 0 }, { 64, 64 } });
+	}
 
+	// Reset the cursor click
+	m_cursor.m_clicked = false;
+	m_cursor.m_cancelClicked = false;
 
-			switch (dir) {
-			case 0:
-				// Up
-				if (row - 2 >= 0 && m_mazeBlocks[row - 2][col] != TileType::None) {
-					m_mazeBlocks[row-1][col] = TileType::None;
-					row -= 2;
-					foundDir = true;
-				}
-				upChecked = true;
-				break;
-			case 1:
-				// Down
-				if (row + 2 < MAZE_ROWS && m_mazeBlocks[row + 2][col] != TileType::None) {
-					m_mazeBlocks[row+1][col] = TileType::None;
-					row += 2;
-					foundDir = true;
-				}
-				downChecked = true;
-				break;
-			case 2:
-				// Left
-				if (col - 2 >= 0 && m_mazeBlocks[row][col - 2] != TileType::None) {
-					m_mazeBlocks[row][col-1] = TileType::None;
-					col -= 2;
-					foundDir = true;
-				}
-				leftChecked = true;
-				break;
-			case 3:
-				// Right
-				if (col + 2 < MAZE_COLS && m_mazeBlocks[row][col + 2] != TileType::None) {
-					m_mazeBlocks[row][col+1] = TileType::None;
-					col += 2;
-					foundDir = true;
-				}
-				rightChecked = true;
-				break;
-			}
+	// Check if the mouse has been pressed
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		m_cursor.m_clicked = true;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	{
+		m_cursor.m_cancelClicked = true;
+	}
+
+	// Update the controller if connected
+	if (m_controllerConnected)
+	{
+		updateController();
+	}
+
+	// convert the cursor position to world coordinates
+	sf::Vector2f worldPos;
+	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
+	{
+		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_constructionView);
+	}
+	else
+	{
+		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_gameplayView);
+	}
+
+	m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
+}
+
+/// <summary>
+/// @brief Update the controller and take input
+/// </summary>
+void Game::updateController()
+{
+	m_controller.update();
+
+	// Controller Right
+	if (m_controller.currentState.LeftThumbStick.x > 15.0f)
+	{
+		if (m_cursor.m_position.x < WINDOW_WIDTH - m_cursor.m_sprite.getGlobalBounds().width / 2.0f)
+		{
+			m_cursor.m_position.x += static_cast<int>(m_controller.currentState.LeftThumbStick.x * m_controllerSensitivity);
+		}
+		else
+		{
+			m_cursor.m_position.x = WINDOW_WIDTH - static_cast<int>(m_cursor.m_sprite.getGlobalBounds().width / 2.0f);
 		}
 	}
 
-	// Clear the maze entrance and finish
-	m_mazeBlocks[1][0] = 0;
-	m_mazeBlocks[MAZE_ROWS - 2][MAZE_COLS - 1] = 0;
+	// Controller Left
+	if (m_controller.currentState.LeftThumbStick.x < -15.0f)
+	{
+		if (m_cursor.m_position.x > 0.0f)
+		{
+			m_cursor.m_position.x += static_cast<int>(m_controller.currentState.LeftThumbStick.x * m_controllerSensitivity);
+		}
+		else
+		{
+			m_cursor.m_position.x = 0;
+		}
+	}
+
+	// Controller Down
+	if (m_controller.currentState.LeftThumbStick.y > 15.0f)
+	{
+		if (m_cursor.m_position.y < WINDOW_HEIGHT - m_cursor.m_sprite.getGlobalBounds().height / 2.0f)
+		{
+			m_cursor.m_position.y += static_cast<int>(m_controller.currentState.LeftThumbStick.y * m_controllerSensitivity);
+		}
+		else
+		{
+			m_cursor.m_position.y = WINDOW_HEIGHT - static_cast<int>(m_cursor.m_sprite.getGlobalBounds().height / 2.0f);
+		}
+	}
+
+	// Controller Up
+	if (m_controller.currentState.LeftThumbStick.y < -15.0f)
+	{
+		if (m_cursor.m_position.y > 0.0f)
+		{
+			m_cursor.m_position.y += static_cast<int>(m_controller.currentState.LeftThumbStick.y * m_controllerSensitivity);
+		}
+		else
+		{
+			m_cursor.m_position.y = 0;
+		}
+	}
+
+	// Check if either the controller has been clicked
+	if (m_controller.currentState.A)
+	{
+		m_cursor.m_clicked = true;
+	}
+	if (m_controller.currentState.B)
+	{
+		m_cursor.m_cancelClicked = true;
+	}
 }

@@ -122,16 +122,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Cartographer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />
     <ClCompile Include="Mathematician.cpp" />
+    <ClCompile Include="MazeGenerator.cpp" />
     <ClCompile Include="MazeSolver.cpp" />
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Cartographer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="BasicSolver.h" />
@@ -139,6 +142,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Mathematician.h" />
     <ClInclude Include="Cursor.h" />
+    <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="MazeSolver.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>

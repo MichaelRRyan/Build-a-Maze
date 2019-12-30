@@ -1,13 +1,14 @@
-#ifndef GUI_H
-#define GUI_H
+#ifndef SCREENS_H
+#define SCREENS_H
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "Globals.h"
 #include "XBox360Controller.h"
 #include "Cursor.h"
+#include "Button.h"
 
-class GUI
+class Screens
 {
 	// Menu Constants
 	const sf::Vector2f PLAY_BUTTON_SIZE{ 300.0f, 80.0f };
@@ -30,10 +31,11 @@ class GUI
 	sf::RectangleShape m_shopBackground;
 	sf::RectangleShape m_shopItem;
 	sf::RectangleShape m_titleScreenBackground;
-	sf::RectangleShape m_titleScreenButton;
 
 	sf::Texture m_tilesTexture;
 	sf::Texture m_iconsTexture;
+	sf::Texture m_guiTextures;
+
 	sf::Sprite m_shopItemImage;
 	sf::Sprite m_iconsSprite;
 	
@@ -54,8 +56,12 @@ class GUI
 	sf::Text m_titleText;
 	sf::Text m_titleScreenButtonText;
 
+	GUI::Button m_playButton;
+	GUI::Button m_helpButton;
+	GUI::Button m_exitButton;
+
 public:
-	GUI();
+	Screens();
 	void setupShopScreen();
 	void setupFontAndText();
 
@@ -68,5 +74,5 @@ public:
 	void update(sf::Vector2i t_mousePosition, int & t_money);
 };
 
-#endif // !GUI_H
+#endif // !SCREENS_H
 

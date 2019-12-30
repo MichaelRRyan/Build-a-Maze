@@ -12,9 +12,9 @@ class MazeSolver
 public:
 	MazeSolver() = default;
 	virtual void loadFiles() = 0;
-	virtual void update(int t_maze[][MAZE_COLS]) = 0; // Move the enemy if not blocked by an enemy or wall
-	virtual void move(int t_maze[][MAZE_COLS], sf::Vector2i t_newPosition); // Move the solver to a new position
-	virtual void findNewDirection(int t_maze[][MAZE_COLS]); // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
+	virtual void update(TileType t_maze[][MAZE_COLS]) = 0; // Move the enemy if not blocked by an enemy or wall
+	virtual void move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition); // Move the solver to a new position
+	virtual void findNewDirection(TileType t_maze[][MAZE_COLS]); // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
 
@@ -29,7 +29,7 @@ public:
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
 	
-	void checkForExit(int t_maze[][MAZE_COLS]); // Check if the exit of the maze is within sight, set direction towards it
+	void checkForExit(TileType t_maze[][MAZE_COLS]); // Check if the exit of the maze is within sight, set direction towards it
 	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 

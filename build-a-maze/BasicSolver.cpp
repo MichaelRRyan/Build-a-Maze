@@ -43,7 +43,7 @@ void BasicSolver::loadFiles()
 /// </summary>
 /// <param name="t_maze"></param>
 /// <param name="t_ghosts"></param>
-void BasicSolver::update(int t_maze[][MAZE_COLS])
+void BasicSolver::update(TileType t_maze[][MAZE_COLS])
 {
 
 	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
@@ -57,7 +57,7 @@ void BasicSolver::update(int t_maze[][MAZE_COLS])
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 		// Positive
-		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
+		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall)
 		{
 			if (rand() % 2 == 0) {
 				m_moveDir = Global::getDirection({ dir.y, dir.x });
@@ -65,7 +65,7 @@ void BasicSolver::update(int t_maze[][MAZE_COLS])
 		}
 
 		// Negative
-		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall)
 		{
 			if (rand() % 2 == 0) {
 				m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
@@ -82,7 +82,7 @@ void BasicSolver::update(int t_maze[][MAZE_COLS])
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 
 			// Move if not blocked, else change direction
-			if (t_maze[desiredPosition.y][desiredPosition.x] != 10)
+			if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall)
 			{
 				move(t_maze, desiredPosition);
 				break; // Break from the loop if the enemy can move

@@ -5,7 +5,10 @@
 /// Default Constructor.
 /// <para>Setup the object.</para>
 /// </summary>
-GUI::GUI()
+Screens::Screens() : 
+	m_playButton(m_guiTextures, m_mainFont, "PLAY", PLAY_BUTTON_POSITION),
+	m_helpButton(m_guiTextures, m_mainFont, "HELP", {PLAY_BUTTON_POSITION.x, PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y * 1.5f }),
+	m_exitButton(m_guiTextures, m_mainFont, "EXIT", { PLAY_BUTTON_POSITION.x, PLAY_BUTTON_POSITION.y + (PLAY_BUTTON_SIZE.y * 1.5f) * 2.0f })
 {
 	setupShopScreen();
 	setupFontAndText();
@@ -13,16 +16,17 @@ GUI::GUI()
 	m_titleScreenBackground.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
 	m_titleScreenBackground.setFillColor(sf::Color{ sf::Color{ 247, 230, 134 } });
 
-	m_titleScreenButton.setPosition(PLAY_BUTTON_POSITION);
-	m_titleScreenButton.setSize(PLAY_BUTTON_SIZE);
-	m_titleScreenButton.setOutlineColor(sf::Color{ 120, 112, 65 });
-	m_titleScreenButton.setOutlineThickness(5.0f);
+	m_playButton.setup();
+	m_helpButton.setup();
+	m_exitButton.setup();
+
+	m_helpButton.setLocked(true);
 }
 
 /// <summary>
 /// Load the textures and setup all shape and sprite objects.
 /// </summary>
-void GUI::setupShopScreen()
+void Screens::setupShopScreen()
 {
 	// Setup the shop background
 	m_shopBackground.setPosition(SHOP_BACKGROUND_START_POS);
@@ -48,6 +52,11 @@ void GUI::setupShopScreen()
 		std::cout << "Error loading icons textures";
 	}
 
+	if (!m_guiTextures.loadFromFile("ASSETS/IMAGES/GUI.png"))
+	{
+		std::cout << "Error loading GUI textures";
+	}
+
 	// setup the shop item image sprite
 	m_shopItemImage.setTexture(m_tilesTexture);
 	m_shopItemImage.setScale(1.8f, 1.8f);
@@ -60,7 +69,7 @@ void GUI::setupShopScreen()
 /// <summary>
 /// Load the fonts and setup all text objects.
 /// </summary>
-void GUI::setupFontAndText()
+void Screens::setupFontAndText()
 {
 	// Load the font
 	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
@@ -119,7 +128,7 @@ void GUI::setupFontAndText()
 /// Draw the GUI for the constuction game state
 /// </summary>
 /// <param name="t_window">Render window</param>
-void GUI::drawConstructionGUI(sf::RenderWindow & t_window)
+void Screens::drawConstructionGUI(sf::RenderWindow & t_window)
 {
 	// Draw the panel background
 	m_shopBackground.setPosition(GAMEPLAY_SECTION_END, 0.0f);
@@ -162,7 +171,7 @@ void GUI::drawConstructionGUI(sf::RenderWindow & t_window)
 /// <param name="t_noOfAI"></param>
 /// <param name="t_timeToComplete"></param>
 /// <param name="t_moneyEarned"></param>
-void GUI::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
+void Screens::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Draw the panel background
 	m_shopBackground.setPosition(SIM_PANEL_START, 0.0f);
@@ -173,7 +182,7 @@ void GUI::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float t_t
 	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
 	int minutes = static_cast<int>(floor(t_timeToComplete)) / 60;
 
-	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(BASIC_SOLVERS_MAX));
+	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(SOLVERS_MAX));
 	
 	// Draw the icons
 	m_iconsSprite.setPosition(SIM_ICONS_START_POS);
@@ -205,62 +214,35 @@ void GUI::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float t_t
 /// Draw the title screen
 /// </summary>
 /// <param name="t_window"></param>
-void GUI::drawTitleScreen(sf::RenderWindow & t_window)
+void Screens::drawTitleScreen(sf::RenderWindow & t_window)
 {
 	t_window.draw(m_titleScreenBackground);
-
 	t_window.draw(m_titleText);
 
-	m_titleScreenButton.setPosition(PLAY_BUTTON_POSITION);
-	m_titleScreenButtonText.setPosition(PLAY_BUTTON_POSITION.x + PLAY_BUTTON_SIZE.x / 2.0f, PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y / 2.0f - 10.0f);
-	for (int i = 0; i < 3; i++)
-	{
-		t_window.draw(m_titleScreenButton);
-		m_titleScreenButton.move(0.0f, PLAY_BUTTON_SIZE.y * 1.5f);
-
-		if (i == 0)
-		{
-			m_titleScreenButtonText.setString("START");
-		}
-		else if (i == 1)
-		{
-			m_titleScreenButtonText.setString("SETTINGS");
-		}
-		else
-		{
-			m_titleScreenButtonText.setString("EXIT");
-		}
-		
-		m_titleScreenButtonText.setOrigin(m_titleScreenButtonText.getGlobalBounds().width / 2, m_titleScreenButtonText.getGlobalBounds().height / 2);
-		t_window.draw(m_titleScreenButtonText);
-		m_titleScreenButtonText.move(0.0f, PLAY_BUTTON_SIZE.y * 1.5f);
-	}
+	m_playButton.draw(t_window);
+	m_helpButton.draw(t_window);
+	m_exitButton.draw(t_window);
 }
 
-void GUI::processTitleEvents(Cursor t_cursor, GameState &t_gameState, bool &t_exitGame)
+void Screens::processTitleEvents(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame)
 {
-	if (t_cursor.m_clicked)
+	if (m_playButton.processMouseEvents(t_cursor))
 	{
-		if (t_cursor.m_position.x > PLAY_BUTTON_POSITION.x
-			&& t_cursor.m_position.x < PLAY_BUTTON_POSITION.x + PLAY_BUTTON_SIZE.x)
-		{
-			if (t_cursor.m_position.y > PLAY_BUTTON_POSITION.y
-				&& t_cursor.m_position.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y)
-			{
-				t_gameState = GameState::BuildMode;
-			}
+		t_gameState = GameState::BuildMode;
+	}
 
-			if (t_cursor.m_position.y > PLAY_BUTTON_POSITION.y + (PLAY_BUTTON_SIZE.y * 3)
-				&& t_cursor.m_position.y < PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y + (PLAY_BUTTON_SIZE.y * 3))
-			{
-				t_exitGame = true;
-			}
-		}
+	if (m_helpButton.processMouseEvents(t_cursor))
+	{
+		
+	}
 
+	if (m_exitButton.processMouseEvents(t_cursor))
+	{
+		t_exitGame = true;
 	}
 }
 
-void GUI::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
+void Screens::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
 {
 	// Check for a mouse click event
 	if (t_cursor.m_clicked)
@@ -301,7 +283,7 @@ void GUI::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode & t
 	}
 }
 
-void GUI::update(sf::Vector2i t_mousePosition, int & t_money)
+void Screens::update(sf::Vector2i t_mousePosition, int & t_money)
 {
 	// Set the money string
 	m_moneyText.setString("BALANCE: " + std::to_string(t_money));

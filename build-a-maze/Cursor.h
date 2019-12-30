@@ -8,10 +8,14 @@
 
 #include <SFML/Graphics.hpp>
 
+/// <summary>
+/// @brief A struct to replace the cursor to use custom cursors and support controllers
+/// </summary>
 struct Cursor
 {
 	bool m_clicked;
 	bool m_cancelClicked;
+
 	sf::Vector2i m_position;
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;

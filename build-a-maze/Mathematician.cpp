@@ -44,7 +44,7 @@ void Mathematician::loadFiles()
 /// </summary>
 /// <param name="t_maze"></param>
 /// <param name="t_ghosts"></param>
-void Mathematician::update(int t_maze[][MAZE_COLS])
+void Mathematician::update(TileType t_maze[][MAZE_COLS])
 {
 	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
 	{
@@ -59,7 +59,7 @@ void Mathematician::update(int t_maze[][MAZE_COLS])
 		if (m_takeLefts)
 		{
 			// Characters left
-			if (t_maze[m_pos.y - dir.x][m_pos.x + dir.y] != 10) // Characters left when facing vertically and their right when horisontal
+			if (t_maze[m_pos.y - dir.x][m_pos.x + dir.y] != TileType::Wall) // Characters left when facing vertically and their right when horisontal
 			{
 				m_moveDir = Global::getDirection({ dir.y, -dir.x });
 			}
@@ -67,7 +67,7 @@ void Mathematician::update(int t_maze[][MAZE_COLS])
 		else
 		{
 			// Characters right
-			if (t_maze[m_pos.y + dir.x][m_pos.x - dir.y] != 10) // Characters left when facing vertically and their right when horisontal
+			if (t_maze[m_pos.y + dir.x][m_pos.x - dir.y] != TileType::Wall) // Characters left when facing vertically and their right when horisontal
 			{
 				m_moveDir = Global::getDirection({ -dir.y, dir.x });
 			}
@@ -82,7 +82,7 @@ void Mathematician::update(int t_maze[][MAZE_COLS])
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 
 			// Move if not blocked, else change direction
-			if (t_maze[desiredPosition.y][desiredPosition.x] != 10)
+			if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall)
 			{
 				move(t_maze, desiredPosition);
 				break; // Break from the loop if the enemy can move

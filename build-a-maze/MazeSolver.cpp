@@ -17,10 +17,10 @@ void MazeSolver::setPos(int t_row, int t_col)
 	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * 32)); // Set the position to the current cell
 }
 
-void MazeSolver::move(int t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
+void MazeSolver::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
 {
-	if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
-		|| t_maze[t_newPosition.y][t_newPosition.x] == TileType::Slow)
+	if (static_cast<TileType>(t_maze[m_pos.y][m_pos.x]) == TileType::Slow
+		|| static_cast<TileType>(t_maze[t_newPosition.y][t_newPosition.x]) == TileType::Slow)
 	{
 		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 	}
@@ -32,14 +32,14 @@ void MazeSolver::move(int t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
 	m_pos = t_newPosition;
 }
 
-void MazeSolver::findNewDirection(int t_maze[][MAZE_COLS])
+void MazeSolver::findNewDirection(TileType t_maze[][MAZE_COLS])
 {
 	sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 	// If front blocked, always go left or right before going back
 	// Both positive and negative (T junction)
-	if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10
-		&& t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+	if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
+		&& t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall)
 	{
 		if (rand() % 2 == 0)
 		{
@@ -52,13 +52,13 @@ void MazeSolver::findNewDirection(int t_maze[][MAZE_COLS])
 	}
 
 	// Positive
-	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10)
+	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall)
 	{
 		m_moveDir = Global::getDirection({ dir.y, dir.x });
 	}
 
 	// Negative
-	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10)
+	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall)
 	{
 		m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
 	}
@@ -76,7 +76,7 @@ void MazeSolver::reset(int t_moveDelay)
 	setTimeModifier(1);
 }
 
-void MazeSolver::checkForExit(int t_maze[][MAZE_COLS])
+void MazeSolver::checkForExit(TileType t_maze[][MAZE_COLS])
 {
 	// Check Vertically
 	if (m_pos.y > MAZE_ROWS - 5 && m_pos.x == MAZE_COLS - 2)
@@ -85,7 +85,7 @@ void MazeSolver::checkForExit(int t_maze[][MAZE_COLS])
 
 		for (int i = m_pos.y; i < MAZE_ROWS - 1; i++)
 		{
-			if (t_maze[i][m_pos.x] == TileType::Wall)
+			if (static_cast<TileType>(t_maze[i][m_pos.x]) == TileType::Wall)
 			{
 				goalBlocked = true;
 				break;
@@ -104,7 +104,7 @@ void MazeSolver::checkForExit(int t_maze[][MAZE_COLS])
 
 		for (int i = m_pos.x; i < MAZE_COLS; i++)
 		{
-			if (t_maze[m_pos.y][i] == TileType::Wall)
+			if (static_cast<TileType>(t_maze[m_pos.y][i]) == TileType::Wall)
 			{
 				goalBlocked = true;
 				break;

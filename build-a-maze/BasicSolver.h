@@ -12,7 +12,7 @@ class BasicSolver : public MazeSolver
 public:
 	BasicSolver();
 	void loadFiles();
-	void update(int t_maze[][MAZE_COLS]); // Move the enemy if not blocked by an enemy or wall
+	void update(TileType t_maze[][MAZE_COLS]); // Move the enemy if not blocked by an enemy or wall
 
 protected:
 	// Declare private data members

@@ -31,21 +31,15 @@
 /// 17/12/2019: 15:00 - 16:00 - Added maze solver abstract class for all solvers to inherit from
 /// 17/12/2019: 17:00 - 18:00 - Began adding cartographer solver. Cleaned up some solver code
 /// 19/12/2019: 17:00 - 18:00 - Finished adding cartographer solver. Cleaned up more solver code
-
-
-//#ifdef _DEBUG 
-//#pragma comment(lib,"sfml-graphics-d.lib") 
-//#pragma comment(lib,"sfml-audio-d.lib") 
-//#pragma comment(lib,"sfml-system-d.lib") 
-//#pragma comment(lib,"sfml-window-d.lib") 
-//#pragma comment(lib,"sfml-network-d.lib") 
-//#else 
-//#pragma comment(lib,"sfml-graphics.lib") 
-//#pragma comment(lib,"sfml-audio.lib") 
-//#pragma comment(lib,"sfml-system.lib") 
-//#pragma comment(lib,"sfml-window.lib") 
-//#pragma comment(lib,"sfml-network.lib") 
-//#endif
+/// 30/12/2019: 12:00 - 14:30 - Added interactable button objects and cleaned up game code
+/// 
+/// Necessary Features:
+/// - Check to make sure maze is solveble before beginning simulation mode
+/// - Game saving and loading
+/// - Traps
+/// 
+/// Known Issues:
+/// - Cartographers change direction while backtracking
 
 #ifndef SFML_STATIC 
 #ifdef _DEBUG

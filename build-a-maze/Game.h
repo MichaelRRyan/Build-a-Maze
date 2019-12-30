@@ -6,8 +6,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <iostream>
-#include <stack>
-#include <typeinfo>
+
+#include "MazeGenerator.h"
 #include "BasicSolver.h"
 #include "Mathematician.h"
 #include "Globals.h"
@@ -28,18 +28,20 @@ public:
 
 private:
 	// ********************* Private Functions *********************
-	// Main functions
+	// Engine functions
 	void processEvents();
 	void processKeyboardEvents(sf::Event t_event);
 	void processMouseEvents(sf::Event t_event);
 	void update(sf::Time t_deltaTime);
-	void updateController();
 	void render();
 
-	// Specific functions
+	// Game functions
 	void setupGame();
-	void setupShapes();
-	void generateMaze();
+	void resetSimulation();
+	void processTimeModifierEvents(sf::Event t_event);
+	void updateCursor();
+	void updateController();
+
 
 	// ************************* Variables *************************
 
@@ -64,11 +66,10 @@ private:
 	float m_controllerSensitivity;
 
 	// Maze array
-	int m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
+	TileType m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
 
 	// Vectors
 	sf::Vector2i m_selectedTile;
-	//sf::Vector2i m_mousePosition;
 
 	// Shapes
 	sf::RectangleShape m_tileSelector;
@@ -91,7 +92,7 @@ private:
 	Cursor m_cursor;
 
 	// Enum variables
-	GUI m_gui;
+	Screens m_gui;
 	GameState m_gamestate;
 	ConstructionMode m_constructionState;
 	TileType m_selectedTileType;

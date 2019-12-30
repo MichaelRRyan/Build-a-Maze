@@ -41,7 +41,7 @@ void Cartographer::loadFiles()
 /// <para>Set the texture direction and move timer.</para>
 /// </summary>
 /// <param name="t_maze">maze array</param>
-void Cartographer::update(int t_maze[][MAZE_COLS])
+void Cartographer::update(TileType t_maze[][MAZE_COLS])
 {
 	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
 	{
@@ -54,7 +54,7 @@ void Cartographer::update(int t_maze[][MAZE_COLS])
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 		// Positive
-		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10
+		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
 			&& !m_deadEnds[m_pos.y + dir.x][m_pos.x + dir.y]
 			&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top()))
 		{
@@ -64,7 +64,7 @@ void Cartographer::update(int t_maze[][MAZE_COLS])
 		}
 
 		// Negative
-		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10
+		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall
 			&& !m_deadEnds[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)]
 			&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top()))
 		{
@@ -83,7 +83,7 @@ void Cartographer::update(int t_maze[][MAZE_COLS])
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 
 			// Move if not blocked by a wall and not a dead end, else change direction
-			if (t_maze[desiredPosition.y][desiredPosition.x] != 10
+			if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall
 				&& !m_deadEnds[desiredPosition.y][desiredPosition.x]
 				&& (m_previousTiles.empty() || desiredPosition != m_previousTiles.top()))
 			{
@@ -96,7 +96,7 @@ void Cartographer::update(int t_maze[][MAZE_COLS])
 
 				desiredPosition = m_pos + Global::getDirectionVector(m_moveDir);
 				// Move if not blocked by a wall and not a dead end, else change direction
-				if (t_maze[desiredPosition.y][desiredPosition.x] != 10
+				if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall
 					&& !m_deadEnds[desiredPosition.y][desiredPosition.x])
 				{
 					move(t_maze, desiredPosition);
@@ -115,10 +115,10 @@ void Cartographer::update(int t_maze[][MAZE_COLS])
 	}
 }
 
-void Cartographer::move(int t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
+void Cartographer::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
 {
-	if (t_maze[m_pos.y][m_pos.x] == TileType::Slow
-		|| t_maze[t_newPosition.y][t_newPosition.x] == TileType::Slow)
+	if (static_cast<TileType>(t_maze[m_pos.y][m_pos.x]) == TileType::Slow
+		|| static_cast<TileType>(t_maze[t_newPosition.y][t_newPosition.x]) == TileType::Slow)
 	{
 		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 	}
@@ -179,16 +179,16 @@ void Cartographer::draw(sf::RenderWindow& t_window) const
 #endif // CARTOGRAPHER_DEBUG
 }
 
-void Cartographer::findNewDirection(int t_maze[][MAZE_COLS])
+void Cartographer::findNewDirection(TileType t_maze[][MAZE_COLS])
 {
 	sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 	// If front blocked, always go left or right before going back
 	// Both positive and negative (T junction)
-	if ((t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10
+	if ((t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
 		&& !m_deadEnds[m_pos.y + dir.x][m_pos.x + dir.y]
 		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top()))
-		&& (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10
+		&& (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall
 		&& !m_deadEnds[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)]
 		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top())))
 	{
@@ -203,14 +203,14 @@ void Cartographer::findNewDirection(int t_maze[][MAZE_COLS])
 	}
 
 	// Positive
-	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != 10
+	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
 		&& !m_deadEnds[m_pos.y + dir.x][m_pos.x + dir.y]
 		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top()))
 	{
 		m_moveDir = Global::getDirection({ dir.y, dir.x });
 	}
 	// Negative
-	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != 10
+	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall
 		&& !m_deadEnds[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)]
 		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top()))
 	{
