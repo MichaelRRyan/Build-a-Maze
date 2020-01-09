@@ -71,8 +71,8 @@ void MazeSolver::reset(int t_moveDelay)
 {
 	setPos(1, 0);
 	m_active = true;
-	setMoveTimer(t_moveDelay);
-	setCharacterDirection(-100); // TEMP: Sloppy fix but works for now
+	m_moveTimer = t_moveDelay;
+	m_characterDirection = -100; // TEMP: Sloppy fix but works for now
 	setTimeModifier(1);
 }
 

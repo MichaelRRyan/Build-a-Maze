@@ -18,17 +18,12 @@ public:
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
 
-	inline sf::Sprite getBody() { return m_body; }
 	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the ghost
 	inline bool getActive() { return m_active; };
 
 	void setPos(int t_row, int t_col);
-	inline void setMoveTimer(int t_moveDelay) { m_moveTimer = t_moveDelay; } // Set the delay between movements
-	inline void setActive(bool t_active) { m_active = t_active; }
-	inline void setCharacterDirection(int t_dir) { m_characterDirection = t_dir; }
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
-	
 	void checkForExit(TileType t_maze[][MAZE_COLS]); // Check if the exit of the maze is within sight, set direction towards it
 	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
