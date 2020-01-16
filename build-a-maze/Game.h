@@ -16,6 +16,7 @@
 #include "Cursor.h"
 #include "MazeSolver.h"
 #include "Cartographer.h"
+#include "Renderer.h"
 
 class Game
 {
@@ -66,6 +67,7 @@ private:
 	float m_controllerSensitivity;
 
 	// Maze array
+	// Should be moved to a std::array
 	TileType m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
 
 	// Vectors

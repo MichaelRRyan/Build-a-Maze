@@ -254,17 +254,7 @@ void Game::render()
 		m_window.setView(m_gameplayView);
 	}
 
-	// Draw the maze background (Grass)
-	for (int row = -2; row < MAZE_ROWS + 2; row++)
-	{
-		for (int col = -8; col < MAZE_COLS + 2; col++)
-		{
-			m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE);
-
-			m_textureBlock.setTextureRect(sf::IntRect{ 672 + (abs(row + col) % 3) * 32, 160, 32, 32 });
-			m_window.draw(m_textureBlock);
-		}
-	}
+	Renderer::drawMazeBackground(m_window, m_textureBlock);
 
 	// Draw the tile selector
 	if (m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1 && m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1)

@@ -131,6 +131,7 @@
     <ClCompile Include="Mathematician.cpp" />
     <ClCompile Include="MazeGenerator.cpp" />
     <ClCompile Include="MazeSolver.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -144,6 +145,7 @@
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="MazeSolver.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>
   <ItemGroup>
