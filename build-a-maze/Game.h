@@ -98,6 +98,8 @@ private:
 	GameState m_gamestate;
 	ConstructionMode m_constructionState;
 	TileType m_selectedTileType;
+
+	sf::Clock m_treadmillAnimClock;
 };
 
 #endif // !GAME

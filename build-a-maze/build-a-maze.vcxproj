@@ -131,7 +131,10 @@
     <ClCompile Include="Mathematician.cpp" />
     <ClCompile Include="MazeGenerator.cpp" />
     <ClCompile Include="MazeSolver.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Renderer.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
+    </ClCompile>
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>

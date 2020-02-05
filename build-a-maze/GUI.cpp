@@ -42,7 +42,7 @@ void Screens::setupShopScreen()
 	m_shopItem.setOutlineThickness(5.0f);
 
 	// Load the terrain tiles texture
-	if (!m_tilesTexture.loadFromFile("ASSETS/IMAGES/terrain_atlas.png"))
+	if (!m_tilesTexture.loadFromFile("ASSETS/IMAGES/tile_sheet.png"))
 	{
 		std::cout << "Error loading terrain textures";
 	}
@@ -160,6 +160,10 @@ void Screens::drawConstructionGUI(sf::RenderWindow & t_window)
 	m_shopItemImage.setTextureRect(PLANT_TEXT_RECT);
 	t_window.draw(m_shopItemImage);
 
+	m_shopItemImage.move(SHOP_ITEM_SPACING.x, 32.0f);
+	m_shopItemImage.setTextureRect({ 0,0,32,32 });
+	t_window.draw(m_shopItemImage);
+
 	t_window.draw(m_shopText);
 	t_window.draw(m_moneyText);
 }
@@ -264,6 +268,15 @@ void Screens::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode
 			t_constructionState = ConstructionMode::Placing;
 			t_selectedTileType = TileType::Slow;
 			std::cout << "Mode Switched to 'Placing' the 'Plant' tile" << std::endl;
+		}
+
+		// Treadmill item
+		if (t_cursor.m_position.x > SHOP_ITEM_START_POS.x + SHOP_ITEM_SPACING.x * 2.0f && t_cursor.m_position.x < SHOP_ITEM_START_POS.x + (SHOP_ITEM_SPACING.x * 2.0f) + SHOP_ITEM_SIZE.x
+			&& t_cursor.m_position.y > SHOP_ITEM_START_POS.y && t_cursor.m_position.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
+		{
+			t_constructionState = ConstructionMode::Placing;
+			t_selectedTileType = TileType::Treadmill_left;
+			std::cout << "Mode Switched to 'Placing' the 'Treadmill' tile" << std::endl;
 		}
 
 		// Destroy tool

@@ -9,6 +9,7 @@ Game::Game() :
 	m_timeModifier{ 1.0f },
 	m_gameplayView{ { 240.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_constructionView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
+	//m_constructionView{ { 150.0f, 100.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.25f, static_cast<float>(WINDOW_HEIGHT) * 0.25f} },
 	m_controllerSensitivity{ 0.25f },
 	m_cursor{ 0 }
 {
@@ -40,6 +41,7 @@ void Game::run()
 	{
 		processEvents(); // Run as many times as possible
 		timeSinceLastUpdate += clock.restart();
+
 		if (timeSinceLastUpdate > timePerFrame)
 		{
 			timeSinceLastUpdate -= timePerFrame;
@@ -122,12 +124,34 @@ void Game::processKeyboardEvents(sf::Event t_event)
 
 		if (sf::Keyboard::Escape == t_event.key.code)
 		{
-			if (m_gamestate == GameState::BuildMode)
+			if (m_gamestate == GameState::BuildMode
+				&& m_constructionState == ConstructionMode::None)
 			{
-				if (m_constructionState == ConstructionMode::None)
+				m_gamestate = GameState::TitleScreen;
+			}
+		}
+
+		if (sf::Keyboard::R == t_event.key.code)
+		{
+			if (m_gamestate == GameState::BuildMode
+				&& m_constructionState == ConstructionMode::Placing)
+			{
+				switch (m_selectedTileType)
 				{
-					m_gamestate = GameState::TitleScreen;
+				case TileType::Treadmill_left:
+					m_selectedTileType = TileType::Treadmill_up;
+					break;
+				case TileType::Treadmill_right:
+					m_selectedTileType = TileType::Treadmill_down;
+					break;
+				case TileType::Treadmill_up:
+					m_selectedTileType = TileType::Treadmill_right;
+					break;
+				case TileType::Treadmill_down:
+					m_selectedTileType = TileType::Treadmill_left;
+					break;
 				}
+				
 			}
 		}
 	}
@@ -148,7 +172,6 @@ void Game::processMouseEvents(sf::Event t_event)
 	{
 		if (m_gamestate == GameState::BuildMode)
 		{
-
 			// Make sure the player doesn't remove the outer boundary
 			if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
 				&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
@@ -276,8 +299,10 @@ void Game::render()
 					&& m_constructionState == ConstructionMode::Destroying
 					&& m_gamestate == GameState::BuildMode)
 				{
-					m_textureBlock.setColor(sf::Color{200,50,50,245});
+					m_textureBlock.setColor(sf::Color{ 200,50,50,245 });
 				}
+
+				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 
 				if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Slow)
 				{
@@ -286,17 +311,38 @@ void Game::render()
 				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Wall) {
 					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
 				}
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_left) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 0, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_right) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 32, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_up) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 64, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_down) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 96, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
 
-				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 				m_window.draw(m_textureBlock);
 				m_textureBlock.setColor(sf::Color::White);
 			}
 			// Draw ghost blocks when placing a tile
 			else if (row == m_selectedTile.y && col == m_selectedTile.x
-					&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
-					&& m_constructionState == ConstructionMode::Placing
-					&& m_gamestate == GameState::BuildMode)
+				&& row > 0 && row < MAZE_ROWS - 1 && col > 0 && col < MAZE_COLS - 1
+				&& m_constructionState == ConstructionMode::Placing
+				&& m_gamestate == GameState::BuildMode)
 			{
+				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
+
 				if (m_selectedTileType == TileType::Slow)
 				{
 					m_textureBlock.setTextureRect(PLANT_TEXT_RECT);
@@ -304,9 +350,28 @@ void Game::render()
 				else if (m_selectedTileType == TileType::Wall) {
 					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
 				}
+				else if (m_selectedTileType == TileType::Treadmill_left) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 0, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
+				else if (m_selectedTileType == TileType::Treadmill_right) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 32, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
+				else if (m_selectedTileType == TileType::Treadmill_up) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 64, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
+				else if (m_selectedTileType == TileType::Treadmill_down) {
+					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+					m_textureBlock.setTextureRect({ 32 + left, 96, 32, 32 });
+					m_textureBlock.move(0.0f, 32.0f);
+				}
 
 				m_textureBlock.setColor(sf::Color{ 50,100,200,180 });
-				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 				m_window.draw(m_textureBlock);
 				m_textureBlock.setColor(sf::Color::White);
 			}
@@ -370,7 +435,7 @@ void Game::setupGame()
 	m_pauseScreenFade.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
 	m_pauseScreenFade.setFillColor(sf::Color{ 255, 255, 255, 100 });
 
-	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/terrain_atlas.png"))
+	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/tile_sheet.png"))
 	{
 		std::cout << "Error loading terrain textures";
 	}

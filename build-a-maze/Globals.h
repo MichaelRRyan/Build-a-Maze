@@ -12,8 +12,8 @@ const int SOLVERS_MAX{ 20 };
 const unsigned WINDOW_WIDTH{ 1280u };
 const unsigned WINDOW_HEIGHT{ 720u };
 
-const sf::IntRect WALL_TEXT_RECT{ 0, 832, 32, 64 };
-const sf::IntRect PLANT_TEXT_RECT{ 480, 768, 32, 64 };
+const sf::IntRect WALL_TEXT_RECT{ 0, 160, 32, 64 };
+const sf::IntRect PLANT_TEXT_RECT{ 32, 160, 32, 64 };
 
 const float GAMEPLAY_SECTION_END{ 800.0f };
 const float SIM_PANEL_START{ 1000 };
@@ -28,6 +28,10 @@ enum class ConstructionMode
 enum class TileType {
 	None,
 	Slow = 1,
+	Treadmill_left = 2,
+	Treadmill_right = 3,
+	Treadmill_up = 4,
+	Treadmill_down = 5,
 	Wall = 10
 };
 

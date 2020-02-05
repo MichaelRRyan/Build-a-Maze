@@ -9,7 +9,7 @@ void Renderer::drawMazeBackground(sf::RenderWindow& t_window, sf::Sprite t_tileS
 		{
 			t_tileSprite.setPosition(col * TILE_SIZE, row * TILE_SIZE);
 
-			t_tileSprite.setTextureRect(sf::IntRect{ 672 + (abs(row + col) % 3) * 32, 160, 32, 32 });
+			t_tileSprite.setTextureRect(sf::IntRect{ (abs(row + col) % 3) * 32, 128, 32, 32 });
 			t_window.draw(t_tileSprite);
 		}
 	}
