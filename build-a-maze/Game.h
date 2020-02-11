@@ -17,6 +17,8 @@
 #include "MazeSolver.h"
 #include "Cartographer.h"
 #include "Renderer.h"
+#include "MenuScreen.h"
+#include "HUD.h"
 
 class Game
 {
@@ -100,6 +102,9 @@ private:
 	TileType m_selectedTileType;
 
 	sf::Clock m_treadmillAnimClock;
+
+	MenuScreen m_menuScreen;
+	HUD m_hud;
 };
 
 #endif // !GAME

@@ -4,12 +4,12 @@ namespace GUI
 {
 	////////////////////////////////////////////////////////////
 	Button::Button(sf::Texture const& t_texture, sf::Font const& t_font, std::string t_textString, sf::Vector2f t_position) :
-		m_locked{ false }
+		m_locked{ false },
+		m_imageButton{ false }
 	{
 		m_sprite.setTexture(t_texture);
 		m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
 		m_sprite.setPosition(t_position.x + s_WIDTH / 2.0f, t_position.y + s_HEIGHT / 2.0f);
-		m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
 
 		m_text.setPosition(t_position.x + s_WIDTH / 2.0f, t_position.y + s_HEIGHT / 2.2f);
 		m_text.setString(t_textString);
@@ -23,10 +23,30 @@ namespace GUI
 	}
 
 	////////////////////////////////////////////////////////////
-	void Button::draw(sf::RenderWindow& t_window)
+	Button::Button(sf::Texture const& t_imageTexture, sf::IntRect t_imageRect, sf::Vector2f t_position) :
+		m_locked{ false },
+		m_imageButton{ true }
 	{
-		t_window.draw(m_sprite);
-		t_window.draw(m_text);
+		m_image.setTexture(t_imageTexture);
+		m_image.setTextureRect(t_imageRect);
+		m_image.setPosition(t_position.x + t_imageRect.width / 2.0f, t_position.y + t_imageRect.height / 2.0f);
+
+		// Just used for collisions in image buttons
+		m_sprite.setTextureRect(t_imageRect);
+	}
+
+	////////////////////////////////////////////////////////////
+	void Button::draw(sf::RenderWindow& t_window) const
+	{
+		if (!m_imageButton)
+		{
+			t_window.draw(m_sprite);
+			t_window.draw(m_text);
+		}
+		else
+		{
+			t_window.draw(m_image);
+		}
 	}
 
 	////////////////////////////////////////////////////////////
@@ -35,6 +55,8 @@ namespace GUI
 		m_text.setOrigin(m_text.getGlobalBounds().width / 2.0f, m_text.getGlobalBounds().height / 2.0f);
 		m_text.setFillColor(sf::Color::Black);
 		m_sprite.setOrigin(s_WIDTH / 2.0f, s_HEIGHT / 2.0f);
+
+		m_image.setOrigin(m_image.getGlobalBounds().width / 2.0f, m_image.getGlobalBounds().height / 2.0f);
 	}
 
 	////////////////////////////////////////////////////////////
@@ -42,11 +64,18 @@ namespace GUI
 	{
 		if (!m_locked)
 		{
-			m_sprite.setScale(1.0f, 1.0f);
-			m_text.setScale(1.0f, 1.0f);
+			if (!m_imageButton)
+			{
+				m_sprite.setScale(1.0f, 1.0f);
+				m_text.setScale(1.0f, 1.0f);
 
-			m_sprite.setRotation(0.0f);
-			m_text.setRotation(0.0f);
+				m_sprite.setRotation(0.0f);
+				m_text.setRotation(0.0f);
+			}
+			else
+			{
+				m_image.setScale(1.0f, 1.0f);
+			}
 
 			// Check the mouse pointer against the button x bounds
 			if (t_cursor.m_position.x > m_sprite.getPosition().x - m_sprite.getGlobalBounds().width / 2.0f
@@ -56,10 +85,17 @@ namespace GUI
 				if (t_cursor.m_position.y > m_sprite.getPosition().y - m_sprite.getGlobalBounds().height / 2.0f
 					&& t_cursor.m_position.y < m_sprite.getPosition().y + m_sprite.getGlobalBounds().height / 2.0f)
 				{
-					m_sprite.setScale(0.9f, 0.9f);
-					m_text.setScale(0.9f, 0.9f);
-					m_sprite.setRotation(5.0f * m_rotDirection);
-					m_text.setRotation(5.0f * m_rotDirection);
+					if (!m_imageButton)
+					{
+						m_sprite.setScale(0.9f, 0.9f);
+						m_text.setScale(0.9f, 0.9f);
+						m_sprite.setRotation(5.0f * m_rotDirection);
+						m_text.setRotation(5.0f * m_rotDirection);
+					}
+					else
+					{
+						m_image.setScale(0.9f, 0.9f);
+					}
 
 					if (t_cursor.m_clicked)
 					{

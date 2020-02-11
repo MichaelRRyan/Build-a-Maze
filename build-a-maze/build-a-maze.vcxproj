@@ -126,11 +126,13 @@
     <ClCompile Include="Cartographer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="HUD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />
     <ClCompile Include="Mathematician.cpp" />
     <ClCompile Include="MazeGenerator.cpp" />
     <ClCompile Include="MazeSolver.cpp" />
+    <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="Renderer.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
@@ -144,10 +146,12 @@
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="HUD.h" />
     <ClInclude Include="Mathematician.h" />
     <ClInclude Include="Cursor.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="MazeSolver.h" />
+    <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>

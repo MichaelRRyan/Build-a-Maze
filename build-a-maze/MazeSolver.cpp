@@ -19,8 +19,8 @@ void MazeSolver::setPos(int t_row, int t_col)
 
 void MazeSolver::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
 {
-	if (static_cast<TileType>(t_maze[m_pos.y][m_pos.x]) == TileType::Slow
-		|| static_cast<TileType>(t_maze[t_newPosition.y][t_newPosition.x]) == TileType::Slow)
+	if (static_cast<TileType>(t_maze[m_pos.y][m_pos.x]) == TileType::Mud
+		|| static_cast<TileType>(t_maze[t_newPosition.y][t_newPosition.x]) == TileType::Mud)
 	{
 		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 	}

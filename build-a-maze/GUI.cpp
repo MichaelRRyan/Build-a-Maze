@@ -5,22 +5,10 @@
 /// Default Constructor.
 /// <para>Setup the object.</para>
 /// </summary>
-Screens::Screens() : 
-	m_playButton(m_guiTextures, m_mainFont, "PLAY", PLAY_BUTTON_POSITION),
-	m_helpButton(m_guiTextures, m_mainFont, "HELP", {PLAY_BUTTON_POSITION.x, PLAY_BUTTON_POSITION.y + PLAY_BUTTON_SIZE.y * 1.5f }),
-	m_exitButton(m_guiTextures, m_mainFont, "EXIT", { PLAY_BUTTON_POSITION.x, PLAY_BUTTON_POSITION.y + (PLAY_BUTTON_SIZE.y * 1.5f) * 2.0f })
+Screens::Screens()
 {
 	setupShopScreen();
 	setupFontAndText();
-
-	m_titleScreenBackground.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
-	m_titleScreenBackground.setFillColor(sf::Color{ sf::Color{ 247, 230, 134 } });
-
-	m_playButton.setup();
-	m_helpButton.setup();
-	m_exitButton.setup();
-
-	m_helpButton.setLocked(true);
 }
 
 /// <summary>
@@ -84,8 +72,6 @@ void Screens::setupFontAndText()
 	m_numAIText.setFont(m_mainFont);
 	m_timeToCompleteText.setFont(m_mainFont);
 	m_moneyEarnedText.setFont(m_mainFont);
-	m_titleScreenButtonText.setFont(m_mainFont);
-	m_titleText.setFont(m_mainFont);
 
 	// Setup the shop text
 	m_shopText.setString("CONSTRUCTION SHOP");
@@ -110,18 +96,6 @@ void Screens::setupFontAndText()
 	// Setup the money earned text
 	m_moneyEarnedText.setPosition(SIM_ICONS_START_POS + SIM_ICONS_TEXT_SPACING + SIM_ICONS_SPACING * 2.0f);
 	m_moneyEarnedText.setFillColor(sf::Color{ 120, 112, 65 });
-
-	// Setup the title screen button text
-	m_titleScreenButtonText.setFillColor(sf::Color::Black);
-	m_titleScreenButtonText.setCharacterSize(40u);
-
-	// Setup title text
-	m_titleText.setString("Build-a-Maze!");
-	m_titleText.setPosition(WINDOW_WIDTH / 2, 80.0f);
-	m_titleText.setFillColor(sf::Color::Black);
-	m_titleText.setCharacterSize(120u);
-	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2, 0.0f);
-	
 }
 
 /// <summary>
@@ -214,38 +188,6 @@ void Screens::drawSimulationGUI(sf::RenderWindow & t_window, int t_noOfAI, float
 	t_window.draw(m_timeToCompleteText);
 }
 
-/// <summary>
-/// Draw the title screen
-/// </summary>
-/// <param name="t_window"></param>
-void Screens::drawTitleScreen(sf::RenderWindow & t_window)
-{
-	t_window.draw(m_titleScreenBackground);
-	t_window.draw(m_titleText);
-
-	m_playButton.draw(t_window);
-	m_helpButton.draw(t_window);
-	m_exitButton.draw(t_window);
-}
-
-void Screens::processTitleEvents(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame)
-{
-	if (m_playButton.processMouseEvents(t_cursor))
-	{
-		t_gameState = GameState::BuildMode;
-	}
-
-	if (m_helpButton.processMouseEvents(t_cursor))
-	{
-		
-	}
-
-	if (m_exitButton.processMouseEvents(t_cursor))
-	{
-		t_exitGame = true;
-	}
-}
-
 void Screens::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode & t_constructionState, TileType &t_selectedTileType)
 {
 	// Check for a mouse click event
@@ -266,7 +208,7 @@ void Screens::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode
 			&& t_cursor.m_position.y > SHOP_ITEM_START_POS.y && t_cursor.m_position.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
 		{
 			t_constructionState = ConstructionMode::Placing;
-			t_selectedTileType = TileType::Slow;
+			t_selectedTileType = TileType::Mud;
 			std::cout << "Mode Switched to 'Placing' the 'Plant' tile" << std::endl;
 		}
 
@@ -275,7 +217,7 @@ void Screens::processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode
 			&& t_cursor.m_position.y > SHOP_ITEM_START_POS.y && t_cursor.m_position.y < SHOP_ITEM_START_POS.y + SHOP_ITEM_SIZE.y)
 		{
 			t_constructionState = ConstructionMode::Placing;
-			t_selectedTileType = TileType::Treadmill_left;
+			t_selectedTileType = TileType::TreadmillWest;
 			std::cout << "Mode Switched to 'Placing' the 'Treadmill' tile" << std::endl;
 		}
 

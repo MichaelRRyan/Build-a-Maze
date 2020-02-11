@@ -10,10 +10,6 @@
 
 class Screens
 {
-	// Menu Constants
-	const sf::Vector2f PLAY_BUTTON_SIZE{ 300.0f, 80.0f };
-	const sf::Vector2f PLAY_BUTTON_POSITION{ static_cast<float>(WINDOW_WIDTH / 2) - PLAY_BUTTON_SIZE.x / 2, 350.0f };
-
 	// Shop constants
 	const sf::Vector2f SHOP_BACKGROUND_START_POS{ 800.0f, 0.0f };
 	const sf::Vector2f SHOP_DESTROY_TOOL_POS{ 990.0f, 150.0f };
@@ -30,7 +26,6 @@ class Screens
 
 	sf::RectangleShape m_shopBackground;
 	sf::RectangleShape m_shopItem;
-	sf::RectangleShape m_titleScreenBackground;
 
 	sf::Texture m_tilesTexture;
 	sf::Texture m_iconsTexture;
@@ -52,14 +47,6 @@ class Screens
 	sf::Text m_timeToCompleteText;
 	sf::Text m_moneyEarnedText;
 
-	// Title screen text
-	sf::Text m_titleText;
-	sf::Text m_titleScreenButtonText;
-
-	GUI::Button m_playButton;
-	GUI::Button m_helpButton;
-	GUI::Button m_exitButton;
-
 public:
 	Screens();
 	void setupShopScreen();
@@ -67,9 +54,7 @@ public:
 
 	void drawConstructionGUI(sf::RenderWindow &t_window);
 	void drawSimulationGUI(sf::RenderWindow &t_window, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
-	void drawTitleScreen(sf::RenderWindow &t_window);
 
-	void processTitleEvents(Cursor t_cursor, GameState &t_gameState, bool &t_exitGame);
 	void processEvents(sf::Event t_event, Cursor t_cursor, ConstructionMode &t_constructionState, TileType &t_selectedTileType);
 	void update(sf::Vector2i t_mousePosition, int & t_money);
 };

@@ -3,16 +3,28 @@
 #include "Game.h"
 
 Game::Game() :
-	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
+	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
+	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
 	m_exitGame{ false },
 	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
 	m_timeModifier{ 1.0f },
 	m_gameplayView{ { 240.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_constructionView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
-	//m_constructionView{ { 150.0f, 100.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.25f, static_cast<float>(WINDOW_HEIGHT) * 0.25f} },
+	//m_constructionView{ { 150.0f, 100.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.25f, static_cast<float>(WINDOW_HEIGHT) * 0.25f} }, // Zoomed in view for close up view on sprites
 	m_controllerSensitivity{ 0.25f },
 	m_cursor{ 0 }
 {
+	/*sf::View view = m_window.getDefaultView();
+
+	float heightPerWidth = view.getSize().y / view.getSize().x;
+
+	view.setSize(800.0f, 800.0f * heightPerWidth);
+
+	view.setSize(view.getSize());
+
+	m_window.setView(view);*/
+	m_window.setVerticalSyncEnabled(true);
+
 	MazeGenerator::generateMaze(m_mazeBlocks);
 	setupGame();
 
@@ -73,9 +85,10 @@ void Game::processEvents()
 
 		if (m_gamestate == GameState::TitleScreen)
 		{
-			m_gui.processTitleEvents(m_cursor, m_gamestate, m_exitGame);
+			m_menuScreen.processEvents(m_cursor, m_gamestate, m_exitGame);
 		}
 
+		
 		m_gui.processEvents(nextEvent, m_cursor, m_constructionState, m_selectedTileType);
 
 	} // End while poll event
@@ -138,17 +151,17 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			{
 				switch (m_selectedTileType)
 				{
-				case TileType::Treadmill_left:
-					m_selectedTileType = TileType::Treadmill_up;
+				case TileType::TreadmillWest:
+					m_selectedTileType = TileType::TreadmillNorth;
 					break;
-				case TileType::Treadmill_right:
-					m_selectedTileType = TileType::Treadmill_down;
+				case TileType::TreadmillEast:
+					m_selectedTileType = TileType::TreadmillSouth;
 					break;
-				case TileType::Treadmill_up:
-					m_selectedTileType = TileType::Treadmill_right;
+				case TileType::TreadmillNorth:
+					m_selectedTileType = TileType::TreadmillEast;
 					break;
-				case TileType::Treadmill_down:
-					m_selectedTileType = TileType::Treadmill_left;
+				case TileType::TreadmillSouth:
+					m_selectedTileType = TileType::TreadmillWest;
 					break;
 				}
 				
@@ -304,29 +317,29 @@ void Game::render()
 
 				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 
-				if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Slow)
+				if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Mud)
 				{
 					m_textureBlock.setTextureRect(PLANT_TEXT_RECT);
 				}
 				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Wall) {
 					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
 				}
-				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_left) {
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::TreadmillWest) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 0, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
 				}
-				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_right) {
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::TreadmillEast) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 32, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
 				}
-				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_up) {
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::TreadmillNorth) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 64, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
 				}
-				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::Treadmill_down) {
+				else if (static_cast<TileType>(m_mazeBlocks[row][col]) == TileType::TreadmillSouth) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 96, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
@@ -343,29 +356,29 @@ void Game::render()
 			{
 				m_textureBlock.setPosition(col * TILE_SIZE, row * TILE_SIZE - 32.0f);
 
-				if (m_selectedTileType == TileType::Slow)
+				if (m_selectedTileType == TileType::Mud)
 				{
 					m_textureBlock.setTextureRect(PLANT_TEXT_RECT);
 				}
 				else if (m_selectedTileType == TileType::Wall) {
 					m_textureBlock.setTextureRect(WALL_TEXT_RECT);
 				}
-				else if (m_selectedTileType == TileType::Treadmill_left) {
+				else if (m_selectedTileType == TileType::TreadmillWest) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 0, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
 				}
-				else if (m_selectedTileType == TileType::Treadmill_right) {
+				else if (m_selectedTileType == TileType::TreadmillEast) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 32, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
 				}
-				else if (m_selectedTileType == TileType::Treadmill_up) {
+				else if (m_selectedTileType == TileType::TreadmillNorth) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 64, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
 				}
-				else if (m_selectedTileType == TileType::Treadmill_down) {
+				else if (m_selectedTileType == TileType::TreadmillSouth) {
 					int left = 32 * (static_cast<int>(m_treadmillAnimClock.getElapsedTime().asMilliseconds()) / 2 % 4);
 					m_textureBlock.setTextureRect({ 32 + left, 96, 32, 32 });
 					m_textureBlock.move(0.0f, 32.0f);
@@ -395,13 +408,15 @@ void Game::render()
 
 	// Draws GUI
 	m_window.setView(m_window.getDefaultView());
+
 	if (m_gamestate == GameState::TitleScreen)
 	{
-		m_gui.drawTitleScreen(m_window);
+		m_menuScreen.draw(m_window);
 	}
 	else if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
 	{
-		m_gui.drawConstructionGUI(m_window);
+		//m_gui.drawConstructionGUI(m_window);
+		m_hud.draw(m_window);
 	}
 	else
 	{
