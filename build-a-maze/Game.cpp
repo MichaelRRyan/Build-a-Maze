@@ -8,21 +8,21 @@ Game::Game() :
 	m_exitGame{ false },
 	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
 	m_timeModifier{ 1.0f },
-	m_gameplayView{ { 240.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
-	m_constructionView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
-	//m_constructionView{ { 150.0f, 100.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.25f, static_cast<float>(WINDOW_HEIGHT) * 0.25f} }, // Zoomed in view for close up view on sprites
+	m_GUI_VIEW{ { (static_cast<float>(WINDOW_WIDTH) * 0.75f) / 2.0f, (static_cast<float>(WINDOW_HEIGHT) * 0.75f) / 2.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
+	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_controllerSensitivity{ 0.25f },
-	m_cursor{ 0 }
+	m_cursor{ 0 },
+	m_menuScreen{ m_GUI_VIEW },
+	m_hud{ m_GUI_VIEW }
 {
+	std::cout << m_GUI_VIEW.getSize().x << ", " << m_GUI_VIEW.getSize().y << std::endl;
+
 	/*sf::View view = m_window.getDefaultView();
-
 	float heightPerWidth = view.getSize().y / view.getSize().x;
-
 	view.setSize(800.0f, 800.0f * heightPerWidth);
-
 	view.setSize(view.getSize());
-
 	m_window.setView(view);*/
+
 	m_window.setVerticalSyncEnabled(true);
 
 	MazeGenerator::generateMaze(m_mazeBlocks);
@@ -32,6 +32,8 @@ Game::Game() :
 	m_currency = 400;
 
 	m_controllerConnected = m_controller.connect();
+
+	m_window.setView(m_GUI_VIEW);
 }
 
 Game::~Game()
@@ -87,9 +89,10 @@ void Game::processEvents()
 		{
 			m_menuScreen.processEvents(m_cursor, m_gamestate, m_exitGame);
 		}
-
-		
-		m_gui.processEvents(nextEvent, m_cursor, m_constructionState, m_selectedTileType);
+		if (m_gamestate == GameState::BuildMode)
+		{
+			m_hud.processShopEvents(m_cursor, m_constructionState, m_selectedTileType);
+		}
 
 	} // End while poll event
 }
@@ -267,7 +270,11 @@ void Game::update(sf::Time t_deltaTime)
 	// Update the build mode GUI
 	if (m_gamestate == GameState::BuildMode)
 	{
-		m_gui.update(m_cursor.m_position, m_currency);
+		m_hud.updateMoneyText(m_currency);
+	}
+	else if (m_gamestate == GameState::Simulation)
+	{
+		m_hud.updateSimText(m_noOfAI, m_timeToComplete, m_moneyEarned);
 	}
 
 	updateCursor();
@@ -282,13 +289,7 @@ void Game::render()
 {
 	m_window.clear(sf::Color::White);
 
-	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay) {
-		m_window.setView(m_constructionView);
-	}
-	else
-	{
-		m_window.setView(m_gameplayView);
-	}
+	m_window.setView(m_mazeView);
 
 	Renderer::drawMazeBackground(m_window, m_textureBlock);
 
@@ -406,8 +407,7 @@ void Game::render()
 		}
 	}
 
-	// Draws GUI
-	m_window.setView(m_window.getDefaultView());
+	m_window.setView(m_GUI_VIEW);
 
 	if (m_gamestate == GameState::TitleScreen)
 	{
@@ -415,11 +415,11 @@ void Game::render()
 	}
 	else if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
 	{
-		//m_gui.drawConstructionGUI(m_window);
-		m_hud.draw(m_window);
+		m_hud.drawShop(m_window);
 	}
 	else
 	{
+		m_hud.drawStats(m_window);
 		m_gui.drawSimulationGUI(m_window, m_noOfAI, m_timeToComplete, m_moneyEarned);
 
 		if (m_gamePaused)
@@ -429,7 +429,7 @@ void Game::render()
 		}
 	}
 
-	m_cursor.m_sprite.setPosition(static_cast<sf::Vector2f>(m_cursor.m_position));
+	m_cursor.m_sprite.setPosition(static_cast<sf::Vector2f>(m_cursor.m_viewPosition));
 	m_window.draw(m_cursor.m_sprite);
 
 	m_window.display();
@@ -620,16 +620,11 @@ void Game::updateCursor()
 		updateController();
 	}
 
-	// convert the cursor position to world coordinates
-	sf::Vector2f worldPos;
-	if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
-	{
-		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_constructionView);
-	}
-	else
-	{
-		worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_gameplayView);
-	}
+	// convert the cursor position to world coordinates for the GUI
+	m_cursor.m_viewPosition = m_window.mapPixelToCoords(m_cursor.m_position, m_GUI_VIEW);
+
+	// convert the cursor position to world coordinates for the maze
+	sf::Vector2f worldPos = m_window.mapPixelToCoords(m_cursor.m_position, m_mazeView);
 
 	m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 }

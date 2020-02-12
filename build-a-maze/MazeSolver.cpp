@@ -14,7 +14,7 @@ void MazeSolver::setPos(int t_row, int t_col)
 	m_pos.y = t_row; // Set the row
 
 	m_previousPos = m_pos; // Set the previous position for animation
-	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * 32)); // Set the position to the current cell
+	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * static_cast<int>(TILE_SIZE))); // Set the position to the current cell
 }
 
 void MazeSolver::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)

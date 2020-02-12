@@ -1,9 +1,9 @@
 #include "MenuScreen.h"
 
 /////////////////////////////////////////////////////////////////
-MenuScreen::MenuScreen() :
-	m_playButton(m_buttonTexture, m_buttonFont, "PLAY", { static_cast<float>(sf::VideoMode::getDesktopMode().width / 2) - m_playButton.s_WIDTH / 2.0f, static_cast<float>(sf::VideoMode::getDesktopMode().height) / 1.8f }),
-	m_exitButton(m_buttonTexture, m_buttonFont, "EXIT", { static_cast<float>(sf::VideoMode::getDesktopMode().width / 2) - m_exitButton.s_WIDTH / 2.0f, static_cast<float>(sf::VideoMode::getDesktopMode().height) / 1.5f })
+MenuScreen::MenuScreen(sf::View const& t_windowView) :
+	m_playButton(m_buttonTexture, m_buttonFont, "PLAY", { (t_windowView.getSize().x / 2.0f) - m_playButton.s_WIDTH / 2.0f, t_windowView.getSize().y / 1.8f }),
+	m_exitButton(m_buttonTexture, m_buttonFont, "EXIT", { (t_windowView.getSize().x / 2.0f) - m_exitButton.s_WIDTH / 2.0f, t_windowView.getSize().y / 1.4f })
 {
 	loadFiles();
 
@@ -13,9 +13,9 @@ MenuScreen::MenuScreen() :
 	// Setup title text
 	m_titleText.setFont(m_titleFont);
 	m_titleText.setString("Build-a-Maze!");
-	m_titleText.setPosition(static_cast<float>(sf::VideoMode::getDesktopMode().width / 2), static_cast<float>(sf::VideoMode::getDesktopMode().height / 4));
+	m_titleText.setPosition(t_windowView.getSize().x / 2.0f, t_windowView.getSize().y / 6.0f);
 	m_titleText.setFillColor(sf::Color::Black);
-	m_titleText.setCharacterSize(120u);
+	m_titleText.setCharacterSize(100u);
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2, 0.0f);
 }
 

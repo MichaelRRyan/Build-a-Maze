@@ -17,6 +17,7 @@ struct Cursor
 	bool m_cancelClicked;
 
 	sf::Vector2i m_position;
+	sf::Vector2f m_viewPosition;
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 };

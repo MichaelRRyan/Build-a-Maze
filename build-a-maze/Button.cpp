@@ -33,6 +33,7 @@ namespace GUI
 
 		// Just used for collisions in image buttons
 		m_sprite.setTextureRect(t_imageRect);
+		m_sprite.setPosition(m_image.getPosition());
 	}
 
 	////////////////////////////////////////////////////////////
@@ -78,12 +79,12 @@ namespace GUI
 			}
 
 			// Check the mouse pointer against the button x bounds
-			if (t_cursor.m_position.x > m_sprite.getPosition().x - m_sprite.getGlobalBounds().width / 2.0f
-				&& t_cursor.m_position.x < m_sprite.getPosition().x + m_sprite.getGlobalBounds().width / 2.0f)
+			if (t_cursor.m_viewPosition.x > m_sprite.getPosition().x - m_sprite.getGlobalBounds().width / 2.0f
+				&& t_cursor.m_viewPosition.x < m_sprite.getPosition().x + m_sprite.getGlobalBounds().width / 2.0f)
 			{
 				// Check the mouse pointer against the button y bounds
-				if (t_cursor.m_position.y > m_sprite.getPosition().y - m_sprite.getGlobalBounds().height / 2.0f
-					&& t_cursor.m_position.y < m_sprite.getPosition().y + m_sprite.getGlobalBounds().height / 2.0f)
+				if (t_cursor.m_viewPosition.y > m_sprite.getPosition().y - m_sprite.getGlobalBounds().height / 2.0f
+					&& t_cursor.m_viewPosition.y < m_sprite.getPosition().y + m_sprite.getGlobalBounds().height / 2.0f)
 				{
 					if (!m_imageButton)
 					{

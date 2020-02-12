@@ -50,8 +50,8 @@ private:
 
 	// Render window and views
 	sf::RenderWindow m_window;
-	const sf::View m_gameplayView;
-	const sf::View m_constructionView;
+	const sf::View m_GUI_VIEW;
+	sf::View m_mazeView;
 
 	// Bools
 	bool m_exitGame;
