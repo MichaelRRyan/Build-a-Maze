@@ -11,7 +11,6 @@
 #include "BasicSolver.h"
 #include "Mathematician.h"
 #include "Globals.h"
-#include "GUI.h"
 #include "XBox360Controller.h"
 #include "Cursor.h"
 #include "MazeSolver.h"
@@ -96,7 +95,6 @@ private:
 	Cursor m_cursor;
 
 	// Enum variables
-	Screens m_gui;
 	GameState m_gamestate;
 	ConstructionMode m_constructionState;
 	TileType m_selectedTileType;

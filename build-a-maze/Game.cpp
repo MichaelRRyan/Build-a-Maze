@@ -420,7 +420,6 @@ void Game::render()
 	else
 	{
 		m_hud.drawStats(m_window);
-		m_gui.drawSimulationGUI(m_window, m_noOfAI, m_timeToComplete, m_moneyEarned);
 
 		if (m_gamePaused)
 		{
@@ -429,6 +428,7 @@ void Game::render()
 		}
 	}
 
+	// Draw the cursor
 	m_cursor.m_sprite.setPosition(static_cast<sf::Vector2f>(m_cursor.m_viewPosition));
 	m_window.draw(m_cursor.m_sprite);
 

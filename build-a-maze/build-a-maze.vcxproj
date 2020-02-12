@@ -125,7 +125,6 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Cartographer.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />
@@ -145,7 +144,6 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Globals.h" />
-    <ClInclude Include="GUI.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="Mathematician.h" />
     <ClInclude Include="Cursor.h" />
