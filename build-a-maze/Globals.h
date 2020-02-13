@@ -7,7 +7,7 @@ const int MAZE_ROWS{ 15 };
 const int MAZE_COLS{ 15 };
 const float TILE_SIZE{ 32.0f };
 
-const int SOLVERS_MAX{ 20 };
+const int SOLVERS_MAX{ 8 };
 
 const unsigned WINDOW_WIDTH{ 1280u };
 const unsigned WINDOW_HEIGHT{ 720u };

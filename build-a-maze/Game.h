@@ -75,12 +75,7 @@ private:
 	sf::Vector2i m_selectedTile;
 
 	// Shapes
-	sf::RectangleShape m_tileSelector;
 	sf::RectangleShape m_pauseScreenFade; // Shape to give the pause screen a fade effect
-
-	// Sprites and textures
-	sf::Texture m_tileTextures;
-	sf::Sprite m_textureBlock;
 
 	// Font and text
 	sf::Font m_mainFont;
@@ -99,10 +94,10 @@ private:
 	ConstructionMode m_constructionState;
 	TileType m_selectedTileType;
 
-	sf::Clock m_treadmillAnimClock;
-
 	MenuScreen m_menuScreen;
 	HUD m_hud;
+
+	Renderer m_renderer;
 };
 
 #endif // !GAME
