@@ -97,6 +97,28 @@ public:
 			return Direction::None;
 		}
 	}
+
+	static Direction getTreadmillDirection(TileType t_treadmill)
+	{
+		switch (t_treadmill)
+		{
+		case TileType::TreadmillWest:
+			return Direction::West;
+			break;
+		case TileType::TreadmillEast:
+			return Direction::East;
+			break;
+		case TileType::TreadmillNorth:
+			return Direction::North;
+			break;
+		case TileType::TreadmillSouth:
+			return Direction::South;
+			break;
+		default:
+			return Direction::None;
+			break;
+		}
+	}
 };
 
 #endif // !GLOBALS_H

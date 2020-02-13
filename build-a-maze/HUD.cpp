@@ -27,9 +27,9 @@ HUD::HUD(sf::View const& t_windowView) :
 	}
 
 	// Load the font
-	if (!m_hudFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
+	if (!m_hudFont.loadFromFile("ASSETS/FONTS/tf2Build.ttf"))
 	{
-		std::cout << "Error loading main font (Arial)";
+		std::cout << "Error loading main font (tf2Build)";
 	}
 
 	float shopCentre = m_shopBackground.getPosition().x + m_shopBackground.getSize().x / 2.0f;

@@ -139,6 +139,8 @@ void Cartographer::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition
 	}
 
 	m_pos = t_newPosition;
+
+	handleTreadmills(t_maze);
 }
 
 void Cartographer::draw(sf::RenderWindow& t_window) const

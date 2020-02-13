@@ -28,6 +28,8 @@ public:
 	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
+	void handleTreadmills(TileType t_maze[][MAZE_COLS]);
+
 protected:
 	// Declare private data members
 	const int DEFAULT_MOVE_SPEED = 20;

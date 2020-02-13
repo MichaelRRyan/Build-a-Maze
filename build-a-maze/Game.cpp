@@ -291,29 +291,33 @@ void Game::render()
 {
 	m_window.clear(sf::Color::White);
 
-	m_window.setView(m_mazeView);
-
-	if (GameState::BuildMode == m_gamestate)
+	switch (m_gamestate)
 	{
-		m_renderer.drawMaze(m_window, m_mazeBlocks, m_selectedTile, m_constructionState, m_selectedTileType);
-	}
-	else if (GameState::Simulation == m_gamestate)
-	{
-		m_renderer.drawMazeWithSolvers(m_window, m_mazeBlocks, m_mazeSolverPtrs, m_selectedTile, m_constructionState, m_selectedTileType);
-	}
-
-	m_window.setView(m_GUI_VIEW);
-
-	if (m_gamestate == GameState::TitleScreen)
-	{
+	case GameState::TitleScreen:
+		m_window.setView(m_GUI_VIEW);
 		m_menuScreen.draw(m_window);
-	}
-	else if (m_gamestate == GameState::BuildMode && !m_simDetailsDisplay)
-	{
-		m_hud.drawShop(m_window);
-	}
-	else
-	{
+		break;
+	case GameState::SettingsScreen:
+		break;
+	case GameState::BuildMode:
+		m_window.setView(m_mazeView);
+		m_renderer.drawMaze(m_window, m_mazeBlocks, m_selectedTile, m_constructionState, m_selectedTileType);
+
+		m_window.setView(m_GUI_VIEW);
+		if (!m_simDetailsDisplay)
+		{
+			m_hud.drawShop(m_window);
+		}
+		else
+		{
+			m_hud.drawStats(m_window);
+		}
+
+		break;
+	case GameState::Simulation:
+		m_window.setView(m_mazeView);
+		m_renderer.drawMazeWithSolvers(m_window, m_mazeBlocks, m_mazeSolverPtrs, m_selectedTile, m_constructionState, m_selectedTileType);
+		m_window.setView(m_GUI_VIEW);
 		m_hud.drawStats(m_window);
 
 		if (m_gamePaused)
@@ -321,6 +325,8 @@ void Game::render()
 			m_window.draw(m_pauseScreenFade);
 			m_window.draw(m_pauseText);
 		}
+
+		break;
 	}
 
 	// Draw the cursor

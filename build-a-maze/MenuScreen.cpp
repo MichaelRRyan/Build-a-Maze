@@ -55,7 +55,7 @@ void MenuScreen::loadFiles()
 	}
 
 	// Load the button font
-	if (!m_buttonFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
+	if (!m_buttonFont.loadFromFile("ASSETS/FONTS/tf2Build.ttf"))
 	{
 		std::cout << "Error loading main font (Arial)";
 	}
