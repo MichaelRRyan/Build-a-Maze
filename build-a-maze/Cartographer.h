@@ -20,7 +20,6 @@ public:
 	virtual void findNewDirection(TileType t_maze[][MAZE_COLS]) override; // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
 	virtual void reset(int t_moveDelay) override;
 	virtual void draw(sf::RenderWindow& t_window) const override;
-	
 
 protected:
 	// Declare private data members

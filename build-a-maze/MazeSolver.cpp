@@ -129,7 +129,7 @@ void MazeSolver::animate()
 	m_body.setPosition(static_cast<float>(newX), static_cast<float>(newY));
 
 	int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
-	sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (54 * frameNum), m_characterNumber.y + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
+	sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (32 * frameNum), m_characterNumber.y + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
 
 	m_body.setTextureRect(frame);
 }

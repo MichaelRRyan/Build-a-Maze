@@ -23,14 +23,14 @@ Mathematician::Mathematician()
 /// </summary>
 void Mathematician::loadFiles()
 {
-	m_characterNumber = { 324, 832 };
+	m_characterNumber = { 0, 64 * 3 };
 
-	if (!m_spriteSheet.loadFromFile("ASSETS\\IMAGES\\characters.png"))
+	if (!m_spriteSheet.loadFromFile("ASSETS\\IMAGES\\character_sheet.png"))
 	{
 		// Error loading image
 	}
 	m_body.setTexture(m_spriteSheet); // Set the character texture
-	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x + 54,m_characterNumber.y,32,64 }); // Set the character
+	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x + 32, m_characterNumber.y, 32, 64 }); // Set the character
 	m_body.setOrigin(0.0f, static_cast<float>(32)); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
