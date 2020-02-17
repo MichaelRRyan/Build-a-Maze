@@ -6,6 +6,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <stack>
+#include <array>
 #include "Globals.h"
 
 /// <summary>
@@ -14,7 +15,7 @@
 class MazeGenerator
 {
 public:
-	static void generateMaze(TileType t_maze[][MAZE_COLS]);
+	static void generateMaze(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 };
 
 #endif // !MAZE_GENERATOR_H

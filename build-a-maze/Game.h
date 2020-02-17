@@ -4,6 +4,7 @@
 #define GAME
 
 #include <SFML/Graphics.hpp>
+#include <array>
 #include <vector>
 #include <iostream>
 
@@ -69,7 +70,7 @@ private:
 
 	// Maze array
 	// Should be moved to a std::array
-	TileType m_mazeBlocks[MAZE_ROWS][MAZE_COLS];
+	std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> m_mazeBlocks;
 
 	// Vectors
 	sf::Vector2i m_selectedTile;
@@ -84,8 +85,6 @@ private:
 	// Objects
 	std::vector<MazeSolver *> m_mazeSolverPtrs;
 
-	//BasicSolver m_basicSolvers[BASIC_SOLVERS_MAX];
-	//Mathematician m_mathematicians[BASIC_SOLVERS_MAX];
 	XBox360Controller m_controller;
 	Cursor m_cursor;
 
@@ -98,6 +97,11 @@ private:
 	HUD m_hud;
 
 	Renderer m_renderer;
+
+	/// <summary>
+	/// A temporary vector of tiles for buying from the shop. Reset every time the tiles are placed or the purchase is canceled
+	/// </summary>
+	std::vector<sf::Vector2i> m_tempTiles;
 };
 
 #endif // !GAME

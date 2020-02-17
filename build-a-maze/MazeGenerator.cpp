@@ -1,11 +1,11 @@
 #include "MazeGenerator.h"
 
-void MazeGenerator::generateMaze(TileType t_maze[][MAZE_COLS])
+void MazeGenerator::generateMaze(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> & t_maze)
 {
 	// Set all the blocks to walls
-	for (int row = 0; row < MAZE_ROWS; row++)
+	for (int row = 0; row < MAZE_SIZE; row++)
 	{
-		for (int col = 0; col < MAZE_COLS; col++)
+		for (int col = 0; col < MAZE_SIZE; col++)
 		{
 			t_maze[row][col] = TileType::Wall;
 		}
@@ -101,7 +101,7 @@ void MazeGenerator::generateMaze(TileType t_maze[][MAZE_COLS])
 				break;
 			case 1:
 				// Down
-				if (row + 2 < MAZE_ROWS && t_maze[row + 2][col] != TileType::None) {
+				if (row + 2 < MAZE_SIZE && t_maze[row + 2][col] != TileType::None) {
 					t_maze[row+1][col] = TileType::None;
 					row += 2;
 					foundDir = true;
@@ -119,7 +119,7 @@ void MazeGenerator::generateMaze(TileType t_maze[][MAZE_COLS])
 				break;
 			case 3:
 				// Right
-				if (col + 2 < MAZE_COLS && t_maze[row][col + 2] != TileType::None) {
+				if (col + 2 < MAZE_SIZE && t_maze[row][col + 2] != TileType::None) {
 					t_maze[row][col+1] = TileType::None;
 					col += 2;
 					foundDir = true;
@@ -132,5 +132,5 @@ void MazeGenerator::generateMaze(TileType t_maze[][MAZE_COLS])
 
 	// Clear the maze entrance and finish
 	t_maze[1][0] = TileType::None;
-	t_maze[MAZE_ROWS - 2][MAZE_COLS - 1] = TileType::None;
+	t_maze[MAZE_SIZE - 2][MAZE_SIZE - 1] = TileType::None;
 }

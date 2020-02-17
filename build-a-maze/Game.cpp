@@ -13,7 +13,8 @@ Game::Game() :
 	m_controllerSensitivity{ 0.25f },
 	m_cursor{ 0 },
 	m_menuScreen{ m_GUI_VIEW },
-	m_hud{ m_GUI_VIEW }
+	m_hud{ m_GUI_VIEW },
+	m_renderer(m_window, m_mazeBlocks, m_mazeSolverPtrs)
 {
 	std::cout << m_GUI_VIEW.getSize().x << ", " << m_GUI_VIEW.getSize().y << std::endl;
 
@@ -191,8 +192,8 @@ void Game::processMouseEvents(sf::Event t_event)
 		if (m_gamestate == GameState::BuildMode)
 		{
 			// Make sure the player doesn't remove the outer boundary
-			if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_COLS - 1
-				&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_ROWS - 1)
+			if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_SIZE - 1
+				&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_SIZE - 1)
 			{
 				// Check if the player clicked a wall
 				if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
@@ -200,15 +201,15 @@ void Game::processMouseEvents(sf::Event t_event)
 				{
 					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = TileType::None;
 					m_currency += 25;
-					m_constructionState = ConstructionMode::None;
 				}
 				// Else the player clicked the ground. Make sure there is enough money for a wall
 				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
 					&& m_constructionState == ConstructionMode::Placing)
 				{
+					m_tempTiles.push_back(m_selectedTile);
+
 					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
 					m_currency -= 30;
-					m_constructionState = ConstructionMode::None;
 				}
 			}
 		}
@@ -242,7 +243,7 @@ void Game::update(sf::Time t_deltaTime)
 			{
 				if (solver->getActive())
 				{
-					solver->update(m_mazeBlocks);
+					solver->update();
 					m_noOfAI++;
 				}
 			}
@@ -301,7 +302,7 @@ void Game::render()
 		break;
 	case GameState::BuildMode:
 		m_window.setView(m_mazeView);
-		m_renderer.drawMaze(m_window, m_mazeBlocks, m_selectedTile, m_constructionState, m_selectedTileType);
+		m_renderer.drawMaze(m_selectedTile, m_constructionState, m_selectedTileType);
 
 		m_window.setView(m_GUI_VIEW);
 		if (!m_simDetailsDisplay)
@@ -316,7 +317,7 @@ void Game::render()
 		break;
 	case GameState::Simulation:
 		m_window.setView(m_mazeView);
-		m_renderer.drawMazeWithSolvers(m_window, m_mazeBlocks, m_mazeSolverPtrs, m_selectedTile, m_constructionState, m_selectedTileType);
+		m_renderer.drawMazeWithSolvers(m_selectedTile, m_constructionState, m_selectedTileType);
 		m_window.setView(m_GUI_VIEW);
 		m_hud.drawStats(m_window);
 
@@ -380,15 +381,15 @@ void Game::setupGame()
 		switch (rand() % 3)
 		{
 		case 0:
-			m_mazeSolverPtrs.push_back(new BasicSolver);
+			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks });
 			break;
 
 		case 1:
-			m_mazeSolverPtrs.push_back(new Mathematician);
+			m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks });
 			break;
 
 		case 2:
-			m_mazeSolverPtrs.push_back(new Cartographer);
+			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks });
 			break;
 		}
 	}

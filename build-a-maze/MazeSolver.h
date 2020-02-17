@@ -5,16 +5,18 @@
 /// @Date 30/10/2019
 
 #include <SFML/Graphics.hpp>
+#include <array>
 #include "Globals.h"
 
 class MazeSolver
 {
 public:
-	MazeSolver() = default;
+	MazeSolver(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const & t_maze);
 	virtual void loadFiles() = 0;
-	virtual void update(TileType t_maze[][MAZE_COLS]) = 0; // Move the enemy if not blocked by an enemy or wall
-	virtual void move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition); // Move the solver to a new position
-	virtual void findNewDirection(TileType t_maze[][MAZE_COLS]); // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
+	virtual void update() = 0; // Move the enemy if not blocked by an enemy or wall
+	virtual void move(sf::Vector2i t_newPosition); // Move the solver to a new position
+	virtual void findNewDirection(); // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
+	virtual bool isBlocked(sf::Vector2i t_mazePos); // Check if a tile is a wall
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
 
@@ -24,11 +26,11 @@ public:
 	void setPos(int t_row, int t_col);
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
-	void checkForExit(TileType t_maze[][MAZE_COLS]); // Check if the exit of the maze is within sight, set direction towards it
+	void checkForExit(); // Check if the exit of the maze is within sight, set direction towards it
 	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
-	void handleTreadmills(TileType t_maze[][MAZE_COLS]);
+	void handleTreadmills();
 
 protected:
 	// Declare private data members
@@ -50,6 +52,8 @@ protected:
 	int m_characterDirection;
 
 	int tempTestVar;
+
+	std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const & m_mazeRef;
 };
 
 #endif // !MAZE_SOLVER_H

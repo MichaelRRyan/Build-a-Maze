@@ -10,9 +10,9 @@
 class BasicSolver : public MazeSolver
 {
 public:
-	BasicSolver();
+	BasicSolver(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze);
 	void loadFiles();
-	void update(TileType t_maze[][MAZE_COLS]); // Move the enemy if not blocked by an enemy or wall
+	void update(); // Move the enemy if not blocked by an enemy or wall
 
 protected:
 	// Declare private data members

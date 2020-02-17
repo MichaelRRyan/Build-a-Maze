@@ -3,6 +3,11 @@
 /// @Author Michael Rainsford Ryan
 /// @Date 28/09/2019
 
+MazeSolver::MazeSolver(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze) :
+	m_mazeRef{ t_maze }
+{
+}
+
 void MazeSolver::draw(sf::RenderWindow& t_window) const
 {
 	t_window.draw(m_body);
@@ -17,31 +22,31 @@ void MazeSolver::setPos(int t_row, int t_col)
 	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * static_cast<int>(TILE_SIZE))); // Set the position to the current cell
 }
 
-void MazeSolver::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
+void MazeSolver::move(sf::Vector2i t_newPosition)
 {
 	// Set the movement speed
 	m_movementSpeed = static_cast<int>(DEFAULT_MOVE_SPEED * m_timeModifier);
 
 	// Replace the movement speed if moving through mud
-	if (t_maze[m_pos.y][m_pos.x] == TileType::Mud
-		|| t_maze[t_newPosition.y][t_newPosition.x] == TileType::Mud)
+	if (m_mazeRef[m_pos.y][m_pos.x] == TileType::Mud
+		|| m_mazeRef[t_newPosition.y][t_newPosition.x] == TileType::Mud)
 	{
 		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 	}
 
 	m_pos = t_newPosition;
 
-	handleTreadmills(t_maze);
+	handleTreadmills();
 }
 
-void MazeSolver::findNewDirection(TileType t_maze[][MAZE_COLS])
+void MazeSolver::findNewDirection()
 {
 	sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 	// If front blocked, always go left or right before going back
 	// Both positive and negative (T junction)
-	if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
-		&& t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall)
+	if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x})
+		&& !isBlocked({ m_pos.x - dir.y, m_pos.y - dir.x }))
 	{
 		if (rand() % 2 == 0)
 		{
@@ -49,24 +54,42 @@ void MazeSolver::findNewDirection(TileType t_maze[][MAZE_COLS])
 		}
 		else
 		{
-			m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
+			m_moveDir = Global::getDirection({ -dir.y, -dir.x });
 		}
 	}
 
 	// Positive
-	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall)
+	else if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x }))
 	{
 		m_moveDir = Global::getDirection({ dir.y, dir.x });
 	}
 
 	// Negative
-	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall)
+	else if (!isBlocked({ m_pos.x - dir.y, m_pos.y - dir.x }))
 	{
-		m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
+		m_moveDir = Global::getDirection({ -dir.y, -dir.x });
 	}
 	else {
 		m_moveDir = static_cast<Direction>(rand() % 4 + 1); // Find a new direction
 	}
+}
+
+bool MazeSolver::isBlocked(sf::Vector2i t_mazePos)
+{
+	// If outside the maze bounds
+	if (t_mazePos.x < 0 || t_mazePos.x >= MAZE_SIZE
+		|| t_mazePos.y < 0 || t_mazePos.y >= MAZE_SIZE)
+	{
+		return true;
+	}
+
+	// If blocked by a wall
+	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void MazeSolver::reset(int t_moveDelay)
@@ -75,19 +98,20 @@ void MazeSolver::reset(int t_moveDelay)
 	m_active = true;
 	m_moveTimer = t_moveDelay;
 	m_characterDirection = -100; // TEMP: Sloppy fix but works for now
+	m_moveDir = Direction::East;
 	setTimeModifier(1);
 }
 
-void MazeSolver::checkForExit(TileType t_maze[][MAZE_COLS])
+void MazeSolver::checkForExit()
 {
 	// Check Vertically
-	if (m_pos.y > MAZE_ROWS - 5 && m_pos.x == MAZE_COLS - 2)
+	if (m_pos.y > MAZE_SIZE - 5 && m_pos.x == MAZE_SIZE - 2)
 	{
 		bool goalBlocked = false;
 
-		for (int i = m_pos.y; i < MAZE_ROWS - 1; i++)
+		for (int i = m_pos.y; i < MAZE_SIZE - 1; i++)
 		{
-			if (static_cast<TileType>(t_maze[i][m_pos.x]) == TileType::Wall)
+			if (isBlocked({ m_pos.x, i }))
 			{
 				goalBlocked = true;
 				break;
@@ -100,13 +124,13 @@ void MazeSolver::checkForExit(TileType t_maze[][MAZE_COLS])
 	}
 
 	// Check horisontally
-	if (m_pos.x > MAZE_COLS - 5 && m_pos.y == MAZE_ROWS - 2)
+	if (m_pos.x > MAZE_SIZE - 5 && m_pos.y == MAZE_SIZE - 2)
 	{
 		bool goalBlocked = false;
 
-		for (int i = m_pos.x; i < MAZE_COLS; i++)
+		for (int i = m_pos.x; i < MAZE_SIZE; i++)
 		{
-			if (static_cast<TileType>(t_maze[m_pos.y][i]) == TileType::Wall)
+			if (isBlocked({ i, m_pos.y }))
 			{
 				goalBlocked = true;
 				break;
@@ -159,18 +183,18 @@ void MazeSolver::setTextureDirection()
 	}
 }
 
-void MazeSolver::handleTreadmills(TileType t_maze[][MAZE_COLS])
+void MazeSolver::handleTreadmills()
 {
 	TileType tile{ TileType::None };
 
 	// Current tile
-	if (t_maze[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
-		|| t_maze[m_previousPos.y][m_previousPos.x] == TileType::TreadmillEast
-		|| t_maze[m_previousPos.y][m_previousPos.x] == TileType::TreadmillNorth
-		|| t_maze[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth)
+	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
+		|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillEast
+		|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillNorth
+		|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth)
 	{
 		// Can be slowed and pushed aside
-		tile = t_maze[m_previousPos.y][m_previousPos.x];
+		tile = m_mazeRef[m_previousPos.y][m_previousPos.x];
 
 		// If the threadmill is going the same direction as the solver
 		if (Global::getTreadmillDirection(tile) == m_moveDir)
@@ -186,20 +210,20 @@ void MazeSolver::handleTreadmills(TileType t_maze[][MAZE_COLS])
 		{
 			sf::Vector2i directionVector = Global::getDirectionVector(Global::getTreadmillDirection(tile));
 
-			if (t_maze[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
+			if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
 			{
 				m_pos = m_previousPos + directionVector;
 			}
 		}
 	}
 	// Target tile
-	else if (t_maze[m_pos.y][m_pos.x] == TileType::TreadmillWest
-		|| t_maze[m_pos.y][m_pos.x] == TileType::TreadmillEast
-		|| t_maze[m_pos.y][m_pos.x] == TileType::TreadmillNorth
-		|| t_maze[m_pos.y][m_pos.x] == TileType::TreadmillSouth)
+	else if (m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillWest
+		|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillEast
+		|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillNorth
+		|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillSouth)
 	{
 		// Can be slowed and pushed aside
-		tile = t_maze[m_pos.y][m_pos.x];
+		tile = m_mazeRef[m_pos.y][m_pos.x];
 
 		// If the threadmill is going the same direction as the solver
 		if (Global::getTreadmillDirection(tile) == m_moveDir)

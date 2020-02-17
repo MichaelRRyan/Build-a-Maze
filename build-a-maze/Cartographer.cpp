@@ -6,10 +6,11 @@
 /// <para>Load texture files, set the move direction, set the move timer,</para>
 /// <para>set the sight range and following player bool</para>
 /// </summary>
-Cartographer::Cartographer()
+Cartographer::Cartographer(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze) :
+	MazeSolver{ t_maze }
 {
 	loadFiles();
-	m_moveDir = static_cast<Direction>(rand() % 4 + 1);
+	m_moveDir = Direction::East;
 	m_moveTimer = 0;
 	m_active = true;
 	m_movementSpeed = DEFAULT_MOVE_SPEED;
@@ -41,9 +42,9 @@ void Cartographer::loadFiles()
 /// <para>Set the texture direction and move timer.</para>
 /// </summary>
 /// <param name="t_maze">maze array</param>
-void Cartographer::update(TileType t_maze[][MAZE_COLS])
+void Cartographer::update()
 {
-	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
+	if (m_pos.x == MAZE_SIZE - 1 && m_pos.y == MAZE_SIZE - 2)
 	{
 		m_active = false;
 	}
@@ -54,8 +55,7 @@ void Cartographer::update(TileType t_maze[][MAZE_COLS])
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 		// Positive
-		if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
-			&& !m_deadEnds[m_pos.y + dir.x][m_pos.x + dir.y]
+		if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x })
 			&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top()))
 		{
 			if (rand() % 2 == 0) {
@@ -64,17 +64,16 @@ void Cartographer::update(TileType t_maze[][MAZE_COLS])
 		}
 
 		// Negative
-		if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall
-			&& !m_deadEnds[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)]
+		if (!isBlocked({ m_pos.x - dir.y, m_pos.y - dir.x })
 			&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top()))
 		{
 			if (rand() % 2 == 0) {
-				m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
+				m_moveDir = Global::getDirection({ -dir.y, -dir.x });
 			}
 		}
 
 		// Check for the exit nearby
-		checkForExit(t_maze);
+		checkForExit();
 
 		m_previousPos = m_pos; // Set the previous position to the current one before moving
 
@@ -83,23 +82,21 @@ void Cartographer::update(TileType t_maze[][MAZE_COLS])
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 
 			// Move if not blocked by a wall and not a dead end, else change direction
-			if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall
-				&& !m_deadEnds[desiredPosition.y][desiredPosition.x]
+			if (!isBlocked(desiredPosition)
 				&& (m_previousTiles.empty() || desiredPosition != m_previousTiles.top()))
 			{
-				move(t_maze, desiredPosition);
+				move(desiredPosition);
 				break; // Break from the loop if the enemy can move
 			}
 			else
 			{
-				findNewDirection(t_maze);
+				findNewDirection();
 
 				desiredPosition = m_pos + Global::getDirectionVector(m_moveDir);
 				// Move if not blocked by a wall and not a dead end, else change direction
-				if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall
-					&& !m_deadEnds[desiredPosition.y][desiredPosition.x])
+				if (!isBlocked(desiredPosition))
 				{
-					move(t_maze, desiredPosition);
+					move(desiredPosition);
 					break; // Break from the loop if the enemy can move
 				}
 			}
@@ -115,10 +112,10 @@ void Cartographer::update(TileType t_maze[][MAZE_COLS])
 	}
 }
 
-void Cartographer::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition)
+void Cartographer::move(sf::Vector2i t_newPosition)
 {
-	if (static_cast<TileType>(t_maze[m_pos.y][m_pos.x]) == TileType::Mud
-		|| static_cast<TileType>(t_maze[t_newPosition.y][t_newPosition.x]) == TileType::Mud)
+	if (static_cast<TileType>(m_mazeRef[m_pos.y][m_pos.x]) == TileType::Mud
+		|| static_cast<TileType>(m_mazeRef[t_newPosition.y][t_newPosition.x]) == TileType::Mud)
 	{
 		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 	}
@@ -140,7 +137,7 @@ void Cartographer::move(TileType t_maze[][MAZE_COLS], sf::Vector2i t_newPosition
 
 	m_pos = t_newPosition;
 
-	handleTreadmills(t_maze);
+	handleTreadmills();
 }
 
 void Cartographer::draw(sf::RenderWindow& t_window) const
@@ -167,9 +164,9 @@ void Cartographer::draw(sf::RenderWindow& t_window) const
 	prevTilesShape.setFillColor(sf::Color{ 255,0,255,100 });
 
 	// Loop through the dead ends array
-	for (int row = 0; row < MAZE_ROWS; row++)
+	for (int row = 0; row < MAZE_SIZE; row++)
 	{
-		for (int col = 0; col < MAZE_COLS; col++)
+		for (int col = 0; col < MAZE_SIZE; col++)
 		{
 			if (m_deadEnds[row][col])
 			{
@@ -181,18 +178,16 @@ void Cartographer::draw(sf::RenderWindow& t_window) const
 #endif // CARTOGRAPHER_DEBUG
 }
 
-void Cartographer::findNewDirection(TileType t_maze[][MAZE_COLS])
+void Cartographer::findNewDirection()
 {
 	sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
 	// If front blocked, always go left or right before going back
 	// Both positive and negative (T junction)
-	if ((t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
-		&& !m_deadEnds[m_pos.y + dir.x][m_pos.x + dir.y]
-		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top()))
-		&& (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall
-		&& !m_deadEnds[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)]
-		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top())))
+	if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x })
+		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top())
+		&& !isBlocked({ m_pos.x - dir.y, m_pos.y - dir.x })
+		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top()))
 	{
 		if (rand() % 2 == 0)
 		{
@@ -205,15 +200,13 @@ void Cartographer::findNewDirection(TileType t_maze[][MAZE_COLS])
 	}
 
 	// Positive
-	else if (t_maze[m_pos.y + dir.x][m_pos.x + dir.y] != TileType::Wall
-		&& !m_deadEnds[m_pos.y + dir.x][m_pos.x + dir.y]
+	else if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x })
 		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + dir.y, m_pos.y + dir.x } != m_previousTiles.top()))
 	{
 		m_moveDir = Global::getDirection({ dir.y, dir.x });
 	}
 	// Negative
-	else if (t_maze[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)] != TileType::Wall
-		&& !m_deadEnds[m_pos.y + (dir.x * -1)][m_pos.x + (dir.y * -1)]
+	else if (!isBlocked({ m_pos.x - dir.y, m_pos.y - dir.x })
 		&& (m_previousTiles.empty() || sf::Vector2i{ m_pos.x + (dir.y * -1), m_pos.y + (dir.x * -1) } != m_previousTiles.top()))
 	{
 		m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
@@ -224,12 +217,37 @@ void Cartographer::findNewDirection(TileType t_maze[][MAZE_COLS])
 	}
 }
 
+bool Cartographer::isBlocked(sf::Vector2i t_mazePos)
+{
+	// If outside the maze bounds
+	if (t_mazePos.x < 0 || t_mazePos.x >= MAZE_SIZE
+		|| t_mazePos.y < 0 || t_mazePos.y >= MAZE_SIZE)
+	{
+		return true;
+	}
+
+	// If blocked by a wall
+	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall)
+	{
+		return true;
+	}
+
+	// If blocked by a dead end
+	if (m_deadEnds[t_mazePos.y][t_mazePos.x])
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void Cartographer::reset(int t_moveDelay)
 {
 	setPos(1, 0);
 	m_active = true;
 	m_moveTimer = t_moveDelay;
 	m_characterDirection = -100; // TEMP: Sloppy fix but works for now
+	m_moveDir = Direction::East;
 	setTimeModifier(1);
 
 	// Loop and clear the previous tiles stack
@@ -239,9 +257,9 @@ void Cartographer::reset(int t_moveDelay)
 	}
 
 	// Setup dead ends array
-	for (int row = 0; row < MAZE_ROWS; row++)
+	for (int row = 0; row < MAZE_SIZE; row++)
 	{
-		for (int col = 0; col < MAZE_COLS; col++)
+		for (int col = 0; col < MAZE_SIZE; col++)
 		{
 			m_deadEnds[row][col] = false;
 		}

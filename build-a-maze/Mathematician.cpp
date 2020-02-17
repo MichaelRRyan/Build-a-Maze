@@ -7,10 +7,11 @@
 /// <para>Load texture files, set the move direction, set the move timer,</para>
 /// <para>set the sight range and following player bool</para>
 /// </summary>
-Mathematician::Mathematician()
+Mathematician::Mathematician(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze) :
+	MazeSolver{ t_maze }
 {
 	loadFiles();
-	m_moveDir = static_cast<Direction>(rand() % 4 + 1);
+	m_moveDir = Direction::East;
 	m_moveTimer = 0;
 	m_active = true;
 	m_movementSpeed = DEFAULT_MOVE_SPEED;
@@ -31,7 +32,7 @@ void Mathematician::loadFiles()
 	}
 	m_body.setTexture(m_spriteSheet); // Set the character texture
 	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x + 32, m_characterNumber.y, 32, 64 }); // Set the character
-	m_body.setOrigin(0.0f, static_cast<float>(32)); // Set the origin of the sprite to ignore the head part of the sprite
+	m_body.setOrigin(0.0f, 32.0f); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
 /// <summary>
@@ -44,9 +45,9 @@ void Mathematician::loadFiles()
 /// </summary>
 /// <param name="t_maze"></param>
 /// <param name="t_ghosts"></param>
-void Mathematician::update(TileType t_maze[][MAZE_COLS])
+void Mathematician::update()
 {
-	if (m_pos.x == MAZE_COLS - 1 && m_pos.y == MAZE_ROWS - 2)
+	if (m_pos.x == MAZE_SIZE - 1 && m_pos.y == MAZE_SIZE - 2)
 	{
 		m_active = false;
 	}
@@ -59,7 +60,7 @@ void Mathematician::update(TileType t_maze[][MAZE_COLS])
 		if (m_takeLefts)
 		{
 			// Characters left
-			if (t_maze[m_pos.y - dir.x][m_pos.x + dir.y] != TileType::Wall) // Characters left when facing vertically and their right when horisontal
+			if (!isBlocked({m_pos.x + dir.y, m_pos.y - dir.x})) // Characters left when facing vertically and their right when horisontal
 			{
 				m_moveDir = Global::getDirection({ dir.y, -dir.x });
 			}
@@ -67,13 +68,13 @@ void Mathematician::update(TileType t_maze[][MAZE_COLS])
 		else
 		{
 			// Characters right
-			if (t_maze[m_pos.y + dir.x][m_pos.x - dir.y] != TileType::Wall) // Characters left when facing vertically and their right when horisontal
+			if (!isBlocked({ m_pos.x - dir.y, m_pos.y + dir.x })) // Characters left when facing vertically and their right when horisontal
 			{
 				m_moveDir = Global::getDirection({ -dir.y, dir.x });
 			}
 		}
 
-		checkForExit(t_maze);
+		checkForExit();
 
 		m_previousPos = m_pos; // Set the previous position to the current one before moving
 
@@ -82,14 +83,14 @@ void Mathematician::update(TileType t_maze[][MAZE_COLS])
 			sf::Vector2i desiredPosition = m_pos + Global::getDirectionVector(m_moveDir); // Find the desired position from the current position and direction
 
 			// Move if not blocked, else change direction
-			if (t_maze[desiredPosition.y][desiredPosition.x] != TileType::Wall)
+			if (!isBlocked(desiredPosition))
 			{
-				move(t_maze, desiredPosition);
+				move(desiredPosition);
 				break; // Break from the loop if the enemy can move
 			}
 			else
 			{
-				findNewDirection(t_maze);
+				findNewDirection();
 			}
 		}
 
@@ -101,5 +102,4 @@ void Mathematician::update(TileType t_maze[][MAZE_COLS])
 		m_moveTimer--;
 		animate();
 	}
-
 }
