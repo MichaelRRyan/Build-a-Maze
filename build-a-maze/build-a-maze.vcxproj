@@ -136,6 +136,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
     </ClCompile>
+    <ClCompile Include="Tile.cpp" />
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,7 @@
     <ClInclude Include="MazeSolver.h" />
     <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Tile.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>
   <ItemGroup>

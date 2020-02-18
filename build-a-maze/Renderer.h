@@ -9,7 +9,7 @@
 class Renderer
 {
 public:
-	Renderer(sf::RenderWindow& t_window, std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const & t_mazeRef, std::vector<MazeSolver*> const& t_solvers);
+	Renderer(sf::RenderWindow& t_window, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers);
 
 	void setup();
 
@@ -33,7 +33,7 @@ private:
 
 	// References
 	sf::RenderWindow& m_windowRef;
-	std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& m_mazeRef;
+	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
 	std::vector<MazeSolver*> const& m_solversRef;
 };
 

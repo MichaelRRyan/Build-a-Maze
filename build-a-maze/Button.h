@@ -13,7 +13,7 @@ namespace GUI
 		Button(sf::Texture const& t_texture, sf::Font const& t_font, std::string t_textString, sf::Vector2f t_position);
 
 		// Image button constructer
-		Button(sf::Texture const& t_imageTexture, sf::IntRect t_imageRect, sf::Vector2f t_position);
+		Button(sf::Texture const& t_guiTexture, sf::Texture const& t_imageTexture, sf::IntRect t_guiRect, sf::IntRect t_imageRect, sf::Vector2f t_position);
 
 		void draw(sf::RenderWindow& t_window) const;
 		void setup();

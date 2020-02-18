@@ -22,13 +22,14 @@ public:
 	void drawStats(sf::RenderWindow& t_window);
 
 private:
-	sf::Texture m_tileTectures;
+	sf::Texture m_guiTextures;
 	sf::Texture m_iconTextures;
+	sf::Texture m_tileTextures;
 
 	sf::RectangleShape m_shopBackground;
 	sf::RectangleShape m_statsBackground;
 
-	std::array<GUI::Button, 5> m_shopItems;
+	std::array<GUI::Button, 6> m_shopItems;
 
 	sf::Font m_hudFont;
 	sf::Text m_shopTitleText;

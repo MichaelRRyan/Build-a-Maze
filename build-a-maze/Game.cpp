@@ -195,25 +195,52 @@ void Game::processMouseEvents(sf::Event t_event)
 			if (m_selectedTile.x > 0 && m_selectedTile.x < MAZE_SIZE - 1
 				&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_SIZE - 1)
 			{
-				// Check if the player clicked a wall
-				if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
+				// Check if a turret was clicked
+				if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::Turret
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
-					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = TileType::None;
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(TileType::Wall);
 					m_currency += 25;
 				}
-				// Else the player clicked the ground. Make sure there is enough money for a wall
-				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
-					&& m_constructionState == ConstructionMode::Placing)
+				// Check if the player clicked a tile
+				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
+					&& m_constructionState == ConstructionMode::Destroying)
+				{
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(TileType::None);
+					m_currency += 25;
+				}
+				// Check if a turret was placed
+				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::Wall && m_currency >= 30
+					&& m_constructionState == ConstructionMode::Placing
+					&& m_selectedTileType == TileType::Turret)
 				{
 					m_tempTiles.push_back(m_selectedTile);
 
-					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] = m_selectedTileType;
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(TileType::Turret);
+					m_currency -= 30;
+				}
+				// Else the player clicked the ground. Make sure there is enough money for a wall
+				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
+					&& m_constructionState == ConstructionMode::Placing
+					&& m_selectedTileType != TileType::Turret)
+				{
+					m_tempTiles.push_back(m_selectedTile);
+
+					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(m_selectedTileType);
 					m_currency -= 30;
 				}
 			}
 		}
-
+		else if (m_gamestate == GameState::Simulation)
+		{
+			if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::Wall
+				&& m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::Mud
+				&& m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None)
+			{
+				// Toggle animation
+				m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setAnimating(!m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].getAnimating());
+			}
+		}
 	}
 }
 
@@ -401,6 +428,7 @@ void Game::setupGame()
 void Game::resetSimulation()
 {
 	m_constructionState = ConstructionMode::None;
+	m_selectedTileType = TileType::None;
 	m_prevTimeToComplete = 0;
 	m_timeToComplete = 0;
 	m_moneyEarned = 0;

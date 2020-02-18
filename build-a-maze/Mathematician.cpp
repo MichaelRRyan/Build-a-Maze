@@ -7,7 +7,7 @@
 /// <para>Load texture files, set the move direction, set the move timer,</para>
 /// <para>set the sight range and following player bool</para>
 /// </summary>
-Mathematician::Mathematician(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze) :
+Mathematician::Mathematician(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze) :
 	MazeSolver{ t_maze }
 {
 	loadFiles();

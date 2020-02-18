@@ -8,6 +8,7 @@
 #include <stack>
 #include <array>
 #include "Globals.h"
+#include "Tile.h"
 
 /// <summary>
 /// @brief A static class used for generating a maze into a 2D array
@@ -15,7 +16,7 @@
 class MazeGenerator
 {
 public:
-	static void generateMaze(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> & t_maze);
+	static void generateMaze(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 };
 
 #endif // !MAZE_GENERATOR_H

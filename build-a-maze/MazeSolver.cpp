@@ -3,7 +3,7 @@
 /// @Author Michael Rainsford Ryan
 /// @Date 28/09/2019
 
-MazeSolver::MazeSolver(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze) :
+MazeSolver::MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze) :
 	m_mazeRef{ t_maze }
 {
 }
@@ -37,6 +37,7 @@ void MazeSolver::move(sf::Vector2i t_newPosition)
 	m_pos = t_newPosition;
 
 	handleTreadmills();
+	handleSteppingStones();
 }
 
 void MazeSolver::findNewDirection()
@@ -84,7 +85,8 @@ bool MazeSolver::isBlocked(sf::Vector2i t_mazePos)
 	}
 
 	// If blocked by a wall
-	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall)
+	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall
+		|| m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Turret)
 	{
 		return true;
 	}
@@ -185,7 +187,7 @@ void MazeSolver::setTextureDirection()
 
 void MazeSolver::handleTreadmills()
 {
-	TileType tile{ TileType::None };
+	Tile tile; // { TileType::None };
 
 	// Current tile
 	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
@@ -197,18 +199,18 @@ void MazeSolver::handleTreadmills()
 		tile = m_mazeRef[m_previousPos.y][m_previousPos.x];
 
 		// If the threadmill is going the same direction as the solver
-		if (Global::getTreadmillDirection(tile) == m_moveDir)
+		if (Global::getTreadmillDirection(tile.getType()) == m_moveDir)
 		{
 			m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
 		}
 		// If the treadmill is going the opposite direction to the solver
-		else if (Global::getDirectionVector(Global::getTreadmillDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+		else if (Global::getDirectionVector(Global::getTreadmillDirection(tile.getType())) == -Global::getDirectionVector(m_moveDir))
 		{
 			m_movementSpeed = SLOW_MOVE_SPEED;
 		}
 		else
 		{
-			sf::Vector2i directionVector = Global::getDirectionVector(Global::getTreadmillDirection(tile));
+			sf::Vector2i directionVector = Global::getDirectionVector(Global::getTreadmillDirection(tile.getType()));
 
 			if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
 			{
@@ -226,14 +228,27 @@ void MazeSolver::handleTreadmills()
 		tile = m_mazeRef[m_pos.y][m_pos.x];
 
 		// If the threadmill is going the same direction as the solver
-		if (Global::getTreadmillDirection(tile) == m_moveDir)
+		if (Global::getTreadmillDirection(tile.getType()) == m_moveDir)
 		{
 			m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
 		}
 		// If the treadmill is going the opposite direction to the solver
-		else if (Global::getDirectionVector(Global::getTreadmillDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+		else if (Global::getDirectionVector(Global::getTreadmillDirection(tile.getType())) == -Global::getDirectionVector(m_moveDir))
 		{
 			m_movementSpeed = SLOW_MOVE_SPEED;
+		}
+	}
+}
+
+void MazeSolver::handleSteppingStones()
+{
+	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::SteppingStones)
+	{
+		m_mazeRef[m_previousPos.y][m_previousPos.x].setAnimating(true);
+
+		if (rand() % 5 == 0)
+		{
+			m_active = false;
 		}
 	}
 }

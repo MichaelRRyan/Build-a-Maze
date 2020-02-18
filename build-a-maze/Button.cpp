@@ -23,17 +23,19 @@ namespace GUI
 	}
 
 	////////////////////////////////////////////////////////////
-	Button::Button(sf::Texture const& t_imageTexture, sf::IntRect t_imageRect, sf::Vector2f t_position) :
+	Button::Button(sf::Texture const& t_guiTexture, sf::Texture const& t_imageTexture, sf::IntRect t_guiRect, sf::IntRect t_imageRect, sf::Vector2f t_position) :
 		m_locked{ false },
 		m_imageButton{ true }
 	{
+		// Button background
+		m_sprite.setTexture(t_guiTexture);
+		m_sprite.setTextureRect(t_guiRect);
+		m_sprite.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0f, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
+
+		// Image overlay
 		m_image.setTexture(t_imageTexture);
 		m_image.setTextureRect(t_imageRect);
-		m_image.setPosition(t_position.x + t_imageRect.width / 2.0f, t_position.y + t_imageRect.height / 2.0f);
-
-		// Just used for collisions in image buttons
-		m_sprite.setTextureRect(t_imageRect);
-		m_sprite.setPosition(m_image.getPosition());
+		m_image.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
 	}
 
 	////////////////////////////////////////////////////////////
@@ -46,6 +48,7 @@ namespace GUI
 		}
 		else
 		{
+			t_window.draw(m_sprite);
 			t_window.draw(m_image);
 		}
 	}
@@ -55,7 +58,7 @@ namespace GUI
 	{
 		m_text.setOrigin(m_text.getGlobalBounds().width / 2.0f, m_text.getGlobalBounds().height / 2.0f);
 		m_text.setFillColor(sf::Color::Black);
-		m_sprite.setOrigin(s_WIDTH / 2.0f, s_HEIGHT / 2.0f);
+		m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, m_sprite.getGlobalBounds().height / 2.0f);
 
 		m_image.setOrigin(m_image.getGlobalBounds().width / 2.0f, m_image.getGlobalBounds().height / 2.0f);
 	}
@@ -75,7 +78,8 @@ namespace GUI
 			}
 			else
 			{
-				m_image.setScale(1.0f, 1.0f);
+				m_sprite.setScale(1.0f, 1.0f);
+				m_image.setScale(2.0f, 2.0f);
 			}
 
 			// Check the mouse pointer against the button x bounds
@@ -95,7 +99,8 @@ namespace GUI
 					}
 					else
 					{
-						m_image.setScale(0.9f, 0.9f);
+						m_sprite.setScale(0.9f, 0.9f);
+						m_image.setScale(2.0f * 0.9f, 2.0f * 0.9f);
 					}
 
 					if (t_cursor.m_clicked)

@@ -3,11 +3,12 @@
 /////////////////////////////////////////////////////////////////
 HUD::HUD(sf::View const& t_windowView) :
 	m_shopItems{ {
-		{ m_tileTectures, { 195, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 96.0f } },
-		{ m_tileTectures, { 0, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f } },
-		{ m_tileTectures, { 65, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
-		{ m_tileTectures, { 130, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
-		{ m_tileTectures, { 195, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 96.0f } }
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 200, 0, 0, 0 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 96.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 88, 16, 24 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, MUD_TEXT_RECT,{ t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 112, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 96.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 96.0f } }
 	} }
 {
 	m_shopBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
@@ -17,7 +18,12 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_shopBackground.setOutlineColor(sf::Color{ 120, 112, 65 });
 	m_shopBackground.setOutlineThickness(5.0f);
 
-	if (!m_tileTectures.loadFromFile("ASSETS/IMAGES/GUI.png"))
+	if (!m_guiTextures.loadFromFile("ASSETS/IMAGES/GUI.png"))
+	{
+		std::cout << "Error loading GUI textures";
+	}
+
+	if (!m_tileTextures.loadFromFile("ASSETS/IMAGES/tile_sheet.png"))
 	{
 		std::cout << "Error loading tile sheet textures";
 	}
@@ -114,6 +120,10 @@ void HUD::processShopEvents(Cursor t_cursor, ConstructionMode& t_constructionSta
 			case 4: // Stepping Stones tool
 				t_constructionState = ConstructionMode::Placing;
 				t_selectedTileType = TileType::SteppingStones;
+				break;
+			case 5: // Stepping Stones tool
+				t_constructionState = ConstructionMode::Placing;
+				t_selectedTileType = TileType::Turret;
 				break;
 			}
 		}

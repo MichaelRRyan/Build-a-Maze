@@ -13,7 +13,7 @@
 class Cartographer : public MazeSolver
 {
 public:
-	Cartographer(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze);
+	Cartographer(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 	void loadFiles();
 	void update(); // Move the enemy if not blocked by an enemy or wall
 	virtual void move(sf::Vector2i t_newPosition) override; // Move the solver to a new position

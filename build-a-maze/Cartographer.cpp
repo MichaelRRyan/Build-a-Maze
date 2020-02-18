@@ -6,7 +6,7 @@
 /// <para>Load texture files, set the move direction, set the move timer,</para>
 /// <para>set the sight range and following player bool</para>
 /// </summary>
-Cartographer::Cartographer(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const& t_maze) :
+Cartographer::Cartographer(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze) :
 	MazeSolver{ t_maze }
 {
 	loadFiles();
@@ -114,8 +114,8 @@ void Cartographer::update()
 
 void Cartographer::move(sf::Vector2i t_newPosition)
 {
-	if (static_cast<TileType>(m_mazeRef[m_pos.y][m_pos.x]) == TileType::Mud
-		|| static_cast<TileType>(m_mazeRef[t_newPosition.y][t_newPosition.x]) == TileType::Mud)
+	if (m_mazeRef[m_pos.y][m_pos.x] == TileType::Mud
+		|| m_mazeRef[t_newPosition.y][t_newPosition.x] == TileType::Mud)
 	{
 		m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 	}
@@ -138,6 +138,7 @@ void Cartographer::move(sf::Vector2i t_newPosition)
 	m_pos = t_newPosition;
 
 	handleTreadmills();
+	handleSteppingStones();
 }
 
 void Cartographer::draw(sf::RenderWindow& t_window) const
@@ -227,7 +228,8 @@ bool Cartographer::isBlocked(sf::Vector2i t_mazePos)
 	}
 
 	// If blocked by a wall
-	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall)
+	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall
+		|| m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Turret)
 	{
 		return true;
 	}

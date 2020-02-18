@@ -7,11 +7,12 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 #include "Globals.h"
+#include "Tile.h"
 
 class MazeSolver
 {
 public:
-	MazeSolver(std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const & t_maze);
+	MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 	virtual void loadFiles() = 0;
 	virtual void update() = 0; // Move the enemy if not blocked by an enemy or wall
 	virtual void move(sf::Vector2i t_newPosition); // Move the solver to a new position
@@ -31,6 +32,7 @@ public:
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
 	void handleTreadmills();
+	void handleSteppingStones();
 
 protected:
 	// Declare private data members
@@ -53,7 +55,7 @@ protected:
 
 	int tempTestVar;
 
-	std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> const & m_mazeRef;
+	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
 };
 
 #endif // !MAZE_SOLVER_H

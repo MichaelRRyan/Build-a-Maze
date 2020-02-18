@@ -19,6 +19,7 @@
 #include "Renderer.h"
 #include "MenuScreen.h"
 #include "HUD.h"
+#include "Tile.h"
 
 class Game
 {
@@ -70,7 +71,7 @@ private:
 
 	// Maze array
 	// Should be moved to a std::array
-	std::array<std::array<TileType, MAZE_SIZE>, MAZE_SIZE> m_mazeBlocks;
+	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> m_mazeBlocks;
 
 	// Vectors
 	sf::Vector2i m_selectedTile;

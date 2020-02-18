@@ -3,6 +3,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <SFML/Graphics.hpp>
+
 const int MAZE_SIZE{ 15 };
 const float TILE_SIZE{ 32.0f };
 
@@ -32,6 +34,7 @@ enum class TileType {
 	TreadmillNorth = 4,
 	TreadmillSouth = 5,
 	SteppingStones = 6,
+	Turret = 7,
 	Wall = 10
 };
 
