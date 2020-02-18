@@ -28,7 +28,7 @@ private:
 	sf::RectangleShape m_shopBackground;
 	sf::RectangleShape m_statsBackground;
 
-	std::array<GUI::Button, 4> m_shopItems;
+	std::array<GUI::Button, 5> m_shopItems;
 
 	sf::Font m_hudFont;
 	sf::Text m_shopTitleText;

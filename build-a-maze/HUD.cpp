@@ -6,7 +6,8 @@ HUD::HUD(sf::View const& t_windowView) :
 		{ m_tileTectures, { 195, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 96.0f } },
 		{ m_tileTectures, { 0, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f } },
 		{ m_tileTectures, { 65, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
-		{ m_tileTectures, { 130, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } }
+		{ m_tileTectures, { 130, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
+		{ m_tileTectures, { 195, 80, 64, 64 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 96.0f } }
 	} }
 {
 	m_shopBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
@@ -109,6 +110,10 @@ void HUD::processShopEvents(Cursor t_cursor, ConstructionMode& t_constructionSta
 			case 3: // Treadmill tool
 				t_constructionState = ConstructionMode::Placing;
 				t_selectedTileType = TileType::TreadmillWest;
+				break;
+			case 4: // Stepping Stones tool
+				t_constructionState = ConstructionMode::Placing;
+				t_selectedTileType = TileType::SteppingStones;
 				break;
 			}
 		}
