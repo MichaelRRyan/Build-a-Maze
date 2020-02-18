@@ -376,7 +376,7 @@ void Game::setupGame()
 
 	// Add a random selection of AI to the maze
 	m_mazeSolverPtrs.clear(); // Clear any previous AI
-	for (int i = 0; i < SOLVERS_MAX; i++)
+	for (int i = 0; i < SOLVERS_MAX ; i++)
 	{
 		switch (rand() % 3)
 		{

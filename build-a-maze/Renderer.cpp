@@ -13,8 +13,9 @@ void Renderer::setup()
 	{
 		throw("Error loading tile textures");
 	}
-
+	
 	m_textureTile.setTexture(m_tileTexture);
+	m_textureTile.setScale(2.0f, 2.0f);
 
 	m_tileSelector.setSize({ 32, 32 });
 	m_tileSelector.setFillColor(sf::Color::Transparent);
@@ -58,7 +59,7 @@ void Renderer::drawMazeBackground()
 		{
 			m_textureTile.setPosition(col * TILE_SIZE, row * TILE_SIZE);
 
-			m_textureTile.setTextureRect(sf::IntRect{ (abs(row + col) % 3) * 32, 128, 32, 32 });
+			m_textureTile.setTextureRect(sf::IntRect{ (abs(row + col) % 3) * 16, 16 * 4, 16, 16 });
 			m_windowRef.draw(m_textureTile);
 		}
 	}
@@ -92,28 +93,29 @@ void Renderer::drawMazeRow(int t_row, sf::Vector2i t_selectedTile, ConstructionM
 			if (static_cast<TileType>(m_mazeRef[t_row][col]) == TileType::Mud)
 			{
 				m_textureTile.setTextureRect(PLANT_TEXT_RECT);
+				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (static_cast<TileType>(m_mazeRef[t_row][col]) == TileType::Wall) {
 				m_textureTile.setTextureRect(WALL_TEXT_RECT);
 			}
 			else if (static_cast<TileType>(m_mazeRef[t_row][col]) == TileType::TreadmillWest) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 0, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 3);
+				m_textureTile.setTextureRect({ 16 + left, 0, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (static_cast<TileType>(m_mazeRef[t_row][col]) == TileType::TreadmillEast) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 32, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 3);
+				m_textureTile.setTextureRect({ 16 + left, 16, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (static_cast<TileType>(m_mazeRef[t_row][col]) == TileType::TreadmillNorth) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 64, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 3);
+				m_textureTile.setTextureRect({ 16 + left, 32, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (static_cast<TileType>(m_mazeRef[t_row][col]) == TileType::TreadmillSouth) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 96, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 3);
+				m_textureTile.setTextureRect({ 16 + left, 48, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 
@@ -130,28 +132,29 @@ void Renderer::drawMazeRow(int t_row, sf::Vector2i t_selectedTile, ConstructionM
 			if (t_selectedTileType == TileType::Mud)
 			{
 				m_textureTile.setTextureRect(PLANT_TEXT_RECT);
+				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::Wall) {
 				m_textureTile.setTextureRect(WALL_TEXT_RECT);
 			}
 			else if (t_selectedTileType == TileType::TreadmillWest) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 0, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+				m_textureTile.setTextureRect({ 16 + left, 0, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::TreadmillEast) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 32, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+				m_textureTile.setTextureRect({ 16 + left, 16, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::TreadmillNorth) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 64, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+				m_textureTile.setTextureRect({ 16 + left, 32, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::TreadmillSouth) {
-				int left = 32 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
-				m_textureTile.setTextureRect({ 32 + left, 96, 32, 32 });
+				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / 2 % 4);
+				m_textureTile.setTextureRect({ 16 + left, 48, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 

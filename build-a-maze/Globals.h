@@ -11,8 +11,8 @@ const int SOLVERS_MAX{ 8 };
 const unsigned WINDOW_WIDTH{ 1280u };
 const unsigned WINDOW_HEIGHT{ 720u };
 
-const sf::IntRect WALL_TEXT_RECT{ 64, 160, 32, 64 };
-const sf::IntRect PLANT_TEXT_RECT{ 32, 160, 32, 64 };
+const sf::IntRect WALL_TEXT_RECT{ 0, 80, 16, 32 };
+const sf::IntRect PLANT_TEXT_RECT{ 48, 64, 16, 16 };
 
 const float GAMEPLAY_SECTION_END{ 800.0f };
 const float SIM_PANEL_START{ 1000 };
