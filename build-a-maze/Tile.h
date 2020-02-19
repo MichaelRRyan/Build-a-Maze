@@ -28,11 +28,11 @@ public:
 
 private:
 	TileType m_type;
-	bool m_animating;
+	sf::Clock m_animationClock;
 	int m_maxFrames;
 	int m_frame;
 	float m_animFrameTime;
-	sf::Clock m_animationClock;
+	bool m_animating;
 	bool m_loop;
 };
 

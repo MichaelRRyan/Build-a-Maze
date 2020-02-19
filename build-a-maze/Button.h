@@ -22,6 +22,9 @@ namespace GUI
 		void setLocked(bool t_state);
 		bool getLocked() const;
 
+		const sf::Vector2f getPosition() const;
+		const sf::Vector2f getSize() const;
+
 		static constexpr float s_WIDTH{ 300.0f };
 		static constexpr float s_HEIGHT{ 80.0f };
 

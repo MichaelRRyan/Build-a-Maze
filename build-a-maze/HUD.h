@@ -30,6 +30,8 @@ private:
 	sf::RectangleShape m_statsBackground;
 
 	std::array<GUI::Button, 6> m_shopItems;
+	std::array<sf::Text, 6> m_shopItemNames;
+	std::array<sf::Text, 5> m_shopItemPrices;
 
 	sf::Font m_hudFont;
 	sf::Text m_shopTitleText;
@@ -41,7 +43,6 @@ private:
 	sf::Text m_numAIText;
 	sf::Text m_timeText;
 	sf::Text m_moneyEarnedText;
-	
 };
 
 #endif // !HUD_H

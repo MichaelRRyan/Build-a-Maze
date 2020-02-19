@@ -103,6 +103,7 @@ void Renderer::drawMazeRow(int t_row, sf::Vector2i t_selectedTile, ConstructionM
 				m_windowRef.draw(m_textureTile);
 
 				if (t_row == t_selectedTile.y && col == t_selectedTile.x
+					&& t_row > 0 && t_row < MAZE_SIZE - 1 && col > 0 && col < MAZE_SIZE - 1
 					&& t_selectedTileType == TileType::Turret)
 				{
 					m_textureTile.setTextureRect({ 0, 128, 16, 32 });
@@ -171,23 +172,19 @@ void Renderer::drawMazeRow(int t_row, sf::Vector2i t_selectedTile, ConstructionM
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::TreadmillEast) {
-				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / threadmillAnimFactor % 3);
 				m_textureTile.setTextureRect({ 16, 16, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::TreadmillNorth) {
-				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / threadmillAnimFactor % 3);
 				m_textureTile.setTextureRect({ 16, 32, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::TreadmillSouth) {
-				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / threadmillAnimFactor % 3);
 				m_textureTile.setTextureRect({ 16, 48, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			else if (t_selectedTileType == TileType::SteppingStones) {
-				int left = 16 * (static_cast<int>(m_animationClock.getElapsedTime().asMilliseconds()) / steppingStonesAnimFactor % 9);
-				m_textureTile.setTextureRect({ left, 112, 16, 16 });
+				m_textureTile.setTextureRect({ 0, 112, 16, 16 });
 				m_textureTile.move(0.0f, 32.0f);
 			}
 			

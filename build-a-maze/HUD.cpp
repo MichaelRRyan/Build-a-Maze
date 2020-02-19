@@ -3,12 +3,12 @@
 /////////////////////////////////////////////////////////////////
 HUD::HUD(sf::View const& t_windowView) :
 	m_shopItems{ {
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 200, 0, 0, 0 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 96.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 200, 0, 0, 0 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 88, 16, 24 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, MUD_TEXT_RECT,{ t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 112, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 96.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 96.0f } }
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 112, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 110.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
 	} }
 {
 	m_shopBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
@@ -90,6 +90,38 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_numAIText.setCharacterSize(20.0f);
 	m_moneyEarnedText.setCharacterSize(20.0f);
 	m_timeText.setCharacterSize(20.0f);
+
+	// Setup shop item names
+	m_shopItemNames.at(0).setString("Destroy Tool");
+	m_shopItemNames.at(1).setString("Wall");
+	m_shopItemNames.at(2).setString("Mud");
+	m_shopItemNames.at(3).setString("Treadmill");
+	m_shopItemNames.at(4).setString("Balancing\n    Pad");
+	m_shopItemNames.at(5).setString("Paintball\n  Turret");
+
+	m_shopItemPrices.at(0).setString("$45");
+	m_shopItemPrices.at(1).setString("$80");
+	m_shopItemPrices.at(2).setString("$250");
+	m_shopItemPrices.at(3).setString("$250");
+	m_shopItemPrices.at(4).setString("$450");
+
+	for (int i = 0; i < m_shopItems.size(); i++)
+	{
+		m_shopItemNames.at(i).setFont(m_hudFont);
+		m_shopItemNames.at(i).setFillColor(sf::Color::Black);
+		m_shopItemNames.at(i).setCharacterSize(13u);
+		m_shopItemNames.at(i).setOrigin(m_shopItemNames.at(i).getGlobalBounds().width / 2.0f, 0.0f);
+		m_shopItemNames.at(i).setPosition(m_shopItems.at(i).getPosition().x, m_shopItems.at(i).getPosition().y + m_shopItems.at(i).getSize().y / 2.0f);
+	}
+
+	for (int i = 0; i < m_shopItemPrices.size(); i++)
+	{
+		m_shopItemPrices.at(i).setFont(m_hudFont);
+		m_shopItemPrices.at(i).setFillColor(sf::Color{ 120, 112, 65 });
+		m_shopItemPrices.at(i).setCharacterSize(13u);
+		m_shopItemPrices.at(i).setOrigin(m_shopItemPrices.at(i).getGlobalBounds().width / 2.0f, 0.0f);
+		m_shopItemPrices.at(i).setPosition(m_shopItemNames.at(i + 1).getPosition().x, m_shopItemNames.at(i + 1).getPosition().y + m_shopItemNames.at(i + 1).getGlobalBounds().height + 5);
+	}
 }
 
 /////////////////////////////////////////////////////////////////
@@ -168,9 +200,15 @@ void HUD::drawShop(sf::RenderWindow& t_window) const
 {
 	t_window.draw(m_shopBackground);
 
-	for (GUI::Button const& button : m_shopItems)
+	for (int i = 0; i < m_shopItems.size(); i++)
 	{
-		button.draw(t_window);
+		m_shopItems.at(i).draw(t_window);
+		t_window.draw(m_shopItemNames.at(i));
+
+		if (i < m_shopItemPrices.size())
+		{
+			t_window.draw(m_shopItemPrices.at(i));
+		}
 	}
 
 	t_window.draw(m_shopTitleText);

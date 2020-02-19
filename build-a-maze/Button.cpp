@@ -133,4 +133,14 @@ namespace GUI
 	{
 		return m_locked;
 	}
+
+	const sf::Vector2f Button::getPosition() const
+	{
+		return m_sprite.getPosition();
+	}
+
+	const sf::Vector2f Button::getSize() const
+	{
+		return { m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height };
+	}
 }
