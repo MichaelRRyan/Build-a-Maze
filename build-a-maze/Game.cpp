@@ -300,11 +300,15 @@ void Game::update(sf::Time t_deltaTime)
 	// Update the build mode GUI
 	if (m_gamestate == GameState::BuildMode)
 	{
-		m_hud.updateMoneyText(m_currency);
+		m_hud.updateBuildMode(m_currency);
 	}
 	else if (m_gamestate == GameState::Simulation)
 	{
 		m_hud.updateSimText(m_noOfAI, m_timeToComplete, m_moneyEarned);
+	}
+	else if (m_gamestate == GameState::TitleScreen)
+	{
+		m_menuScreen.update();
 	}
 
 	updateCursor();

@@ -169,9 +169,14 @@ void HUD::processShopEvents(Cursor t_cursor, ConstructionMode& t_constructionSta
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateMoneyText(int t_money)
+void HUD::updateBuildMode(int t_money)
 {
 	m_moneyText.setString("BALANCE: " + std::to_string(t_money));
+
+	for (GUI::Button& button : m_shopItems)
+	{
+		button.update();
+	}
 }
 
 /////////////////////////////////////////////////////////////////

@@ -19,6 +19,12 @@ MenuScreen::MenuScreen(sf::View const& t_windowView) :
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2, 0.0f);
 }
 
+void MenuScreen::update()
+{
+	m_playButton.update();
+	m_exitButton.update();
+}
+
 /////////////////////////////////////////////////////////////////
 void MenuScreen::processEvents(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame)
 {

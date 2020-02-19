@@ -16,6 +16,8 @@ class MenuScreen
 public:
 	MenuScreen(sf::View const & t_windowView);
 
+	void update();
+
 	void processEvents(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame);
 
 	void draw(sf::RenderWindow & t_window) const;

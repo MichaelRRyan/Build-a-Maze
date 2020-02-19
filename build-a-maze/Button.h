@@ -18,6 +18,7 @@ namespace GUI
 		void draw(sf::RenderWindow& t_window) const;
 		void setup();
 		bool processMouseEvents(Cursor const & t_cursor);
+		void update();
 
 		void setLocked(bool t_state);
 		bool getLocked() const;
@@ -35,6 +36,7 @@ namespace GUI
 		bool m_locked; // Whether or not the button is locked from being pressed
 		bool m_imageButton; // True if the button is an image button
 		float m_rotDirection; // Direction multiplier the button rotates by when hovered over
+		bool m_hovered; // Whether the button is hovered or not
 	};
 }
 
