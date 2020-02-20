@@ -29,10 +29,16 @@ void Renderer::drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_construc
 
 	drawTileSelector(t_selectedTile);
 
+	// Draw the floor tiles
+	for (int row = 1; row < MAZE_SIZE - 1; row++)
+	{
+		drawMazeFloorRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
+	}
+
 	// Draw the walls
 	for (int row = 0; row < MAZE_SIZE; row++)
 	{
-		drawMazeRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
+		drawMazeWallRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
 	}
 }
 
@@ -42,10 +48,16 @@ void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode
 
 	drawTileSelector(t_selectedTile);
 
+	// Draw the floor tiles
+	for (int row = 1; row < MAZE_SIZE - 1; row++)
+	{
+		drawMazeFloorRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
+	}
+
 	// Draw the walls and AI
 	for (int row = 0; row < MAZE_SIZE; row++)
 	{
-		drawMazeRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
+		drawMazeWallRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
 		drawMazeSolvers(row);
 	}
 }
@@ -74,128 +86,131 @@ void Renderer::drawTileSelector(sf::Vector2i t_selectedTile)
 	}
 }
 
-void Renderer::drawMazeRow(int t_row, sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
+void Renderer::drawMazeFloorRow(int t_row, sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
 {
-	int threadmillAnimFactor = 100;
-	int steppingStonesAnimFactor = 50;
-
-	for (int col = 0; col < MAZE_SIZE; col++)
+	for (int col = 1; col < MAZE_SIZE - 1; col++)
 	{
 		if (m_mazeRef[t_row][col] != TileType::None)
 		{
+			if (m_mazeRef[t_row][col] != TileType::Wall
+				&& m_mazeRef[t_row][col] != TileType::Turret)
+			{
+				sf::Color color{ sf::Color::White };
+
+				// Draw blocks red to show removing ability
+				if (t_row == t_selectedTile.y && col == t_selectedTile.x
+					&& t_constructionMode == ConstructionMode::Destroying)
+				{
+					color = sf::Color{ 200,50,50,245 };
+				}
+
+				m_mazeRef[t_row][col].updateAnimation();
+				drawTile(m_mazeRef[t_row][col].getType(), m_mazeRef[t_row][col].getFrame(), t_row, col, color);
+			}
+		}
+		// Draw ghost blocks when placing a tile
+		else if (t_row == t_selectedTile.y && col == t_selectedTile.x
+			&& t_constructionMode == ConstructionMode::Placing)
+		{
+			if (t_selectedTileType != TileType::Wall
+				&& t_selectedTileType != TileType::Turret)
+			{
+				m_mazeRef[t_row][col].updateAnimation();
+				drawTile(t_selectedTileType, 0, t_row, col, sf::Color{ 50,100,200,180 });
+			}
+		}
+	}
+}
+
+void Renderer::drawMazeWallRow(int t_row, sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
+{
+	for (int col = 0; col < MAZE_SIZE; col++)
+	{
+		if (m_mazeRef[t_row][col] == TileType::Wall
+			|| m_mazeRef[t_row][col] == TileType::Turret)
+		{
+			sf::Color color{ sf::Color::White };
+
 			// Draw blocks red to show removing ability
 			if (t_row == t_selectedTile.y && col == t_selectedTile.x
 				&& t_row > 0 && t_row < MAZE_SIZE - 1 && col > 0 && col < MAZE_SIZE - 1
 				&& t_constructionMode == ConstructionMode::Destroying)
 			{
-				m_textureTile.setColor(sf::Color{ 200,50,50,245 });
+				color = sf::Color{ 200,50,50,245 };
 			}
 
-			m_textureTile.setPosition(col * TILE_SIZE, t_row * TILE_SIZE - 32.0f);
+			// Always draw a wall
+			drawTile(TileType::Wall, 0, t_row, col, color);
 
-			if (m_mazeRef[t_row][col] == TileType::Mud)
+			// Draw a turret if a turret tile
+			if (m_mazeRef[t_row][col] == TileType::Turret)
 			{
-				m_textureTile.setTextureRect(MUD_TEXT_RECT);
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (m_mazeRef[t_row][col] == TileType::Wall) {
-				m_textureTile.setTextureRect(WALL_TEXT_RECT);
-				m_windowRef.draw(m_textureTile);
-
-				if (t_row == t_selectedTile.y && col == t_selectedTile.x
-					&& t_row > 0 && t_row < MAZE_SIZE - 1 && col > 0 && col < MAZE_SIZE - 1
-					&& t_selectedTileType == TileType::Turret)
-				{
-					m_textureTile.setTextureRect({ 0, 128, 16, 32 });
-					m_textureTile.setColor(sf::Color{ 50,100,200,180 });
-				}
-			}
-			else if (m_mazeRef[t_row][col] == TileType::TreadmillWest) {
 				m_mazeRef[t_row][col].updateAnimation();
-				int left = 16 * m_mazeRef[t_row][col].getFrame();
-				m_textureTile.setTextureRect({ 16 + left, 0, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (m_mazeRef[t_row][col] == TileType::TreadmillEast) {
-				m_mazeRef[t_row][col].updateAnimation();
-				int left = 16 * m_mazeRef[t_row][col].getFrame();
-				m_textureTile.setTextureRect({ 16 + left, 16, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (m_mazeRef[t_row][col] == TileType::TreadmillNorth) {
-				m_mazeRef[t_row][col].updateAnimation();
-				int left = 16 * m_mazeRef[t_row][col].getFrame();
-				m_textureTile.setTextureRect({ 16 + left, 32, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (m_mazeRef[t_row][col] == TileType::TreadmillSouth) {
-				m_mazeRef[t_row][col].updateAnimation();
-				int left = 16 * m_mazeRef[t_row][col].getFrame();
-				m_textureTile.setTextureRect({ 16 + left, 48, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (m_mazeRef[t_row][col] == TileType::SteppingStones) {
-				m_mazeRef[t_row][col].updateAnimation();
-				int left = 16 * m_mazeRef[t_row][col].getFrame();
-				m_textureTile.setTextureRect({ left, 112, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (m_mazeRef[t_row][col] == TileType::Turret) {
-				m_textureTile.setTextureRect(WALL_TEXT_RECT);
-				m_windowRef.draw(m_textureTile);
-
-				m_mazeRef[t_row][col].updateAnimation();
-				int left = 16 * m_mazeRef[t_row][col].getFrame();
-				m_textureTile.setTextureRect({ left, 128, 16, 32 });
+				drawTile(TileType::Turret, m_mazeRef[t_row][col].getFrame(), t_row, col, color);
 			}
 
-			m_windowRef.draw(m_textureTile);
-			m_textureTile.setColor(sf::Color::White);
+			// Draw a ghost turret if placing a turret on a wall
+			else if (m_mazeRef[t_row][col] == TileType::Wall
+				&& t_row == t_selectedTile.y && col == t_selectedTile.x
+				&& t_row > 0 && t_row < MAZE_SIZE - 1 && col > 0 && col < MAZE_SIZE - 1
+				&& t_selectedTileType == TileType::Turret)
+			{
+				drawTile(TileType::Turret, 0, t_row, col, sf::Color{ 50,100,200,180 });
+			}
+
 		}
 		// Draw ghost blocks when placing a tile
-		else if (t_row == t_selectedTile.y && col == t_selectedTile.x
+		else if (m_mazeRef[t_row][col] == TileType::None
+			&& t_row == t_selectedTile.y && col == t_selectedTile.x
 			&& t_row > 0 && t_row < MAZE_SIZE - 1 && col > 0 && col < MAZE_SIZE - 1
 			&& t_constructionMode == ConstructionMode::Placing)
 		{
-			m_textureTile.setPosition(col * TILE_SIZE, t_row * TILE_SIZE - 32.0f);
-
-			if (t_selectedTileType == TileType::Mud)
+			if (t_selectedTileType == TileType::Wall)
 			{
-				m_textureTile.setTextureRect(MUD_TEXT_RECT);
-				m_textureTile.move(0.0f, 32.0f);
+				m_mazeRef[t_row][col].updateAnimation();
+				drawTile(TileType::Wall, 0, t_row, col, sf::Color{ 50,100,200,180 });
 			}
-			else if (t_selectedTileType == TileType::Wall) {
-				m_textureTile.setTextureRect(WALL_TEXT_RECT);
-			}
-			else if (t_selectedTileType == TileType::TreadmillWest) {
-				m_textureTile.setTextureRect({ 16, 0, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (t_selectedTileType == TileType::TreadmillEast) {
-				m_textureTile.setTextureRect({ 16, 16, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (t_selectedTileType == TileType::TreadmillNorth) {
-				m_textureTile.setTextureRect({ 16, 32, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (t_selectedTileType == TileType::TreadmillSouth) {
-				m_textureTile.setTextureRect({ 16, 48, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			else if (t_selectedTileType == TileType::SteppingStones) {
-				m_textureTile.setTextureRect({ 0, 112, 16, 16 });
-				m_textureTile.move(0.0f, 32.0f);
-			}
-			
-			if (t_selectedTileType != TileType::Turret) {
-				m_textureTile.setColor(sf::Color{ 50,100,200,180 });
-				m_windowRef.draw(m_textureTile);
-			}
-
-			m_textureTile.setColor(sf::Color::White);
 		}
 	}
+}
+
+void Renderer::drawTile(TileType t_tileType, int t_frame, int t_row, int t_col, sf::Color t_colorOverlay)
+{
+	m_textureTile.setPosition(t_col * TILE_SIZE, t_row * TILE_SIZE);
+	m_textureTile.setOrigin(0.0f, 0.0f);
+	m_textureTile.setColor(t_colorOverlay);
+
+	switch (t_tileType)
+	{
+	case TileType::Mud:
+		m_textureTile.setTextureRect(MUD_TEXT_RECT);
+		break;
+	case TileType::TreadmillWest:
+		m_textureTile.setTextureRect({ 16 * t_frame, 0, 16, 16 });
+		break;
+	case TileType::TreadmillEast:
+		m_textureTile.setTextureRect({ 16 * t_frame, 16, 16, 16 });
+		break;
+	case TileType::TreadmillNorth:
+		m_textureTile.setTextureRect({ 16 * t_frame, 32, 16, 16 });
+		break;
+	case TileType::TreadmillSouth:
+		m_textureTile.setTextureRect({ 16 * t_frame, 48, 16, 16 });
+		break;
+	case TileType::SteppingStones:
+		m_textureTile.setTextureRect({ 16 * t_frame, 112, 16, 16 });
+		break;
+	case TileType::Turret:
+		m_textureTile.setTextureRect({ 16 * t_frame, 128, 16, 32 });
+		m_textureTile.move(0.0f, -32.0f);
+		break;
+	case TileType::Wall:
+		m_textureTile.setTextureRect(WALL_TEXT_RECT);
+		m_textureTile.move(0.0f, -32.0f);
+		break;
+	}
+
+	m_windowRef.draw(m_textureTile);
 }
 
 void Renderer::drawMazeSolvers(int t_row)
