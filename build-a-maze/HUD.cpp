@@ -99,11 +99,11 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_shopItemNames.at(4).setString("Balancing\n    Pad");
 	m_shopItemNames.at(5).setString("Paintball\n  Turret");
 
-	m_shopItemPrices.at(0).setString("$45");
-	m_shopItemPrices.at(1).setString("$80");
-	m_shopItemPrices.at(2).setString("$250");
-	m_shopItemPrices.at(3).setString("$250");
-	m_shopItemPrices.at(4).setString("$450");
+	m_shopItemPrices.at(0).setString("$" + std::to_string(Global::getTilePrice(TileType::Wall))); // Wall
+	m_shopItemPrices.at(1).setString("$" + std::to_string(Global::getTilePrice(TileType::Mud))); // Mud
+	m_shopItemPrices.at(2).setString("$" + std::to_string(Global::getTilePrice(TileType::TreadmillWest))); // Treadmill
+	m_shopItemPrices.at(3).setString("$" + std::to_string(Global::getTilePrice(TileType::SteppingStones))); // Balancing pad
+	m_shopItemPrices.at(4).setString("$" + std::to_string(Global::getTilePrice(TileType::Turret))); // Turret
 
 	for (int i = 0; i < m_shopItems.size(); i++)
 	{

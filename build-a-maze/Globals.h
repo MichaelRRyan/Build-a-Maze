@@ -122,6 +122,43 @@ public:
 			break;
 		}
 	}
+
+	static int getTilePrice(TileType t_tileType)
+	{
+		switch (t_tileType)
+		{
+		case TileType::None:
+			return 0;
+			break;
+		case TileType::Mud:
+			return 10;
+			break;
+		case TileType::TreadmillWest:
+			return 20;
+			break;
+		case TileType::TreadmillEast:
+			return 20;
+			break;
+		case TileType::TreadmillNorth:
+			return 20;
+			break;
+		case TileType::TreadmillSouth:
+			return 20;
+			break;
+		case TileType::SteppingStones:
+			return 80;
+			break;
+		case TileType::Turret:
+			return 200;
+			break;
+		case TileType::Wall:
+			return 20;
+			break;
+		default:
+			return 0;
+			break;
+		}
+	}
 };
 
 #endif // !GLOBALS_H

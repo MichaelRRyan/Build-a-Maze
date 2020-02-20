@@ -200,37 +200,14 @@ void Game::processMouseEvents(sf::Event t_event)
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(TileType::Wall);
-					m_currency += 100;
+					m_currency -= Global::getTilePrice(TileType::Turret) / 2;
 				}
 				// Check if the player clicked a tile
 				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] != TileType::None
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(TileType::None);
-					switch (m_selectedTileType)
-					{
-					case TileType::Mud:
-						m_currency += 5;
-						break;
-					case TileType::TreadmillWest:
-						m_currency += 10;
-						break;
-					case TileType::TreadmillEast:
-						m_currency += 10;
-						break;
-					case TileType::TreadmillNorth:
-						m_currency += 10;
-						break;
-					case TileType::TreadmillSouth:
-						m_currency += 10;
-						break;
-					case TileType::SteppingStones:
-						m_currency += 40;
-						break;
-					case TileType::Wall:
-						m_currency += 20;
-						break;
-					}
+					m_currency += Global::getTilePrice(m_selectedTileType) / 2;
 				}
 				// Check if a turret was placed
 				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::Wall && m_currency >= 30
@@ -240,7 +217,7 @@ void Game::processMouseEvents(sf::Event t_event)
 					m_tempTiles.push_back(m_selectedTile);
 
 					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(TileType::Turret);
-					m_currency -= 200;
+					m_currency -= Global::getTilePrice(TileType::Turret);
 				}
 				// Else the player clicked the ground. Make sure there is enough money for a wall
 				else if (m_mazeBlocks[m_selectedTile.y][m_selectedTile.x] == TileType::None && m_currency >= 30
@@ -250,32 +227,7 @@ void Game::processMouseEvents(sf::Event t_event)
 					m_tempTiles.push_back(m_selectedTile);
 
 					m_mazeBlocks[m_selectedTile.y][m_selectedTile.x].setType(m_selectedTileType);
-					
-					switch (m_selectedTileType)
-					{
-					case TileType::Mud:
-						m_currency -= 10;
-						break;
-					case TileType::TreadmillWest:
-						m_currency -= 20;
-						break;
-					case TileType::TreadmillEast:
-						m_currency -= 20;
-						break;
-					case TileType::TreadmillNorth:
-						m_currency -= 20;
-						break;
-					case TileType::TreadmillSouth:
-						m_currency -= 20;
-						break;
-					case TileType::SteppingStones:
-						m_currency -= 80;
-						break;
-					case TileType::Wall:
-						m_currency -= 20;
-						break;
-					}
-
+					m_currency -= Global::getTilePrice(m_selectedTileType);
 				}
 			}
 		}

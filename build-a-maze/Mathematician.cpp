@@ -103,3 +103,8 @@ void Mathematician::update()
 		animate();
 	}
 }
+
+void Mathematician::setTakeLefts(bool t_takeLefts)
+{
+	m_takeLefts = t_takeLefts;
+}
