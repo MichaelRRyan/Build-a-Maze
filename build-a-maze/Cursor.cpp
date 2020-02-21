@@ -15,7 +15,8 @@ Cursor::Cursor() :
 	m_controllerConnected = m_controller.connect();
 }
 
-void Cursor::update(sf::RenderWindow const & t_window, ConstructionMode t_constructionState, sf::View const& t_guiView, sf::View const& t_mazeView)
+void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> const& m_maze, GameState t_gameState,
+					ConstructionMode t_constructionState, sf::View const& t_guiView, sf::View const& t_mazeView)
 {
 	// Keep the cursor image up to date
 	if (t_constructionState == ConstructionMode::Placing)
@@ -23,6 +24,15 @@ void Cursor::update(sf::RenderWindow const & t_window, ConstructionMode t_constr
 		m_sprite.setTextureRect(sf::IntRect{ { 128, 0 }, { 64, 64 } });
 	}
 	else if (t_constructionState == ConstructionMode::Destroying)
+	{
+		m_sprite.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
+	}
+	else if (GameState::Simulation == t_gameState
+		&& m_selectedTile.x > 0 && m_selectedTile.x < MAZE_SIZE - 1
+		&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_SIZE - 1
+		&& ((m_maze[m_selectedTile.y][m_selectedTile.x].getType() >= TileType::TreadmillWest
+			&& m_maze[m_selectedTile.y][m_selectedTile.x].getType() <= TileType::TreadmillSouth)
+			|| m_maze[m_selectedTile.y][m_selectedTile.x].getType() == TileType::Turret))
 	{
 		m_sprite.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
 	}

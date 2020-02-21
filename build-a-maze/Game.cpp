@@ -239,8 +239,20 @@ void Game::processMouseEvents(sf::Event t_event)
 				&& selectedTile != TileType::Mud
 				&& selectedTile != TileType::None)
 			{
-				// Toggle animation
-				m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating());
+				if (selectedTile == TileType::Turret
+					|| selectedTile == TileType::SteppingStones)
+				{
+					if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
+					{
+						// Turn on animation
+						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
+					}
+				}
+				else
+				{
+					// Toggle animation
+					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating());
+				}
 			}
 		}
 	}
@@ -313,7 +325,7 @@ void Game::update(sf::Time t_deltaTime)
 		m_menuScreen.update();
 	}
 
-	m_cursor.update(m_window, m_constructionState, m_GUI_VIEW, m_mazeView);
+	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_constructionState, m_GUI_VIEW, m_mazeView);
 }
 
 /// <summary>

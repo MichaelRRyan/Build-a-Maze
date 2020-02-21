@@ -7,8 +7,10 @@
 /// </summary>
 
 #include <SFML/Graphics.hpp>
+#include <array>
 #include "XBox360Controller.h"
 #include "Globals.h"
+#include "Tile.h"
 
 /// <summary>
 /// @brief A struct to replace the cursor to use custom cursors and support controllers
@@ -19,7 +21,8 @@ public:
 
 	Cursor();
 
-	void update(sf::RenderWindow const& t_window, ConstructionMode t_constructionState, sf::View const & t_guiView, sf::View const & t_mazeView);
+	void update(sf::RenderWindow const& t_window, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> const & m_maze, GameState t_gameState,
+				ConstructionMode t_constructionState, sf::View const & t_guiView, sf::View const & t_mazeView);
 
 	bool m_clicked;
 	bool m_cancelClicked;
