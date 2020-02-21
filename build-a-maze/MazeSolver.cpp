@@ -187,55 +187,57 @@ void MazeSolver::setTextureDirection()
 
 void MazeSolver::handleTreadmills()
 {
-	Tile tile; // { TileType::None };
-
-	// Current tile
-	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
-		|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillEast
-		|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillNorth
-		|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth)
+	// Only check for treadmill if the tile is animating
+	if (m_mazeRef[m_previousPos.y][m_previousPos.x].getAnimating())
 	{
-		// Can be slowed and pushed aside
-		tile = m_mazeRef[m_previousPos.y][m_previousPos.x];
+		// Current tile
+		if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillEast
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillNorth
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth)
+		{
+			// Can be slowed and pushed aside
+			TileType tile = m_mazeRef[m_previousPos.y][m_previousPos.x].getType();
 
-		// If the threadmill is going the same direction as the solver
-		if (Global::getTreadmillDirection(tile.getType()) == m_moveDir)
-		{
-			m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
-		}
-		// If the treadmill is going the opposite direction to the solver
-		else if (Global::getDirectionVector(Global::getTreadmillDirection(tile.getType())) == -Global::getDirectionVector(m_moveDir))
-		{
-			m_movementSpeed = SLOW_MOVE_SPEED;
-		}
-		else
-		{
-			sf::Vector2i directionVector = Global::getDirectionVector(Global::getTreadmillDirection(tile.getType()));
-
-			if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
+			// If the threadmill is going the same direction as the solver
+			if (Global::getTreadmillDirection(tile) == m_moveDir)
 			{
-				m_pos = m_previousPos + directionVector;
+				m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
+			}
+			// If the treadmill is going the opposite direction to the solver
+			else if (Global::getDirectionVector(Global::getTreadmillDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+			{
+				m_movementSpeed = SLOW_MOVE_SPEED;
+			}
+			else
+			{
+				sf::Vector2i directionVector = Global::getDirectionVector(Global::getTreadmillDirection(tile));
+
+				if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
+				{
+					m_pos = m_previousPos + directionVector;
+				}
 			}
 		}
-	}
-	// Target tile
-	else if (m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillWest
-		|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillEast
-		|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillNorth
-		|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillSouth)
-	{
-		// Can be slowed and pushed aside
-		tile = m_mazeRef[m_pos.y][m_pos.x];
+		// Target tile
+		else if (m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillWest
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillEast
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillNorth
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillSouth)
+		{
+			// Can be slowed and pushed aside
+			TileType tile = m_mazeRef[m_pos.y][m_pos.x].getType();
 
-		// If the threadmill is going the same direction as the solver
-		if (Global::getTreadmillDirection(tile.getType()) == m_moveDir)
-		{
-			m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
-		}
-		// If the treadmill is going the opposite direction to the solver
-		else if (Global::getDirectionVector(Global::getTreadmillDirection(tile.getType())) == -Global::getDirectionVector(m_moveDir))
-		{
-			m_movementSpeed = SLOW_MOVE_SPEED;
+			// If the threadmill is going the same direction as the solver
+			if (Global::getTreadmillDirection(tile) == m_moveDir)
+			{
+				m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
+			}
+			// If the treadmill is going the opposite direction to the solver
+			else if (Global::getDirectionVector(Global::getTreadmillDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+			{
+				m_movementSpeed = SLOW_MOVE_SPEED;
+			}
 		}
 	}
 }

@@ -31,6 +31,7 @@ private:
 	sf::Clock m_animationClock;
 	int m_maxFrames;
 	int m_frame;
+	int m_startFrame;
 	float m_animFrameTime;
 	bool m_animating;
 	bool m_loop;

@@ -18,9 +18,9 @@ void Tile::updateAnimation()
 			m_animationClock.restart();
 			m_frame++;
 
-			if (m_frame >= m_maxFrames)
+			if (m_frame >= m_startFrame + m_maxFrames)
 			{
-				m_frame = 0.0f;
+				m_frame = m_startFrame;
 
 				if (!m_loop)
 				{
@@ -47,6 +47,7 @@ void Tile::setType(TileType t_type)
 
 	m_animating = false;
 	m_frame = 0;
+	m_startFrame = 0;
 
 	if (m_type == TileType::TreadmillEast
 		|| m_type == TileType::TreadmillWest
@@ -88,8 +89,19 @@ int Tile::getFrame() const
 
 void Tile::setAnimating(bool t_animating)
 {
+	if (m_type == TileType::TreadmillEast
+		|| m_type == TileType::TreadmillWest
+		|| m_type == TileType::TreadmillNorth
+		|| m_type == TileType::TreadmillSouth)
+	{
+		if (t_animating)
+			m_startFrame = 1;
+		else
+			m_startFrame = 0;
+	}
+
 	m_animating = t_animating;
-	m_frame = 0;
+	m_frame = m_startFrame;
 	m_animationClock.restart();
 }
 
