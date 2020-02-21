@@ -125,11 +125,13 @@ HUD::HUD(sf::View const& t_windowView) :
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::processShopEvents(Cursor t_cursor, ConstructionMode& t_constructionState, TileType& t_selectedTileType)
+void HUD::updateBuildMode(Cursor t_cursor, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money)
 {
+	m_moneyText.setString("BALANCE: " + std::to_string(t_money));
+
 	for (int i = 0; i < m_shopItems.size(); i++)
 	{
-		if (m_shopItems.at(i).processMouseEvents(t_cursor))
+		if (m_shopItems.at(i).update(t_cursor))
 		{
 			switch (i)
 			{
@@ -169,17 +171,6 @@ void HUD::processShopEvents(Cursor t_cursor, ConstructionMode& t_constructionSta
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateBuildMode(int t_money)
-{
-	m_moneyText.setString("BALANCE: " + std::to_string(t_money));
-
-	for (GUI::Button& button : m_shopItems)
-	{
-		button.update();
-	}
-}
-
-/////////////////////////////////////////////////////////////////
 void HUD::updateSimText(int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Work out minutes and seconds and set the string
@@ -207,7 +198,7 @@ void HUD::drawShop(sf::RenderWindow& t_window) const
 
 	for (int i = 0; i < m_shopItems.size(); i++)
 	{
-		m_shopItems.at(i).draw(t_window);
+		t_window.draw(m_shopItems.at(i));
 		t_window.draw(m_shopItemNames.at(i));
 
 		if (i < m_shopItemPrices.size())

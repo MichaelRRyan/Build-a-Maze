@@ -13,9 +13,7 @@ class HUD
 public:
 	HUD(sf::View const& t_windowView);
 
-	void processShopEvents(Cursor t_cursor, ConstructionMode& t_constructionState, TileType& t_selectedTileType);
-
-	void updateBuildMode(int t_money);
+	void updateBuildMode(Cursor t_cursor, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money);
 	void updateSimText(int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window) const;

@@ -2,8 +2,8 @@
 
 /////////////////////////////////////////////////////////////////
 MenuScreen::MenuScreen(sf::View const& t_windowView) :
-	m_playButton(m_buttonTexture, m_buttonFont, "PLAY", { (t_windowView.getSize().x / 2.0f) - m_playButton.s_WIDTH / 2.0f, t_windowView.getSize().y / 1.8f }),
-	m_exitButton(m_buttonTexture, m_buttonFont, "EXIT", { (t_windowView.getSize().x / 2.0f) - m_exitButton.s_WIDTH / 2.0f, t_windowView.getSize().y / 1.4f })
+	m_playButton(m_buttonTexture, { 0, 0, 300, 80 }, m_buttonFont, "PLAY", { (t_windowView.getSize().x / 2.0f) - 150.0f, t_windowView.getSize().y / 1.8f }),
+	m_exitButton(m_buttonTexture, { 0, 0, 300, 80 }, m_buttonFont, "EXIT", { (t_windowView.getSize().x / 2.0f) - 150.0f, t_windowView.getSize().y / 1.4f })
 {
 	loadFiles();
 
@@ -19,21 +19,14 @@ MenuScreen::MenuScreen(sf::View const& t_windowView) :
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2, 0.0f);
 }
 
-void MenuScreen::update()
+void MenuScreen::update(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame)
 {
-	m_playButton.update();
-	m_exitButton.update();
-}
-
-/////////////////////////////////////////////////////////////////
-void MenuScreen::processEvents(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame)
-{
-	if (m_playButton.processMouseEvents(t_cursor))
+	if (m_playButton.update(t_cursor))
 	{
 		t_gameState = GameState::BuildMode;
 	}
 
-	if (m_exitButton.processMouseEvents(t_cursor))
+	if (m_exitButton.update(t_cursor))
 	{
 		t_exitGame = true;
 	}
@@ -42,10 +35,10 @@ void MenuScreen::processEvents(Cursor t_cursor, GameState& t_gameState, bool& t_
 /////////////////////////////////////////////////////////////////
 void MenuScreen::draw(sf::RenderWindow& t_window) const
 {
-	t_window.clear(sf::Color{ sf::Color{ 247, 230, 134 } });
+	t_window.clear(sf::Color{ 247, 230, 134 });
 
-	m_playButton.draw(t_window);
-	m_exitButton.draw(t_window);
+	t_window.draw(m_playButton);
+	t_window.draw(m_exitButton);
 
 	t_window.draw(m_titleText);
 }
@@ -54,7 +47,6 @@ void MenuScreen::draw(sf::RenderWindow& t_window) const
 void MenuScreen::loadFiles()
 {
 	// Load the button texture
-
 	if (!m_buttonTexture.loadFromFile("ASSETS/IMAGES/GUI.png"))
 	{
 		std::cout << "Error loading GUI textures";

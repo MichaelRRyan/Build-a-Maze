@@ -12,7 +12,8 @@ Game::Game() :
 	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_menuScreen{ m_GUI_VIEW },
 	m_hud{ m_GUI_VIEW },
-	m_renderer(m_window, m_mazeBlocks, m_mazeSolverPtrs)
+	m_renderer(m_window, m_mazeBlocks, m_mazeSolverPtrs),
+	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." }
 {
 	std::cout << m_GUI_VIEW.getSize().x << ", " << m_GUI_VIEW.getSize().y << std::endl;
 
@@ -81,17 +82,9 @@ void Game::processEvents()
 		{
 			m_window.close();
 		}
+
 		processKeyboardEvents(nextEvent);
 		processMouseEvents(nextEvent);
-
-		if (m_gamestate == GameState::TitleScreen)
-		{
-			m_menuScreen.processEvents(m_cursor, m_gamestate, m_exitGame);
-		}
-		if (m_gamestate == GameState::BuildMode)
-		{
-			m_hud.processShopEvents(m_cursor, m_constructionState, m_selectedTileType);
-		}
 
 	} // End while poll event
 }
@@ -116,6 +109,10 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				{
 					m_gamestate = GameState::Simulation;
 					resetSimulation();
+				}
+				else
+				{
+					m_popup.setActive(true);
 				}
 			}
 			else if (m_gamestate == GameState::Simulation)
@@ -314,7 +311,8 @@ void Game::update(sf::Time t_deltaTime)
 	// Update the build mode GUI
 	if (m_gamestate == GameState::BuildMode)
 	{
-		m_hud.updateBuildMode(m_currency);
+		m_hud.updateBuildMode(m_cursor, m_constructionState, m_selectedTileType, m_currency);
+		m_popup.update(m_cursor);
 	}
 	else if (m_gamestate == GameState::Simulation)
 	{
@@ -322,7 +320,7 @@ void Game::update(sf::Time t_deltaTime)
 	}
 	else if (m_gamestate == GameState::TitleScreen)
 	{
-		m_menuScreen.update();
+		m_menuScreen.update(m_cursor, m_gamestate, m_exitGame);
 	}
 
 	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_constructionState, m_GUI_VIEW, m_mazeView);
@@ -358,6 +356,8 @@ void Game::render()
 		{
 			m_hud.drawStats(m_window);
 		}
+
+		m_popup.draw(m_window);
 
 		break;
 	case GameState::Simulation:

@@ -3,16 +3,16 @@
 namespace GUI
 {
 	////////////////////////////////////////////////////////////
-	Button::Button(sf::Texture const& t_texture, sf::Font const& t_font, std::string t_textString, sf::Vector2f t_position) :
+	Button::Button(sf::Texture const& t_texture, sf::IntRect t_buttonRect, sf::Font const& t_font, std::string t_textString, sf::Vector2f t_position) :
 		m_locked{ false },
 		m_imageButton{ false },
 		m_hovered{ false }
 	{
 		m_sprite.setTexture(t_texture);
-		m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
-		m_sprite.setPosition(t_position.x + s_WIDTH / 2.0f, t_position.y + s_HEIGHT / 2.0f);
+		m_sprite.setTextureRect(t_buttonRect);
+		m_sprite.setPosition(t_position.x + t_buttonRect.width / 2.0f, t_position.y + t_buttonRect.height / 2.0f);
 
-		m_text.setPosition(t_position.x + s_WIDTH / 2.0f, t_position.y + s_HEIGHT / 2.2f);
+		m_text.setPosition(t_position.x + t_buttonRect.width / 2.0f, t_position.y + t_buttonRect.height / 2.2f);
 		m_text.setString(t_textString);
 		m_text.setFont(t_font);
 		m_text.setCharacterSize(35u);
@@ -40,20 +40,20 @@ namespace GUI
 		m_image.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
 	}
 
-	////////////////////////////////////////////////////////////
-	void Button::draw(sf::RenderWindow& t_window) const
-	{
-		if (!m_imageButton)
-		{
-			t_window.draw(m_sprite);
-			t_window.draw(m_text);
-		}
-		else
-		{
-			t_window.draw(m_sprite);
-			t_window.draw(m_image);
-		}
-	}
+	//////////////////////////////////////////////////////////////
+	//void Button::draw(sf::RenderWindow& t_window) const
+	//{
+	//	if (!m_imageButton)
+	//	{
+	//		t_window.draw(m_sprite);
+	//		t_window.draw(m_text);
+	//	}
+	//	else
+	//	{
+	//		t_window.draw(m_sprite);
+	//		t_window.draw(m_image);
+	//	}
+	//}
 
 	////////////////////////////////////////////////////////////
 	void Button::setup()
@@ -67,8 +67,10 @@ namespace GUI
 	}
 
 	////////////////////////////////////////////////////////////
-	bool Button::processMouseEvents(Cursor const& t_cursor)
+	bool Button::update(Cursor const& t_cursor)
 	{
+		animate();
+
 		if (!m_locked)
 		{
 			m_hovered = false;
@@ -99,11 +101,53 @@ namespace GUI
 				return true;
 			}
 		}
+
 		return false;
 	}
 
 	////////////////////////////////////////////////////////////
-	void Button::update()
+	void Button::setLocked(bool t_state)
+	{
+		m_locked = t_state;
+
+		if (t_state)
+		{
+			m_sprite.setColor(sf::Color{ 100, 100, 100 });
+		}
+		else
+		{
+			m_sprite.setColor(sf::Color::White);
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	bool Button::getLocked() const
+	{
+		return m_locked;
+	}
+
+	void Button::setCharacterSize(unsigned t_characterSize)
+	{
+		if (!m_imageButton)
+		{
+			m_text.setCharacterSize(t_characterSize);
+		}
+	}
+
+	////////////////////////////////////////////////////////////
+	const sf::Vector2f Button::getPosition() const
+	{
+		return m_sprite.getPosition();
+	}
+
+	////////////////////////////////////////////////////////////
+	const sf::Vector2f Button::getSize() const
+	{
+		return { m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height };
+	}
+
+	////////////////////////////////////////////////////////////
+	void Button::animate()
 	{
 		// Animate to hovered
 		if (m_hovered && m_sprite.getScale().x > 0.9)
@@ -134,33 +178,13 @@ namespace GUI
 	}
 
 	////////////////////////////////////////////////////////////
-	void Button::setLocked(bool t_state)
+	void Button::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	{
-		m_locked = t_state;
+		target.draw(m_sprite, states);
 
-		if (t_state)
-		{
-			m_sprite.setColor(sf::Color{ 100, 100, 100 });
-			m_sprite.setTextureRect({ 0, 0, static_cast<int>(s_WIDTH), static_cast<int>(s_HEIGHT) });
-		}
+		if (!m_imageButton)
+			target.draw(m_text, states);
 		else
-		{
-			m_sprite.setColor(sf::Color::White);
-		}
-	}
-
-	bool Button::getLocked() const
-	{
-		return m_locked;
-	}
-
-	const sf::Vector2f Button::getPosition() const
-	{
-		return m_sprite.getPosition();
-	}
-
-	const sf::Vector2f Button::getSize() const
-	{
-		return { m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height };
+			target.draw(m_image, states);
 	}
 }

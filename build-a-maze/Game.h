@@ -13,7 +13,6 @@
 #include "BasicSolver.h"
 #include "Mathematician.h"
 #include "Globals.h"
-#include "XBox360Controller.h"
 #include "Cursor.h"
 #include "MazeSolver.h"
 #include "Cartographer.h"
@@ -21,6 +20,7 @@
 #include "MenuScreen.h"
 #include "HUD.h"
 #include "Tile.h"
+#include "Popup.h"
 
 class Game
 {
@@ -96,6 +96,8 @@ private:
 	/// A temporary vector of tiles for buying from the shop. Reset every time the tiles are placed or the purchase is canceled
 	/// </summary>
 	std::vector<sf::Vector2i> m_tempTiles;
+
+	GUI::Popup m_popup;
 };
 
 #endif // !GAME
