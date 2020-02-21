@@ -23,9 +23,13 @@ public:
 
 	void drawMazeFloorRow(int t_row, sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType);
 
-	void drawMazeWallRow( int t_row, sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType);
+	void drawMazeWallRow(int t_row, sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType);
+
+	void drawMazeUI(sf::Vector2i t_selectedTile, TileType t_selectedTileType);
 
 	void drawTile(TileType t_tileType, int t_frame, int t_row, int t_col, sf::Color t_colorOverlay);
+
+	void drawDirectionTile(Direction t_direction, int t_row, int t_col, sf::Color t_colorOverlay);
 
 	void drawMazeSolvers(int t_row);
 

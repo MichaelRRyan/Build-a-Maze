@@ -40,6 +40,9 @@ void Renderer::drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_construc
 	{
 		drawMazeWallRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
 	}
+
+	// Draw maze UI
+	drawMazeUI(t_selectedTile, t_selectedTileType);
 }
 
 void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
@@ -64,6 +67,8 @@ void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode
 
 void Renderer::drawMazeBackground()
 {
+	m_textureTile.setColor(sf::Color::White);
+
 	// Draw the maze background (Grass)
 	for (int row = -2; row < MAZE_SIZE + 2; row++)
 	{
@@ -167,9 +172,27 @@ void Renderer::drawMazeWallRow(int t_row, sf::Vector2i t_selectedTile, Construct
 		{
 			if (t_selectedTileType == TileType::Wall)
 			{
-				m_mazeRef[t_row][col].updateAnimation();
 				drawTile(TileType::Wall, 0, t_row, col, sf::Color{ 50,100,200,180 });
 			}
+		}
+	}
+}
+
+void Renderer::drawMazeUI(sf::Vector2i t_selectedTile, TileType t_selectedTileType)
+{
+	if (t_selectedTile.x > 0 && t_selectedTile.x < MAZE_SIZE - 1
+		&& t_selectedTile.y > 0 && t_selectedTile.y < MAZE_SIZE - 1)
+	{
+		if (t_selectedTileType >= TileType::TreadmillWest
+			&& t_selectedTileType <= TileType::TreadmillSouth
+			&& m_mazeRef[t_selectedTile.y][t_selectedTile.x] == TileType::None)
+		{
+			drawDirectionTile(Global::getTreadmillDirection(t_selectedTileType), t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
+		}
+		else if (t_selectedTileType == TileType::Turret
+			&& m_mazeRef[t_selectedTile.y][t_selectedTile.x] == TileType::Wall)
+		{
+			drawDirectionTile(Direction::West, t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
 		}
 	}
 }
@@ -177,7 +200,6 @@ void Renderer::drawMazeWallRow(int t_row, sf::Vector2i t_selectedTile, Construct
 void Renderer::drawTile(TileType t_tileType, int t_frame, int t_row, int t_col, sf::Color t_colorOverlay)
 {
 	m_textureTile.setPosition(t_col * TILE_SIZE, t_row * TILE_SIZE);
-	m_textureTile.setOrigin(0.0f, 0.0f);
 	m_textureTile.setColor(t_colorOverlay);
 
 	switch (t_tileType)
@@ -211,6 +233,37 @@ void Renderer::drawTile(TileType t_tileType, int t_frame, int t_row, int t_col, 
 	}
 
 	m_windowRef.draw(m_textureTile);
+}
+
+void Renderer::drawDirectionTile(Direction t_direction, int t_row, int t_col, sf::Color t_colorOverlay)
+{
+	m_textureTile.setColor(t_colorOverlay);
+
+	m_textureTile.setTextureRect({ 64, 64, 16, 16 });
+
+	switch (t_direction)
+	{
+	case Direction::North:
+		m_textureTile.setRotation(-90.0f);
+		m_textureTile.setPosition((t_col) * TILE_SIZE, (t_row) * TILE_SIZE);
+		break;
+	case Direction::South:
+		m_textureTile.setRotation(90.0f);
+		m_textureTile.setPosition((t_col + 1) * TILE_SIZE, (t_row + 1) * TILE_SIZE);
+		break;
+	case Direction::West:
+		m_textureTile.setRotation(180.0f);
+		m_textureTile.setPosition((t_col) * TILE_SIZE, (t_row + 1) * TILE_SIZE);
+		break;
+	case Direction::East:
+		m_textureTile.setRotation(0.0f);
+		m_textureTile.setPosition((t_col + 1) * TILE_SIZE, (t_row) * TILE_SIZE);
+		break;
+	}
+
+	m_windowRef.draw(m_textureTile);
+
+	m_textureTile.setRotation(0.0f);
 }
 
 void Renderer::drawMazeSolvers(int t_row)

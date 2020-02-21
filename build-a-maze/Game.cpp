@@ -198,14 +198,14 @@ void Game::processMouseEvents(sf::Event t_event)
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Wall);
-					m_currency -= Global::getTilePrice(TileType::Turret) / 2;
+					m_currency += Global::getTilePrice(TileType::Turret) / 2;
 				}
 				// Check if the player clicked a tile
 				else if (selectedTile != TileType::None
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::None);
-					m_currency += Global::getTilePrice(m_selectedTileType) / 2;
+					m_currency += Global::getTilePrice(selectedTile) / 2;
 				}
 				// Else the player tries to buy a tile
 				else if (m_constructionState == ConstructionMode::Placing)
