@@ -116,7 +116,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				{
 					m_simDetailsDisplay = false;
 				}
-				else
+				else if (MazeValidator::isMazeSolvable(m_mazeBlocks))
 				{
 					m_gamestate = GameState::Simulation;
 					resetSimulation();

@@ -102,6 +102,8 @@
 #endif // !SFML_STATIC 
 
 #include "Game.h"
+#include "MazeValidator.h"
+#include "MazeGenerator.h"
 
 int main()
 {

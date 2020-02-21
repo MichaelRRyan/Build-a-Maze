@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "MazeGenerator.h"
+#include "MazeValidator.h"
 #include "BasicSolver.h"
 #include "Mathematician.h"
 #include "Globals.h"
