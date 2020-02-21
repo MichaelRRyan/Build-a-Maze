@@ -1,5 +1,5 @@
-#ifndef MAZE_VALIDATOR
-#define MAZE_VALIDATOR
+#ifndef MAZE_VALIDATOR_H
+#define MAZE_VALIDATOR_H
 
 #include <stack>
 #include <array>
@@ -13,4 +13,4 @@ public:
 	static bool isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 };
 
-#endif // !MAZE_VALIDATOR
+#endif // !MAZE_VALIDATOR_H

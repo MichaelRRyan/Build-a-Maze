@@ -44,8 +44,6 @@ private:
 	void setupGame();
 	void resetSimulation();
 	void processTimeModifierEvents(sf::Event t_event);
-	void updateCursor();
-	void updateController();
 
 
 	// ************************* Variables *************************
@@ -59,7 +57,6 @@ private:
 	bool m_exitGame;
 	bool m_simDetailsDisplay;
 	bool m_gamePaused;
-	bool m_controllerConnected;
 
 	// Numeric variables
 	float m_timeModifier;
@@ -68,14 +65,10 @@ private:
 	int m_currency;
 	int m_moneyEarned;
 	int m_noOfAI;
-	float m_controllerSensitivity;
 
 	// Maze array
 	// Should be moved to a std::array
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> m_mazeBlocks;
-
-	// Vectors
-	sf::Vector2i m_selectedTile;
 
 	// Shapes
 	sf::RectangleShape m_pauseScreenFade; // Shape to give the pause screen a fade effect
@@ -87,7 +80,6 @@ private:
 	// Objects
 	std::vector<MazeSolver *> m_mazeSolverPtrs;
 
-	XBox360Controller m_controller;
 	Cursor m_cursor;
 
 	// Enum variables

@@ -2,12 +2,12 @@
 
 bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze)
 {
-	/*sf::RenderWindow window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" };
-	std::vector<MazeSolver *> m_mazeSolvers;
-	Renderer renderer(window, t_maze, m_mazeSolvers);
-	renderer.setup();
-	sf::RectangleShape renderShape{ {TILE_SIZE, TILE_SIZE} };
-	renderShape.setFillColor(sf::Color{ 255, 0, 0, 100 });*/
+	//sf::RenderWindow window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" };
+	//std::vector<MazeSolver *> m_mazeSolvers;
+	//Renderer renderer(window, t_maze, m_mazeSolvers);
+	//renderer.setup();
+	//sf::RectangleShape renderShape{ {TILE_SIZE, TILE_SIZE} };
+	//renderShape.setFillColor(sf::Color{ 255, 0, 0, 100 });
 
 	std::array<std::array<bool, MAZE_SIZE>, MAZE_SIZE> tracedTiles{ false };
 
@@ -112,48 +112,48 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 			}
 		}
 
-		/*window.clear();
-		renderer.drawMaze({ 0, 0 }, ConstructionMode::None, TileType::None);
+		//window.clear();
+		//renderer.drawMaze({ 0, 0 }, ConstructionMode::None, TileType::None);
 
-		for (int i = 0; i < MAZE_SIZE; i++)
-		{
-			for (int j = 0; j < MAZE_SIZE; j++)
-			{
-				if (tracedTiles[i][j])
-				{
-					renderShape.setPosition(j * TILE_SIZE, i * TILE_SIZE);
-					window.draw(renderShape);
-				}
-			}
-		}
+		//for (int i = 0; i < MAZE_SIZE; i++)
+		//{
+		//	for (int j = 0; j < MAZE_SIZE; j++)
+		//	{
+		//		if (tracedTiles[i][j])
+		//		{
+		//			renderShape.setPosition(j * TILE_SIZE, i * TILE_SIZE);
+		//			window.draw(renderShape);
+		//		}
+		//	}
+		//}
 
-		window.display();
-		
-		bool breakOut = false;;
-		while (window.isOpen())
-		{
-			sf::Event event;
+		//window.display();
+		//
+		//bool breakOut = false;;
+		//while (window.isOpen())
+		//{
+		//	sf::Event event;
 
-			while (window.pollEvent(event))
-			{
-				if (sf::Event::Closed == event.type)
-				{
-					window.close();
-				}
-				if (sf::Event::KeyPressed == event.type)
-				{
-					if (sf::Keyboard::Space == event.key.code)
-					{
-						breakOut = true;
-					}
-				}
-			}
+		//	while (window.pollEvent(event))
+		//	{
+		//		if (sf::Event::Closed == event.type)
+		//		{
+		//			window.close();
+		//		}
+		//		if (sf::Event::KeyPressed == event.type)
+		//		{
+		//			if (sf::Keyboard::Space == event.key.code)
+		//			{
+		//				breakOut = true;
+		//			}
+		//		}
+		//	}
 
-			if (breakOut)
-			{
-				break;
-			}
-		}*/
+		//	if (breakOut)
+		//	{
+		//		break;
+		//	}
+		//}
 	}
 
 	return solvable;
