@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////
 HUD::HUD(sf::View const& t_windowView) :
 	m_shopItems{ {
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 200, 0, 0, 0 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 96, 64, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 88, 16, 24 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, MUD_TEXT_RECT,{ t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
