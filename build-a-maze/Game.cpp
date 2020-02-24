@@ -2,9 +2,11 @@
 
 #include "Game.h"
 
+
+
 Game::Game() :
-	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
 	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
+	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
 	m_exitGame{ false },
 	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
 	m_timeModifier{ 1.0f },
@@ -63,7 +65,6 @@ void Game::run()
 			update(timePerFrame); // 60 fps
 			render(); // Run as many times as possible
 		}
-		
 	}
 }
 
@@ -236,8 +237,27 @@ void Game::processMouseEvents(sf::Event t_event)
 				&& selectedTile != TileType::Mud
 				&& selectedTile != TileType::None)
 			{
-				if (selectedTile == TileType::Turret
-					|| selectedTile == TileType::SteppingStones)
+				if (selectedTile == TileType::Turret)
+				{
+					if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
+					{
+						// Turn on animation
+						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
+
+						for (Paintball& paintball : m_paintballs)
+						{
+							if (!paintball.isActive())
+							{
+								sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE };
+								position.y -= 18.0f;
+
+								paintball.fire(position, Direction::West, sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) });
+								break;
+							}
+						}
+					}
+				}
+				else if (selectedTile == TileType::SteppingStones)
 				{
 					if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
 					{
@@ -305,6 +325,11 @@ void Game::update(sf::Time t_deltaTime)
 				m_moneyEarned += m_noOfAI;
 				m_prevTimeToComplete = m_timeToComplete;
 			}
+
+			for (Paintball & paintball : m_paintballs)
+			{
+				paintball.update(m_mazeSolverPtrs);
+			}
 		}
 	}
 
@@ -363,6 +388,12 @@ void Game::render()
 	case GameState::Simulation:
 		m_window.setView(m_mazeView);
 		m_renderer.drawMazeWithSolvers(m_cursor.m_selectedTile, m_constructionState, m_selectedTileType);
+
+		for (Paintball const& paintball : m_paintballs)
+		{
+			m_window.draw(paintball);
+		}
+
 		m_window.setView(m_GUI_VIEW);
 		m_hud.drawStats(m_window);
 

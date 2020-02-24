@@ -23,7 +23,9 @@ public:
 
 	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the ghost
 	inline bool getActive() { return m_active; };
+	inline sf::Sprite getSprite() { return m_body; }
 
+	inline void setActive(bool t_active) { m_active = t_active; }
 	void setPos(int t_row, int t_col);
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 

@@ -21,6 +21,7 @@
 #include "HUD.h"
 #include "Tile.h"
 #include "Popup.h"
+#include "Paintball.h"
 
 class Game
 {
@@ -67,7 +68,6 @@ private:
 	int m_noOfAI;
 
 	// Maze array
-	// Should be moved to a std::array
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> m_mazeBlocks;
 
 	// Shapes
@@ -98,6 +98,8 @@ private:
 	std::vector<sf::Vector2i> m_tempTiles;
 
 	GUI::Popup m_popup;
+
+	std::array<Paintball, 30> m_paintballs;
 };
 
 #endif // !GAME

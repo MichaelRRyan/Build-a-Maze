@@ -134,6 +134,7 @@
     <ClCompile Include="MazeSolver.cpp" />
     <ClCompile Include="MazeValidator.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
+    <ClCompile Include="Paintball.cpp" />
     <ClCompile Include="Popup.cpp" />
     <ClCompile Include="Renderer.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
@@ -155,6 +156,7 @@
     <ClInclude Include="MazeSolver.h" />
     <ClInclude Include="MazeValidator.h" />
     <ClInclude Include="MenuScreen.h" />
+    <ClInclude Include="Paintball.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tile.h" />
