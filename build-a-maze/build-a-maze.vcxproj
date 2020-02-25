@@ -130,6 +130,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />
     <ClCompile Include="Mathematician.cpp" />
+    <ClCompile Include="MazeEditor.cpp" />
     <ClCompile Include="MazeGenerator.cpp" />
     <ClCompile Include="MazeSolver.cpp" />
     <ClCompile Include="MazeValidator.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="HUD.h" />
     <ClInclude Include="Mathematician.h" />
     <ClInclude Include="Cursor.h" />
+    <ClInclude Include="MazeEditor.h" />
     <ClInclude Include="MazeGenerator.h" />
     <ClInclude Include="MazeSolver.h" />
     <ClInclude Include="MazeValidator.h" />

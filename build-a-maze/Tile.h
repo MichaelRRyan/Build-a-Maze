@@ -5,7 +5,6 @@
 /// @Date 18/02/2020
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include "Globals.h"
 
 class Tile

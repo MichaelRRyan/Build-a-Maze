@@ -22,6 +22,7 @@
 #include "Tile.h"
 #include "Popup.h"
 #include "Paintball.h"
+#include "MazeEditor.h"
 
 class Game
 {
@@ -44,6 +45,7 @@ private:
 	// Game functions
 	void setupGame();
 	void resetSimulation();
+	void updateSimulation(sf::Time t_deltaTime);
 	void processTimeModifierEvents(sf::Event t_event);
 	void switchGameState();
 	void handleClickEvents();
@@ -102,6 +104,8 @@ private:
 	GUI::Popup m_popup;
 
 	std::array<Paintball, 30> m_paintballs;
+
+	MazeEditor m_mazeEditor;
 };
 
 #endif // !GAME

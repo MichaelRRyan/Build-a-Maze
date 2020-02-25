@@ -17,7 +17,8 @@ Game::Game() :
 	m_hud{ m_GUI_VIEW },
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
-	m_currency{ 1000 } // Set the player's currency to 400
+	m_currency{ 1000 }, // Set the player's currency to 400
+	m_mazeEditor{ m_mazeBlocks }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -176,69 +177,25 @@ void Game::update(sf::Time t_deltaTime)
 		m_window.close();
 	}
 
-	if (!m_gamePaused)
+	switch (m_gamestate)
 	{
-		// If the game state is simulation
-		if (m_gamestate == GameState::Simulation)
-		{
-			// Reset AI count
-			m_noOfAI = 0;
-
-			// Loop through and update all AI. Count those that are still active
-			for (MazeSolver* solver : m_mazeSolverPtrs)
-			{
-				if (solver->getActive())
-				{
-					solver->update();
-					m_noOfAI++;
-				}
-			}
-			
-			// If there are AI in the maze count the time
-			if (m_noOfAI > 0)
-			{
-				m_timeToComplete += t_deltaTime.asSeconds() / m_timeModifier;
-			}
-			// Else add the money earned to currency and switch modes
-			else
-			{
-				m_currency += m_moneyEarned;
-				m_gamestate = GameState::BuildMode;
-				m_simDetailsDisplay = true;
-			}
-
-			// Update the money earned from a sim each second
-			if (static_cast<int>(floor(m_prevTimeToComplete)) < static_cast<int>(floor(m_timeToComplete)))
-			{
-				m_moneyEarned += m_noOfAI;
-				m_prevTimeToComplete = m_timeToComplete;
-			}
-
-			for (Paintball & paintball : m_paintballs)
-			{
-				paintball.update(m_mazeSolverPtrs);
-			}
-		}
-	}
-
-	// Update the build mode GUI
-	if (m_gamestate == GameState::BuildMode)
-	{
+	case GameState::TitleScreen:
+		m_menuScreen.update(m_cursor, m_gamestate, m_exitGame);
+		break;
+	case GameState::SettingsScreen:
+		break;
+	case GameState::BuildMode:
+		m_mazeEditor.update(m_cursor, m_selectedTileType, m_constructionState, m_currency);
 		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_constructionState, m_selectedTileType, m_currency);
 		m_popup.update(m_cursor);
-	}
-	else if (m_gamestate == GameState::Simulation)
-	{
+		break;
+	case GameState::Simulation:
+		updateSimulation(t_deltaTime);
 		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, m_noOfAI, m_timeToComplete, m_moneyEarned);
-	}
-	else if (m_gamestate == GameState::TitleScreen)
-	{
-		m_menuScreen.update(m_cursor, m_gamestate, m_exitGame);
+		break;
 	}
 
 	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_constructionState, m_GUI_VIEW, m_mazeView);
-
-	handleClickEvents();
 }
 
 /// <summary>
@@ -373,6 +330,56 @@ void Game::resetSimulation()
 }
 
 /// <summary>
+/// @brief Update the game when in simulation mode
+/// </summary>
+/// <param name="t_deltaTime">Time since last update</param>
+void Game::updateSimulation(sf::Time t_deltaTime)
+{
+	if (!m_gamePaused)
+	{
+		// Reset AI count
+		m_noOfAI = 0;
+
+		// Loop through and update all AI. Count those that are still active
+		for (MazeSolver* solver : m_mazeSolverPtrs)
+		{
+			if (solver->getActive())
+			{
+				solver->update();
+				m_noOfAI++;
+			}
+		}
+
+		// If there are AI in the maze count the time
+		if (m_noOfAI > 0)
+		{
+			m_timeToComplete += t_deltaTime.asSeconds() / m_timeModifier;
+		}
+		// Else add the money earned to currency and switch modes
+		else
+		{
+			m_currency += m_moneyEarned;
+			m_gamestate = GameState::BuildMode;
+			m_simDetailsDisplay = true;
+		}
+
+		// Update the money earned from a sim each second
+		if (static_cast<int>(floor(m_prevTimeToComplete)) < static_cast<int>(floor(m_timeToComplete)))
+		{
+			m_moneyEarned += m_noOfAI;
+			m_prevTimeToComplete = m_timeToComplete;
+		}
+
+		for (Paintball& paintball : m_paintballs)
+		{
+			paintball.update(m_mazeSolverPtrs);
+		}
+
+		handleClickEvents();
+	}
+}
+
+/// <summary>
 /// @brief process events related to the time modifier
 /// </summary>
 /// <param name="t_event">user event</param>
@@ -433,58 +440,6 @@ void Game::switchGameState()
 
 void Game::handleClickEvents()
 {
-	if (m_cursor.m_clickDown)
-	{
-		if (m_gamestate == GameState::BuildMode)
-		{
-			// Make sure the player doesn't remove the outer boundary
-			if (m_cursor.m_selectedTile.x > 0 && m_cursor.m_selectedTile.x < MAZE_SIZE - 1
-				&& m_cursor.m_selectedTile.y > 0 && m_cursor.m_selectedTile.y < MAZE_SIZE - 1)
-			{
-				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
-
-				// Check if a turret was clicked
-				if (selectedTile == TileType::TurretWest
-					&& m_constructionState == ConstructionMode::Destroying)
-				{
-					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Wall);
-					m_currency += Global::getTilePrice(TileType::TurretWest) / 2;
-				}
-				// Check if the player clicked a tile
-				else if (selectedTile != TileType::None
-					&& m_constructionState == ConstructionMode::Destroying)
-				{
-					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::None);
-					m_currency += Global::getTilePrice(selectedTile) / 2;
-				}
-				// Else the player tries to buy a tile
-				else if (m_constructionState == ConstructionMode::Placing)
-				{
-					// Check if the player has enough money for the selected item
-					if (m_currency >= Global::getTilePrice(m_selectedTileType))
-					{
-						if (selectedTile == TileType::None
-							&& m_selectedTileType != TileType::TurretWest
-							&& m_selectedTileType != TileType::TurretEast)
-						{
-							m_tempTiles.push_back(m_cursor.m_selectedTile);
-
-							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(m_selectedTileType);
-							m_currency -= Global::getTilePrice(m_selectedTileType);
-						}
-						else if (selectedTile == TileType::Wall
-							&& (m_selectedTileType == TileType::TurretWest || m_selectedTileType == TileType::TurretEast))
-						{
-							m_tempTiles.push_back(m_cursor.m_selectedTile);
-
-							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(m_selectedTileType);
-							m_currency -= Global::getTilePrice(m_selectedTileType);
-						}
-					}
-				}
-			}
-		}
-	}
 	if (m_cursor.m_clicked)
 	{
 		if (m_gamestate == GameState::Simulation)
