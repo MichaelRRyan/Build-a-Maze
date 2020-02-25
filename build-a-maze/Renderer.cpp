@@ -1,9 +1,10 @@
 #include "Renderer.h"
 
-Renderer::Renderer(sf::RenderWindow& t_windowRef, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers) :
+Renderer::Renderer(sf::RenderWindow& t_windowRef, sf::View const& t_view, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers) :
 	m_windowRef{ t_windowRef },
 	m_mazeRef{ t_mazeRef },
-	m_solversRef{ t_solvers }
+	m_solversRef{ t_solvers },
+	m_view{ t_view }
 {
 }
 
@@ -69,10 +70,17 @@ void Renderer::drawMazeBackground()
 {
 	m_textureTile.setColor(sf::Color::White);
 
+	std::cout << m_view.getCenter().x << ", " << m_view.getCenter().y << " / " << m_view.getSize().x << ", " << m_view.getSize().y;
+
+	sf::Vector2i startPoint = static_cast<sf::Vector2i>((-(m_view.getSize() / 2.0f) + m_view.getCenter()) / TILE_SIZE); // bottom right corner of screen divided by tile size
+	sf::Vector2i endPoint = static_cast<sf::Vector2i>(((m_view.getSize() / 2.0f) + m_view.getCenter()) / TILE_SIZE); // bottom right corner of screen divided by tile size
+
+	std::cout << " / " << endPoint.x << ", " << endPoint.y;
+
 	// Draw the maze background (Grass)
-	for (int row = -2; row < MAZE_SIZE + 2; row++)
+	for (int row = startPoint.y - 1; row <= endPoint.y; row++)
 	{
-		for (int col = -8; col < MAZE_SIZE + 2; col++)
+		for (int col = startPoint.x - 1; col <= endPoint.x; col++)
 		{
 			m_textureTile.setPosition(col * TILE_SIZE, row * TILE_SIZE);
 

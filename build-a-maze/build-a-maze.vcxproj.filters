@@ -72,11 +72,11 @@
     <ClCompile Include="Cursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Popup.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Paintball.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Popup.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,11 +125,11 @@
     <ClInclude Include="MazeValidator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Popup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Paintball.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Popup.h">
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

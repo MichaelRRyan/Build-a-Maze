@@ -16,7 +16,9 @@
 class MazeGenerator
 {
 public:
+
 	static void generateMaze(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
+
 };
 
 #endif // !MAZE_GENERATOR_H

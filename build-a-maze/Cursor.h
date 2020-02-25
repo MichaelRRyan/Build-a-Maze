@@ -8,6 +8,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <iostream>
 #include "XBox360Controller.h"
 #include "Globals.h"
 #include "Tile.h"

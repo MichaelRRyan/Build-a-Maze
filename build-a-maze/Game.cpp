@@ -11,13 +11,14 @@ Game::Game() :
 	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
 	m_timeModifier{ 1.0f },
 	m_GUI_VIEW{ { (static_cast<float>(WINDOW_WIDTH) * 0.75f) / 2.0f, (static_cast<float>(WINDOW_HEIGHT) * 0.75f) / 2.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
-	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
+	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.85f, static_cast<float>(WINDOW_HEIGHT) * 0.85f} },
+	//m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_menuScreen{ m_GUI_VIEW },
 	m_hud{ m_GUI_VIEW },
-	m_renderer(m_window, m_mazeBlocks, m_mazeSolverPtrs),
+	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." }
 {
-	std::cout << m_GUI_VIEW.getSize().x << ", " << m_GUI_VIEW.getSize().y << std::endl;
+	//std::cout << m_GUI_VIEW.getSize().x << ", " << m_GUI_VIEW.getSize().y << std::endl;
 
 	/*sf::View view = m_window.getDefaultView();
 	float heightPerWidth = view.getSize().y / view.getSize().x;
@@ -244,15 +245,17 @@ void Game::processMouseEvents(sf::Event t_event)
 						// Turn on animation
 						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
 
+						// Loop all the paintballs
 						for (Paintball& paintball : m_paintballs)
 						{
+							// Find an inactive one
 							if (!paintball.isActive())
 							{
-								sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE };
-								position.y -= 18.0f;
+								sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE }; // Find the turret position
+								position.y -= 18.0f; // Adjust height for barrel height
 
-								paintball.fire(position, Direction::West, sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) });
-								break;
+								paintball.fire(position, Direction::West, sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) }); // Fire a bullet
+								break; // Break once a bullet has been found
 							}
 						}
 					}

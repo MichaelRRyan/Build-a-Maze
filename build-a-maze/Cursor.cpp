@@ -70,6 +70,8 @@ void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile
 	// convert the cursor position to world coordinates for the maze
 	sf::Vector2f worldPos = t_window.mapPixelToCoords(m_position, t_mazeView);
 
+	std::cout << " / " << worldPos.x << ", " << worldPos.y << std::endl;
+
 	m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 }
 

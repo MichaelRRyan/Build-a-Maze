@@ -43,9 +43,8 @@ void Paintball::update(std::vector<MazeSolver*> t_solvers)
 	{
 		m_sprite.move(m_velocity);
 
-		// Check maze bounds
-		if (m_sprite.getPosition().x + 4.0f < 0.0f || m_sprite.getPosition().x - 4.0f > static_cast<float>(MAZE_SIZE)* TILE_SIZE
-			|| m_sprite.getPosition().y + 4.0f < 0.0f || m_sprite.getPosition().y - 4.0f > static_cast<float>(MAZE_SIZE)* TILE_SIZE)
+		// Check horisontal maze bounds
+		if (m_sprite.getPosition().x + 4.0f < 0.0f || m_sprite.getPosition().x - 4.0f > static_cast<float>(MAZE_SIZE)* TILE_SIZE)
 		{
 			m_active = false;
 		}

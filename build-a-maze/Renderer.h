@@ -3,13 +3,14 @@
 
 #include <SFML/Graphics.hpp>
 #include <array>
+#include <iostream>
 #include "Globals.h"
 #include "MazeSolver.h"
 
 class Renderer
 {
 public:
-	Renderer(sf::RenderWindow& t_window, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers);
+	Renderer(sf::RenderWindow& t_window, sf::View const & t_view, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers);
 
 	void setup();
 
@@ -43,6 +44,7 @@ private:
 	sf::RenderWindow& m_windowRef;
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
 	std::vector<MazeSolver*> const& m_solversRef;
+	sf::View const& m_view;
 };
 
 #endif // !RENDERER_H
