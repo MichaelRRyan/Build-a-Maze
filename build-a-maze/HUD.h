@@ -31,9 +31,9 @@ private:
 	sf::RectangleShape m_shopBackground;
 	sf::RectangleShape m_statsBackground;
 
-	std::array<GUI::Button, 6> m_shopItems;
-	std::array<sf::Text, 6> m_shopItemNames;
-	std::array<sf::Text, 5> m_shopItemPrices;
+	std::array<GUI::Button, 7> m_shopItems;
+	std::array<sf::Text, 7> m_shopItemNames;
+	std::array<sf::Text, 6> m_shopItemPrices;
 
 	GUI::Button m_playButton;
 	GUI::Button m_stopButton;

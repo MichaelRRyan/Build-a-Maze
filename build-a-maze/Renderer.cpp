@@ -6,6 +6,7 @@ Renderer::Renderer(sf::RenderWindow& t_windowRef, sf::View const& t_view, std::a
 	m_solversRef{ t_solvers },
 	m_view{ t_view }
 {
+	setup();
 }
 
 void Renderer::setup()
@@ -102,7 +103,8 @@ void Renderer::drawMazeFloorRow(int t_row, sf::Vector2i t_selectedTile, Construc
 		if (m_mazeRef[t_row][col] != TileType::None)
 		{
 			if (m_mazeRef[t_row][col] != TileType::Wall
-				&& m_mazeRef[t_row][col] != TileType::Turret)
+				&& m_mazeRef[t_row][col] != TileType::TurretWest
+				&& m_mazeRef[t_row][col] != TileType::TurretEast)
 			{
 				sf::Color color{ sf::Color::White };
 
@@ -122,7 +124,7 @@ void Renderer::drawMazeFloorRow(int t_row, sf::Vector2i t_selectedTile, Construc
 			&& t_constructionMode == ConstructionMode::Placing)
 		{
 			if (t_selectedTileType != TileType::Wall
-				&& t_selectedTileType != TileType::Turret)
+				&& t_selectedTileType != TileType::TurretWest)
 			{
 				m_mazeRef[t_row][col].updateAnimation();
 				drawTile(t_selectedTileType, 0, t_row, col, sf::Color{ 50,100,200,180 });
@@ -136,7 +138,8 @@ void Renderer::drawMazeWallRow(int t_row, sf::Vector2i t_selectedTile, Construct
 	for (int col = 0; col < MAZE_SIZE; col++)
 	{
 		if (m_mazeRef[t_row][col] == TileType::Wall
-			|| m_mazeRef[t_row][col] == TileType::Turret)
+			|| m_mazeRef[t_row][col] == TileType::TurretWest
+			|| m_mazeRef[t_row][col] == TileType::TurretEast)
 		{
 			sf::Color color{ sf::Color::White };
 
@@ -152,19 +155,21 @@ void Renderer::drawMazeWallRow(int t_row, sf::Vector2i t_selectedTile, Construct
 			drawTile(TileType::Wall, 0, t_row, col, color);
 
 			// Draw a turret if a turret tile
-			if (m_mazeRef[t_row][col] == TileType::Turret)
+			if (m_mazeRef[t_row][col] == TileType::TurretWest
+				|| m_mazeRef[t_row][col] == TileType::TurretEast)
 			{
 				m_mazeRef[t_row][col].updateAnimation();
-				drawTile(TileType::Turret, m_mazeRef[t_row][col].getFrame(), t_row, col, color);
+				drawTile(m_mazeRef[t_row][col].getType(), m_mazeRef[t_row][col].getFrame(), t_row, col, color);
 			}
 
 			// Draw a ghost turret if placing a turret on a wall
 			else if (m_mazeRef[t_row][col] == TileType::Wall
 				&& t_row == t_selectedTile.y && col == t_selectedTile.x
 				&& t_row > 0 && t_row < MAZE_SIZE - 1 && col > 0 && col < MAZE_SIZE - 1
-				&& t_selectedTileType == TileType::Turret)
+				&& (t_selectedTileType == TileType::TurretWest
+					|| t_selectedTileType == TileType::TurretEast))
 			{
-				drawTile(TileType::Turret, 0, t_row, col, sf::Color{ 50,100,200,180 });
+				drawTile(t_selectedTileType, 0, t_row, col, sf::Color{ 50,100,200,180 });
 			}
 
 		}
@@ -191,12 +196,12 @@ void Renderer::drawMazeUI(sf::Vector2i t_selectedTile, TileType t_selectedTileTy
 			&& t_selectedTileType <= TileType::TreadmillSouth
 			&& m_mazeRef[t_selectedTile.y][t_selectedTile.x] == TileType::None)
 		{
-			drawDirectionTile(Global::getTreadmillDirection(t_selectedTileType), t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
+			drawDirectionTile(Global::getDirection(t_selectedTileType), t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
 		}
-		else if (t_selectedTileType == TileType::Turret
+		else if ((t_selectedTileType == TileType::TurretWest || t_selectedTileType == TileType::TurretEast)
 			&& m_mazeRef[t_selectedTile.y][t_selectedTile.x] == TileType::Wall)
 		{
-			drawDirectionTile(Direction::West, t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
+			drawDirectionTile(Global::getDirection(t_selectedTileType), t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
 		}
 	}
 }
@@ -226,9 +231,16 @@ void Renderer::drawTile(TileType t_tileType, int t_frame, int t_row, int t_col, 
 	case TileType::SteppingStones:
 		m_textureTile.setTextureRect({ 16 * t_frame, 112, 16, 16 });
 		break;
-	case TileType::Turret:
-		m_textureTile.setTextureRect({ 16 * t_frame, 128, 16, 32 });
+	case TileType::TurretWest:
+		m_textureTile.setTextureRect({ 16 * t_frame, 128, 16, 16 });
 		m_textureTile.move(0.0f, -32.0f);
+		break;
+	case TileType::TurretEast:
+		m_textureTile.setTextureRect({ 16 * t_frame, 144, 16, 16 });
+		m_textureTile.move(0.0f, -32.0f);
+		break;
+	case TileType::Trapdoor:
+		m_textureTile.setTextureRect({ 16 + 16 * t_frame, 96, 16, 16 });
 		break;
 	case TileType::Wall:
 		m_textureTile.setTextureRect(WALL_TEXT_RECT);

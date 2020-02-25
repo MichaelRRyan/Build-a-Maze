@@ -61,7 +61,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 			// Check for exit
 			if (row == MAZE_SIZE - 2 && col == MAZE_SIZE - 2)
 			{
-				std::cout << "MAZE IS SOLVABLE" << std::endl;
+				// Maze is solvable
 				complete = true;
 				solvable = true;
 				break;
@@ -70,7 +70,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 			switch (i) {
 			case 0: // Up
 				if (row - 1 >= 0 && t_maze[row - 1][col] != TileType::Wall
-					&& t_maze[row - 1][col] != TileType::Turret
+					&& t_maze[row - 1][col] != TileType::TurretWest
 					&& !tracedTiles[row - 1][col]) {
 					tracedTiles[row][col];
 					row -= 1;
@@ -79,7 +79,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				break;
 			case 1: // Down
 				if (row + 1 < MAZE_SIZE && t_maze[row + 1][col] != TileType::Wall
-					&& t_maze[row + 1][col] != TileType::Turret
+					&& t_maze[row + 1][col] != TileType::TurretWest
 					&& !tracedTiles[row + 1][col]) {
 					tracedTiles[row][col];
 					row += 1;
@@ -88,7 +88,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				break;
 			case 2: // Left
 				if (col - 1 >= 0 && t_maze[row][col - 1] != TileType::Wall
-					&& t_maze[row][col - 1] != TileType::Turret
+					&& t_maze[row][col - 1] != TileType::TurretWest
 					&& !tracedTiles[row][col - 1]) {
 					tracedTiles[row][col];
 					col -= 1;
@@ -97,7 +97,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				break;
 			case 3: // Right
 				if (col + 1 < MAZE_SIZE && t_maze[row][col + 1] != TileType::Wall
-					&& t_maze[row][col + 1] != TileType::Turret
+					&& t_maze[row][col + 1] != TileType::TurretWest
 					&& !tracedTiles[row][col + 1]) {
 					tracedTiles[row][col];
 					col += 1;

@@ -5,6 +5,7 @@
 /// @Date 18/02/2020
 
 #include <SFML/Graphics.hpp>
+#include <iostream>
 #include "Globals.h"
 
 class Tile
@@ -27,12 +28,16 @@ public:
 	bool operator!=(TileType t_rhs) const;
 
 private:
+
 	TileType m_type;
+
 	sf::Clock m_animationClock;
+	float m_animFrameTime;
+
+	int m_startFrame;
 	int m_maxFrames;
 	int m_frame;
-	int m_startFrame;
-	float m_animFrameTime;
+
 	bool m_animating;
 	bool m_loop;
 };

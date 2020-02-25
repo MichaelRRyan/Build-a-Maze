@@ -8,7 +8,8 @@ HUD::HUD(sf::View const& t_windowView) :
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, MUD_TEXT_RECT,{ t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 112, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 110.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 110.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 96, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
 	} },
 	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
 	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f })
@@ -112,12 +113,14 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_shopItemNames.at(3).setString("Treadmill");
 	m_shopItemNames.at(4).setString("Balancing\n    Pad");
 	m_shopItemNames.at(5).setString("Paintball\n  Turret");
+	m_shopItemNames.at(6).setString("Trapdoor");
 
 	m_shopItemPrices.at(0).setString("$" + std::to_string(Global::getTilePrice(TileType::Wall))); // Wall
 	m_shopItemPrices.at(1).setString("$" + std::to_string(Global::getTilePrice(TileType::Mud))); // Mud
 	m_shopItemPrices.at(2).setString("$" + std::to_string(Global::getTilePrice(TileType::TreadmillWest))); // Treadmill
 	m_shopItemPrices.at(3).setString("$" + std::to_string(Global::getTilePrice(TileType::SteppingStones))); // Balancing pad
-	m_shopItemPrices.at(4).setString("$" + std::to_string(Global::getTilePrice(TileType::Turret))); // Turret
+	m_shopItemPrices.at(4).setString("$" + std::to_string(Global::getTilePrice(TileType::TurretWest))); // Turret
+	m_shopItemPrices.at(5).setString("$" + std::to_string(Global::getTilePrice(TileType::Trapdoor))); // Trapdoor
 
 	for (int i = 0; i < m_shopItems.size(); i++)
 	{
@@ -141,7 +144,7 @@ HUD::HUD(sf::View const& t_windowView) :
 /////////////////////////////////////////////////////////////////
 void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money)
 {
-	m_moneyText.setString("BALANCE: " + std::to_string(t_money));
+	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
 	for (int i = 0; i < m_shopItems.size(); i++)
 	{
@@ -171,7 +174,11 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 				break;
 			case 5: // Stepping Stones tool
 				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::Turret;
+				t_selectedTileType = TileType::TurretWest;
+				break;
+			case 6: // Stepping Stones tool
+				t_constructionState = ConstructionMode::Placing;
+				t_selectedTileType = TileType::Trapdoor;
 				break;
 			}
 		}

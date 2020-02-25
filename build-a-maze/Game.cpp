@@ -16,27 +16,22 @@ Game::Game() :
 	m_menuScreen{ m_GUI_VIEW },
 	m_hud{ m_GUI_VIEW },
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs },
-	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." }
+	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
+	m_currency{ 1000 } // Set the player's currency to 400
 {
-	//std::cout << m_GUI_VIEW.getSize().x << ", " << m_GUI_VIEW.getSize().y << std::endl;
-
-	/*sf::View view = m_window.getDefaultView();
-	float heightPerWidth = view.getSize().y / view.getSize().x;
-	view.setSize(800.0f, 800.0f * heightPerWidth);
-	view.setSize(view.getSize());
-	m_window.setView(view);*/
-
 	m_window.setVerticalSyncEnabled(true);
 
 	MazeGenerator::generateMaze(m_mazeBlocks);
+
 	setupGame();
 
-	// Set the player's currency to 400
-	m_currency = 1000;
+	Tile tile;
 
-	m_window.setView(m_GUI_VIEW);
+	tile.setType(TileType::TurretWest);
 
-	m_renderer.setup();
+	tile.setAnimating(true);
+
+	std::cout << tile.getFrame() << std::endl;
 }
 
 Game::~Game()
@@ -45,6 +40,7 @@ Game::~Game()
 	{
 		delete solver;
 	}
+
 	m_mazeSolverPtrs.clear();
 }
 
@@ -111,7 +107,6 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			{
 				m_gamePaused = !m_gamePaused;
 			}
-
 		}
 
 		processTimeModifierEvents(t_event);
@@ -144,8 +139,13 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				case TileType::TreadmillSouth:
 					m_selectedTileType = TileType::TreadmillWest;
 					break;
+				case TileType::TurretWest:
+					m_selectedTileType = TileType::TurretEast;
+					break;
+				case TileType::TurretEast:
+					m_selectedTileType = TileType::TurretWest;
+					break;
 				}
-				
 			}
 		}
 	}
@@ -326,7 +326,7 @@ void Game::setupGame()
 
 	m_constructionState = ConstructionMode::None;
 	m_selectedTileType = TileType::None;
-	m_currency = 400;
+	m_currency = 1000;
 	m_simDetailsDisplay = false;
 	m_gamePaused = false;
 
@@ -444,11 +444,11 @@ void Game::handleClickEvents()
 				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
 
 				// Check if a turret was clicked
-				if (selectedTile == TileType::Turret
+				if (selectedTile == TileType::TurretWest
 					&& m_constructionState == ConstructionMode::Destroying)
 				{
 					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Wall);
-					m_currency += Global::getTilePrice(TileType::Turret) / 2;
+					m_currency += Global::getTilePrice(TileType::TurretWest) / 2;
 				}
 				// Check if the player clicked a tile
 				else if (selectedTile != TileType::None
@@ -463,19 +463,22 @@ void Game::handleClickEvents()
 					// Check if the player has enough money for the selected item
 					if (m_currency >= Global::getTilePrice(m_selectedTileType))
 					{
-						if (selectedTile == TileType::None && m_selectedTileType != TileType::Turret)
+						if (selectedTile == TileType::None
+							&& m_selectedTileType != TileType::TurretWest
+							&& m_selectedTileType != TileType::TurretEast)
 						{
 							m_tempTiles.push_back(m_cursor.m_selectedTile);
 
 							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(m_selectedTileType);
 							m_currency -= Global::getTilePrice(m_selectedTileType);
 						}
-						else if (selectedTile == TileType::Wall && m_selectedTileType == TileType::Turret)
+						else if (selectedTile == TileType::Wall
+							&& (m_selectedTileType == TileType::TurretWest || m_selectedTileType == TileType::TurretEast))
 						{
 							m_tempTiles.push_back(m_cursor.m_selectedTile);
 
-							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Turret);
-							m_currency -= Global::getTilePrice(TileType::Turret);
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(m_selectedTileType);
+							m_currency -= Global::getTilePrice(m_selectedTileType);
 						}
 					}
 				}
@@ -496,7 +499,8 @@ void Game::handleClickEvents()
 					&& selectedTile != TileType::Mud
 					&& selectedTile != TileType::None)
 				{
-					if (selectedTile == TileType::Turret)
+					if (selectedTile == TileType::TurretWest
+						|| selectedTile == TileType::TurretEast)
 					{
 						if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
 						{
@@ -512,7 +516,12 @@ void Game::handleClickEvents()
 									sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE }; // Find the turret position
 									position.y -= 18.0f; // Adjust height for barrel height
 
-									paintball.fire(position, Direction::West, sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) }); // Fire a bullet
+									if (selectedTile == TileType::TurretEast)
+									{
+										position.x += 32.0f;
+									}
+
+									paintball.fire(position, Global::getDirection(selectedTile), sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) }); // Fire a bullet
 									break; // Break once a bullet has been found
 								}
 							}

@@ -35,6 +35,7 @@ public:
 
 	void handleTreadmills();
 	void handleSteppingStones();
+	void handleTrapdoors();
 
 protected:
 	// Declare private data members

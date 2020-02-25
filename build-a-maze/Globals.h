@@ -34,7 +34,9 @@ enum class TileType {
 	TreadmillNorth = 4,
 	TreadmillSouth = 5,
 	SteppingStones = 6,
-	Turret = 7,
+	TurretWest = 7,
+	TurretEast = 8,
+	Trapdoor = 9,
 	Wall = 10
 };
 
@@ -101,9 +103,9 @@ public:
 		}
 	}
 
-	static Direction getTreadmillDirection(TileType t_treadmill)
+	static Direction getDirection(TileType t_tile)
 	{
-		switch (t_treadmill)
+		switch (t_tile)
 		{
 		case TileType::TreadmillWest:
 			return Direction::West;
@@ -116,6 +118,12 @@ public:
 			break;
 		case TileType::TreadmillSouth:
 			return Direction::South;
+			break;
+		case TileType::TurretWest:
+			return Direction::West;
+			break;
+		case TileType::TurretEast:
+			return Direction::East;
 			break;
 		default:
 			return Direction::None;
@@ -148,8 +156,14 @@ public:
 		case TileType::SteppingStones:
 			return 80;
 			break;
-		case TileType::Turret:
+		case TileType::TurretWest:
 			return 200;
+			break;
+		case TileType::TurretEast:
+			return 200;
+			break;
+		case TileType::Trapdoor:
+			return 100;
 			break;
 		case TileType::Wall:
 			return 20;

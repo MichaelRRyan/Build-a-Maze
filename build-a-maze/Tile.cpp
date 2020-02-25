@@ -64,9 +64,16 @@ void Tile::setType(TileType t_type)
 		m_animFrameTime = 0.1f;
 		m_loop = false;
 	}
-	else if (m_type == TileType::Turret)
+	else if (m_type == TileType::TurretWest
+		|| m_type == TileType::TurretEast)
 	{
-		m_maxFrames = 9;
+		m_maxFrames = 7;
+		m_animFrameTime = 0.3f;
+		m_loop = false;
+	}
+	else if (m_type == TileType::Trapdoor)
+	{
+		m_maxFrames = 8;
 		m_animFrameTime = 0.1f;
 		m_loop = false;
 	}
@@ -103,6 +110,12 @@ void Tile::setAnimating(bool t_animating)
 	m_animating = t_animating;
 	m_frame = m_startFrame;
 	m_animationClock.restart();
+
+	if (m_type == TileType::TurretWest
+		|| m_type == TileType::TurretEast)
+	{
+		m_frame = 1;
+	}
 }
 
 bool Tile::getAnimating() const

@@ -32,7 +32,9 @@ void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile
 		&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_SIZE - 1
 		&& ((m_maze[m_selectedTile.y][m_selectedTile.x].getType() >= TileType::TreadmillWest
 			&& m_maze[m_selectedTile.y][m_selectedTile.x].getType() <= TileType::TreadmillSouth)
-			|| m_maze[m_selectedTile.y][m_selectedTile.x].getType() == TileType::Turret))
+			|| m_maze[m_selectedTile.y][m_selectedTile.x].getType() == TileType::TurretWest
+			|| m_maze[m_selectedTile.y][m_selectedTile.x].getType() == TileType::TurretEast
+			|| m_maze[m_selectedTile.y][m_selectedTile.x].getType() == TileType::Trapdoor))
 	{
 		m_sprite.setTextureRect(sf::IntRect{ { 64, 0 }, { 64, 64 } });
 	}
@@ -51,7 +53,6 @@ void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile
 		if (!m_clickDown)
 		{
 			m_clicked = true;
-			std::cout << "Clicked" << std::endl;
 		}
 
 		m_clickDown = true;

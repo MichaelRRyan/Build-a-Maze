@@ -139,6 +139,7 @@ void Cartographer::move(sf::Vector2i t_newPosition)
 
 	handleTreadmills();
 	handleSteppingStones();
+	handleTrapdoors();
 }
 
 void Cartographer::draw(sf::RenderWindow& t_window) const
@@ -229,7 +230,8 @@ bool Cartographer::isBlocked(sf::Vector2i t_mazePos)
 
 	// If blocked by a wall
 	if (m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Wall
-		|| m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::Turret)
+		|| m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::TurretWest
+		|| m_mazeRef[t_mazePos.y][t_mazePos.x] == TileType::TurretEast)
 	{
 		return true;
 	}
