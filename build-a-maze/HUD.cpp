@@ -9,7 +9,9 @@ HUD::HUD(sf::View const& t_windowView) :
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 112, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 110.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
-	} }
+	} },
+	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
+	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f })
 {
 	m_shopBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
 	m_shopBackground.setFillColor(sf::Color{ 247, 230, 134 });
@@ -33,6 +35,9 @@ HUD::HUD(sf::View const& t_windowView) :
 		button.setup();
 	}
 
+	m_playButton.setup();
+	m_stopButton.setup();
+
 	// Load the font
 	if (!m_hudFont.loadFromFile("ASSETS/FONTS/tf2Build.ttf"))
 	{
@@ -40,6 +45,15 @@ HUD::HUD(sf::View const& t_windowView) :
 	}
 
 	float shopCentre = m_shopBackground.getPosition().x + m_shopBackground.getSize().x / 2.0f;
+
+	m_menuTab.setSize({ 60.0f, 100.0f });
+	m_menuTab.setFillColor(sf::Color{ 247, 230, 134 });
+	m_menuTab.setPosition(t_windowView.getSize().x - m_shopBackground.getSize().x - m_menuTab.getGlobalBounds().width * 0.8f, (t_windowView.getSize().y / 2.0f) - m_menuTab.getGlobalBounds().height / 2.0f);
+
+	m_menuTab.setOutlineThickness(5.0f);
+	m_menuTab.setOutlineColor(sf::Color{ 120, 112, 65 });
+	m_menuTab.setCornerRadius(15.0f);
+	
 
 	// Setup the shop text
 	m_shopTitleText.setFont(m_hudFont);
@@ -125,7 +139,7 @@ HUD::HUD(sf::View const& t_windowView) :
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateBuildMode(Cursor t_cursor, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money)
+void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money)
 {
 	m_moneyText.setString("BALANCE: " + std::to_string(t_money));
 
@@ -168,10 +182,15 @@ void HUD::updateBuildMode(Cursor t_cursor, ConstructionMode& t_constructionState
 		t_constructionState = ConstructionMode::None;
 		t_selectedTileType = TileType::None;
 	}
+
+	if (m_playButton.update(t_cursor))
+	{
+		t_func(t_game);
+	}
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateSimText(int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
+void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Work out minutes and seconds and set the string
 	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
@@ -189,12 +208,24 @@ void HUD::updateSimText(int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(SOLVERS_MAX));
 
 	m_moneyEarnedText.setString(std::to_string(t_moneyEarned));
+
+	if (m_stopButton.update(t_cursor))
+	{
+		t_func(t_game);
+	}
 }
 
 /////////////////////////////////////////////////////////////////
 void HUD::drawShop(sf::RenderWindow& t_window) const
 {
+	sf::RoundedRectangleShape shape{ m_menuTab };
+
+	t_window.draw(shape);
+
 	t_window.draw(m_shopBackground);
+
+	shape.setOutlineThickness(0.0f);
+	t_window.draw(shape);
 
 	for (int i = 0; i < m_shopItems.size(); i++)
 	{
@@ -209,12 +240,20 @@ void HUD::drawShop(sf::RenderWindow& t_window) const
 
 	t_window.draw(m_shopTitleText);
 	t_window.draw(m_moneyText);
+	t_window.draw(m_playButton);
 }
 
 /////////////////////////////////////////////////////////////////
 void HUD::drawStats(sf::RenderWindow& t_window)
 {
+	sf::RoundedRectangleShape shape{ m_menuTab };
+
+	t_window.draw(shape);
+
 	t_window.draw(m_statsBackground);
+
+	shape.setOutlineThickness(0.0f);
+	t_window.draw(shape);
 
 	t_window.draw(m_numAIText);
 	t_window.draw(m_moneyEarnedText);
@@ -227,6 +266,8 @@ void HUD::drawStats(sf::RenderWindow& t_window)
 		m_iconSprite.setTextureRect(sf::IntRect{ 32 * i, 0, 32, 32 });
 		t_window.draw(m_iconSprite);
 	}
+
+	t_window.draw(m_stopButton);
 }
 
 /////////////////////////////////////////////////////////////////

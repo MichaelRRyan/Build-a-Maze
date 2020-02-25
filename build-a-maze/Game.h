@@ -45,6 +45,8 @@ private:
 	void setupGame();
 	void resetSimulation();
 	void processTimeModifierEvents(sf::Event t_event);
+	void switchGameState();
+	void handleClickEvents();
 
 
 	// ************************* Variables *************************

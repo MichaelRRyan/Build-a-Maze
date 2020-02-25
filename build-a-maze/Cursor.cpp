@@ -48,11 +48,34 @@ void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile
 	// Check if the mouse has been pressed
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
-		m_clicked = true;
+		if (!m_clickDown)
+		{
+			m_clicked = true;
+			std::cout << "Clicked" << std::endl;
+		}
+
+		m_clickDown = true;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	else
 	{
-		m_cancelClicked = true;
+		m_clickDown = false;
+		m_clicked = false;
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)
+		&& !m_cancelClicked)
+	{
+		if (!m_cancelDown)
+		{
+			m_cancelClicked = true;
+		}
+
+		m_cancelDown = true;
+	}
+	else
+	{
+		m_cancelDown = false;
+		m_cancelClicked = false;
 	}
 
 	// Update the controller if connected
@@ -69,8 +92,6 @@ void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile
 
 	// convert the cursor position to world coordinates for the maze
 	sf::Vector2f worldPos = t_window.mapPixelToCoords(m_position, t_mazeView);
-
-	std::cout << " / " << worldPos.x << ", " << worldPos.y << std::endl;
 
 	m_selectedTile = static_cast<sf::Vector2i>(worldPos / TILE_SIZE);
 }

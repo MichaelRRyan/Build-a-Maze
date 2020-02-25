@@ -140,6 +140,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
     </ClCompile>
+    <ClCompile Include="RoundedRectangleShape.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="Paintball.h" />
     <ClInclude Include="Popup.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RoundedRectangleShape.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>

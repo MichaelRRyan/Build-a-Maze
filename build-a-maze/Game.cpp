@@ -101,27 +101,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 	{
 		if (sf::Keyboard::Space == t_event.key.code)
 		{
-			if (m_gamestate == GameState::BuildMode)
-			{
-				if (m_simDetailsDisplay)
-				{
-					m_simDetailsDisplay = false;
-				}
-				else if (MazeValidator::isMazeSolvable(m_mazeBlocks))
-				{
-					m_gamestate = GameState::Simulation;
-					resetSimulation();
-				}
-				else
-				{
-					m_popup.setActive(true);
-				}
-			}
-			else if (m_gamestate == GameState::Simulation)
-			{
-				m_gamestate = GameState::BuildMode;
-				m_gamePaused = false;
-			}
+			switchGameState();
 		}
 
 		// Pause the game
@@ -180,101 +160,6 @@ void Game::processMouseEvents(sf::Event t_event)
 	if (sf::Event::MouseMoved == t_event.type)
 	{
 		m_cursor.m_position = { static_cast<int>(t_event.mouseMove.x), static_cast<int>(t_event.mouseMove.y) };
-	}
-
-	if (m_cursor.m_clicked)
-	{
-		if (m_gamestate == GameState::BuildMode)
-		{
-			// Make sure the player doesn't remove the outer boundary
-			if (m_cursor.m_selectedTile.x > 0 && m_cursor.m_selectedTile.x < MAZE_SIZE - 1
-				&& m_cursor.m_selectedTile.y > 0 && m_cursor.m_selectedTile.y < MAZE_SIZE - 1)
-			{
-				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
-
-				// Check if a turret was clicked
-				if (selectedTile == TileType::Turret
-					&& m_constructionState == ConstructionMode::Destroying)
-				{
-					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Wall);
-					m_currency += Global::getTilePrice(TileType::Turret) / 2;
-				}
-				// Check if the player clicked a tile
-				else if (selectedTile != TileType::None
-					&& m_constructionState == ConstructionMode::Destroying)
-				{
-					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::None);
-					m_currency += Global::getTilePrice(selectedTile) / 2;
-				}
-				// Else the player tries to buy a tile
-				else if (m_constructionState == ConstructionMode::Placing)
-				{
-					// Check if the player has enough money for the selected item
-					if (m_currency >= Global::getTilePrice(m_selectedTileType))
-					{
-						if (selectedTile == TileType::None && m_selectedTileType != TileType::Turret)
-						{
-							m_tempTiles.push_back(m_cursor.m_selectedTile);
-
-							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(m_selectedTileType);
-							m_currency -= Global::getTilePrice(m_selectedTileType);
-						}
-						else if (selectedTile == TileType::Wall && m_selectedTileType == TileType::Turret)
-						{
-							m_tempTiles.push_back(m_cursor.m_selectedTile);
-
-							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Turret);
-							m_currency -= Global::getTilePrice(TileType::Turret);
-						}
-					}
-				}
-			}
-		}
-		else if (m_gamestate == GameState::Simulation)
-		{
-			TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
-
-			if (selectedTile != TileType::Wall
-				&& selectedTile != TileType::Mud
-				&& selectedTile != TileType::None)
-			{
-				if (selectedTile == TileType::Turret)
-				{
-					if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
-					{
-						// Turn on animation
-						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
-
-						// Loop all the paintballs
-						for (Paintball& paintball : m_paintballs)
-						{
-							// Find an inactive one
-							if (!paintball.isActive())
-							{
-								sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE }; // Find the turret position
-								position.y -= 18.0f; // Adjust height for barrel height
-
-								paintball.fire(position, Direction::West, sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) }); // Fire a bullet
-								break; // Break once a bullet has been found
-							}
-						}
-					}
-				}
-				else if (selectedTile == TileType::SteppingStones)
-				{
-					if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
-					{
-						// Turn on animation
-						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
-					}
-				}
-				else
-				{
-					// Toggle animation
-					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating());
-				}
-			}
-		}
 	}
 }
 
@@ -339,12 +224,12 @@ void Game::update(sf::Time t_deltaTime)
 	// Update the build mode GUI
 	if (m_gamestate == GameState::BuildMode)
 	{
-		m_hud.updateBuildMode(m_cursor, m_constructionState, m_selectedTileType, m_currency);
+		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_constructionState, m_selectedTileType, m_currency);
 		m_popup.update(m_cursor);
 	}
 	else if (m_gamestate == GameState::Simulation)
 	{
-		m_hud.updateSimText(m_noOfAI, m_timeToComplete, m_moneyEarned);
+		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, m_noOfAI, m_timeToComplete, m_moneyEarned);
 	}
 	else if (m_gamestate == GameState::TitleScreen)
 	{
@@ -352,6 +237,8 @@ void Game::update(sf::Time t_deltaTime)
 	}
 
 	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_constructionState, m_GUI_VIEW, m_mazeView);
+
+	handleClickEvents();
 }
 
 /// <summary>
@@ -515,6 +402,137 @@ void Game::processTimeModifierEvents(sf::Event t_event)
 		for (MazeSolver* solver : m_mazeSolverPtrs)
 		{
 			solver->setTimeModifier(m_timeModifier);
+		}
+	}
+}
+
+void Game::switchGameState()
+{
+	if (m_gamestate == GameState::BuildMode)
+	{
+		if (m_simDetailsDisplay)
+		{
+			m_simDetailsDisplay = false;
+		}
+		else if (MazeValidator::isMazeSolvable(m_mazeBlocks))
+		{
+			m_gamestate = GameState::Simulation;
+			resetSimulation();
+		}
+		else
+		{
+			m_popup.setActive(true);
+		}
+	}
+	else if (m_gamestate == GameState::Simulation)
+	{
+		m_gamestate = GameState::BuildMode;
+		m_gamePaused = false;
+	}
+}
+
+void Game::handleClickEvents()
+{
+	if (m_cursor.m_clickDown)
+	{
+		if (m_gamestate == GameState::BuildMode)
+		{
+			// Make sure the player doesn't remove the outer boundary
+			if (m_cursor.m_selectedTile.x > 0 && m_cursor.m_selectedTile.x < MAZE_SIZE - 1
+				&& m_cursor.m_selectedTile.y > 0 && m_cursor.m_selectedTile.y < MAZE_SIZE - 1)
+			{
+				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
+
+				// Check if a turret was clicked
+				if (selectedTile == TileType::Turret
+					&& m_constructionState == ConstructionMode::Destroying)
+				{
+					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Wall);
+					m_currency += Global::getTilePrice(TileType::Turret) / 2;
+				}
+				// Check if the player clicked a tile
+				else if (selectedTile != TileType::None
+					&& m_constructionState == ConstructionMode::Destroying)
+				{
+					m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::None);
+					m_currency += Global::getTilePrice(selectedTile) / 2;
+				}
+				// Else the player tries to buy a tile
+				else if (m_constructionState == ConstructionMode::Placing)
+				{
+					// Check if the player has enough money for the selected item
+					if (m_currency >= Global::getTilePrice(m_selectedTileType))
+					{
+						if (selectedTile == TileType::None && m_selectedTileType != TileType::Turret)
+						{
+							m_tempTiles.push_back(m_cursor.m_selectedTile);
+
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(m_selectedTileType);
+							m_currency -= Global::getTilePrice(m_selectedTileType);
+						}
+						else if (selectedTile == TileType::Wall && m_selectedTileType == TileType::Turret)
+						{
+							m_tempTiles.push_back(m_cursor.m_selectedTile);
+
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setType(TileType::Turret);
+							m_currency -= Global::getTilePrice(TileType::Turret);
+						}
+					}
+				}
+			}
+		}
+	}
+	if (m_cursor.m_clicked)
+	{
+		if (m_gamestate == GameState::Simulation)
+		{
+			// Make sure the player doesn't remove the outer boundary
+			if (m_cursor.m_selectedTile.x > 0 && m_cursor.m_selectedTile.x < MAZE_SIZE - 1
+				&& m_cursor.m_selectedTile.y > 0 && m_cursor.m_selectedTile.y < MAZE_SIZE - 1)
+			{
+				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
+
+				if (selectedTile != TileType::Wall
+					&& selectedTile != TileType::Mud
+					&& selectedTile != TileType::None)
+				{
+					if (selectedTile == TileType::Turret)
+					{
+						if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
+						{
+							// Turn on animation
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
+
+							// Loop all the paintballs
+							for (Paintball& paintball : m_paintballs)
+							{
+								// Find an inactive one
+								if (!paintball.isActive())
+								{
+									sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE }; // Find the turret position
+									position.y -= 18.0f; // Adjust height for barrel height
+
+									paintball.fire(position, Direction::West, sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) }); // Fire a bullet
+									break; // Break once a bullet has been found
+								}
+							}
+						}
+					}
+					else if (selectedTile == TileType::SteppingStones)
+					{
+						if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
+						{
+							// Turn on animation
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
+						}
+					}
+					else
+					{
+						// Toggle animation
+						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating());
+					}
+				}
+			}
 		}
 	}
 }

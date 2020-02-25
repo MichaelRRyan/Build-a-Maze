@@ -28,6 +28,9 @@ public:
 	bool m_clicked;
 	bool m_cancelClicked;
 
+	bool m_clickDown;
+	bool m_cancelDown;
+
 	sf::Vector2i m_position;
 	sf::Vector2f m_viewPosition;
 	sf::Vector2i m_selectedTile;

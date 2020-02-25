@@ -70,12 +70,8 @@ void Renderer::drawMazeBackground()
 {
 	m_textureTile.setColor(sf::Color::White);
 
-	std::cout << m_view.getCenter().x << ", " << m_view.getCenter().y << " / " << m_view.getSize().x << ", " << m_view.getSize().y;
-
 	sf::Vector2i startPoint = static_cast<sf::Vector2i>((-(m_view.getSize() / 2.0f) + m_view.getCenter()) / TILE_SIZE); // bottom right corner of screen divided by tile size
 	sf::Vector2i endPoint = static_cast<sf::Vector2i>(((m_view.getSize() / 2.0f) + m_view.getCenter()) / TILE_SIZE); // bottom right corner of screen divided by tile size
-
-	std::cout << " / " << endPoint.x << ", " << endPoint.y;
 
 	// Draw the maze background (Grass)
 	for (int row = startPoint.y - 1; row <= endPoint.y; row++)
