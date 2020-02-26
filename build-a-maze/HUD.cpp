@@ -13,8 +13,9 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 110.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 96, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
 	} },
-	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
-	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
+	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 96, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
+	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f + 4.0f }),
+	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 36.0f }),
 	m_mazeEditorRef{ t_mazeEditor }
 {
 	loadFiles();
@@ -76,7 +77,7 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
+void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Work out minutes and seconds and set the string
 	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
@@ -97,7 +98,12 @@ void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)
 
 	if (m_stopButton.update(t_cursor))
 	{
-		t_func(t_game);
+		t_stopButtonFunc(t_game);
+	}
+
+	if (m_pauseButton.update(t_cursor))
+	{
+		t_pauseButtonFunc(t_game);
 	}
 }
 
@@ -154,6 +160,7 @@ void HUD::drawStats(sf::RenderWindow& t_window)
 	}
 
 	t_window.draw(m_stopButton);
+	t_window.draw(m_pauseButton);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -260,9 +267,10 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 		m_shopItemPrices.at(i).setPosition(m_shopItemNames.at(i + 3).getPosition().x, m_shopItemNames.at(i + 3).getPosition().y + m_shopItemNames.at(i + 3).getGlobalBounds().height + 5);
 	}
 
-	// Setup the two game buttons
+	// Setup the three game buttons
 	m_playButton.setup();
 	m_stopButton.setup();
+	m_pauseButton.setup();
 }
 
 /////////////////////////////////////////////////////////////////

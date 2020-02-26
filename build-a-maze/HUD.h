@@ -19,7 +19,7 @@ public:
 	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor);
 
 	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_money);
-	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
+	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window) const;
 	void drawStats(sf::RenderWindow & t_window);
@@ -43,6 +43,7 @@ private:
 
 	GUI::Button m_playButton;
 	GUI::Button m_stopButton;
+	GUI::Button m_pauseButton;
 
 	sf::Font m_hudFont;
 	sf::Text m_shopTitleText;

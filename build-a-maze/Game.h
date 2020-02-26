@@ -48,6 +48,7 @@ private:
 	void processTimeModifierEvents(sf::Event t_event);
 	void switchGameState();
 	void handleClickEvents();
+	void togglePause();
 
 
 	// ************************* Variables *************************
@@ -87,8 +88,6 @@ private:
 
 	// Enum variables
 	GameState m_gamestate;
-	//ConstructionMode m_constructionState;
-	//TileType m_selectedTileType;
 
 	MenuScreen m_menuScreen;
 	HUD m_hud;

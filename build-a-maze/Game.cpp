@@ -110,22 +110,27 @@ void Game::processKeyboardEvents(sf::Event t_event)
 				m_gamestate = GameState::TitleScreen;
 			}
 		}
+
+		// Switch game state
+		if (sf::Keyboard::Enter == t_event.key.code)
+		{
+			switchGameState();
+		}
 		break;
 	case GameState::Simulation:
 		// Pause the game
 		if (sf::Keyboard::P == t_event.key.code)
 		{
-			m_gamePaused = !m_gamePaused;
+			togglePause();
+		}
+
+		if (sf::Keyboard::Escape == t_event.key.code)
+		{
+			switchGameState();
 		}
 
 		processTimeModifierEvents(t_event);
 		break;
-	}
-
-	// Switch game state in either game mode
-	if (sf::Keyboard::Space == t_event.key.code)
-	{
-		switchGameState();
 	}
 }
 
@@ -156,7 +161,7 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	case GameState::Simulation:
 		updateSimulation(t_deltaTime);
-		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, m_noOfAI, m_timeToComplete, m_moneyEarned);
+		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, &Game::togglePause, m_noOfAI, m_timeToComplete, m_moneyEarned);
 		break;
 	}
 
@@ -207,13 +212,14 @@ void Game::render()
 		}
 
 		m_window.setView(m_GUI_VIEW);
-		m_hud.drawStats(m_window);
-
+		
 		if (m_gamePaused)
 		{
 			m_window.draw(m_pauseScreenFade);
 			m_window.draw(m_pauseText);
 		}
+
+		m_hud.drawStats(m_window);
 
 		break;
 	}
@@ -234,16 +240,16 @@ void Game::setupGame()
 	m_pauseScreenFade.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
 	m_pauseScreenFade.setFillColor(sf::Color{ 255, 255, 255, 100 });
 
-	if (!m_mainFont.loadFromFile("ASSETS/FONTS/arial.ttf"))
+	if (!m_mainFont.loadFromFile("ASSETS/FONTS/tf2build.ttf"))
 	{
-		std::cout << "Error loading main font (Arial)";
+		std::cout << "Error loading main font (tf2 font)";
 	}
 
 	m_pauseText.setString("PAUSED");
 	m_pauseText.setCharacterSize(100u);
 	m_pauseText.setFont(m_mainFont);
 	m_pauseText.setFillColor(sf::Color{0, 0, 0, 150});
-	m_pauseText.setPosition(WINDOW_WIDTH / 2, static_cast<float>(WINDOW_HEIGHT) / 2.5f);
+	m_pauseText.setPosition(m_GUI_VIEW.getSize().x / 3.0f, m_GUI_VIEW.getSize().y / 2.5f);
 	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 
 	m_mazeEditor.reset();
@@ -462,4 +468,9 @@ void Game::handleClickEvents()
 			}
 		}
 	}
+}
+
+void Game::togglePause()
+{
+	m_gamePaused = !m_gamePaused;
 }
