@@ -1,7 +1,7 @@
 /// @Author Michael Rainsford Ryan
 #ifndef CARTOGRAPHER_H
 #define CARTOGRAPHER_H
-#define CARTOGRAPHER_DEBUG
+//#define CARTOGRAPHER_DEBUG
 
 #include <SFML\Graphics.hpp>
 #include <iostream>

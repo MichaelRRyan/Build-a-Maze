@@ -439,7 +439,7 @@ void Game::handleClickEvents()
 										position.x += 32.0f;
 									}
 
-									paintball.fire(position, Global::getDirection(selectedTile), sf::Color{ static_cast<sf::Uint8>(rand() % 255), 255, static_cast<sf::Uint8>(rand() % 255) }); // Fire a bullet
+									paintball.fire(position, Global::getDirection(selectedTile), sf::Color{ 135, 113, 85 }); // Fire a bullet
 									break; // Break once a bullet has been found
 								}
 							}

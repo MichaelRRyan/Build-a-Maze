@@ -25,6 +25,11 @@ public:
 	void drawStats(sf::RenderWindow & t_window);
 
 private:
+
+	void loadFiles();
+	void setupShopMenu(sf::View const& t_windowView);
+	void setupStatsMenu(sf::View const& t_windowView);
+
 	sf::Texture m_guiTextures;
 	sf::Texture m_iconTextures;
 	sf::Texture m_tileTextures;
