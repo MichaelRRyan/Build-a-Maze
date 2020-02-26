@@ -14,11 +14,11 @@ Game::Game() :
 	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.85f, static_cast<float>(WINDOW_HEIGHT) * 0.85f} },
 	//m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_menuScreen{ m_GUI_VIEW },
-	m_hud{ m_GUI_VIEW },
+	m_hud{ m_GUI_VIEW, m_mazeEditor },
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
 	m_currency{ 1000 }, // Set the player's currency to 400
-	m_mazeEditor{ m_mazeBlocks }
+	m_mazeEditor{ m_mazeBlocks, m_currency }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -81,10 +81,14 @@ void Game::processEvents()
 		{
 			m_window.close();
 		}
-
-		processKeyboardEvents(nextEvent);
-		processMouseEvents(nextEvent);
-
+		else if (sf::Event::KeyPressed == nextEvent.type)
+		{
+			processKeyboardEvents(nextEvent);
+		}
+		else if (sf::Event::MouseMoved == nextEvent.type)
+		{
+			m_cursor.m_position = { static_cast<int>(nextEvent.mouseMove.x), static_cast<int>(nextEvent.mouseMove.y) };
+		}
 	} // End while poll event
 }
 
@@ -94,73 +98,34 @@ void Game::processEvents()
 /// <param name="t_event">Current Event</param>
 void Game::processKeyboardEvents(sf::Event t_event)
 {
-	if (sf::Event::KeyPressed == t_event.type)
+	switch (m_gamestate)
 	{
-		if (sf::Keyboard::Space == t_event.key.code)
-		{
-			switchGameState();
-		}
-
-		// Pause the game
-		if (sf::Keyboard::P == t_event.key.code)
-		{
-			if (m_gamestate == GameState::Simulation)
-			{
-				m_gamePaused = !m_gamePaused;
-			}
-		}
-
-		processTimeModifierEvents(t_event);
+	case GameState::BuildMode:
+		m_mazeEditor.handleKeyPresses(t_event);
 
 		if (sf::Keyboard::Escape == t_event.key.code)
 		{
-			if (m_gamestate == GameState::BuildMode
-				&& m_constructionState == ConstructionMode::None)
+			if (m_mazeEditor.getConstructionMode() == ConstructionMode::None)
 			{
 				m_gamestate = GameState::TitleScreen;
 			}
 		}
-
-		if (sf::Keyboard::R == t_event.key.code)
+		break;
+	case GameState::Simulation:
+		// Pause the game
+		if (sf::Keyboard::P == t_event.key.code)
 		{
-			if (m_gamestate == GameState::BuildMode
-				&& m_constructionState == ConstructionMode::Placing)
-			{
-				switch (m_selectedTileType)
-				{
-				case TileType::TreadmillWest:
-					m_selectedTileType = TileType::TreadmillNorth;
-					break;
-				case TileType::TreadmillEast:
-					m_selectedTileType = TileType::TreadmillSouth;
-					break;
-				case TileType::TreadmillNorth:
-					m_selectedTileType = TileType::TreadmillEast;
-					break;
-				case TileType::TreadmillSouth:
-					m_selectedTileType = TileType::TreadmillWest;
-					break;
-				case TileType::TurretWest:
-					m_selectedTileType = TileType::TurretEast;
-					break;
-				case TileType::TurretEast:
-					m_selectedTileType = TileType::TurretWest;
-					break;
-				}
-			}
+			m_gamePaused = !m_gamePaused;
 		}
-	}
-}
 
-/// <summary>
-/// Processes the user mouse events for the game
-/// </summary>
-/// <param name="t_event">Current event</param>
-void Game::processMouseEvents(sf::Event t_event)
-{
-	if (sf::Event::MouseMoved == t_event.type)
+		processTimeModifierEvents(t_event);
+		break;
+	}
+
+	// Switch game state in either game mode
+	if (sf::Keyboard::Space == t_event.key.code)
 	{
-		m_cursor.m_position = { static_cast<int>(t_event.mouseMove.x), static_cast<int>(t_event.mouseMove.y) };
+		switchGameState();
 	}
 }
 
@@ -185,8 +150,8 @@ void Game::update(sf::Time t_deltaTime)
 	case GameState::SettingsScreen:
 		break;
 	case GameState::BuildMode:
-		m_mazeEditor.update(m_cursor, m_selectedTileType, m_constructionState, m_currency);
-		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_constructionState, m_selectedTileType, m_currency);
+		m_mazeEditor.update(m_cursor);
+		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_currency);
 		m_popup.update(m_cursor);
 		break;
 	case GameState::Simulation:
@@ -195,7 +160,7 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	}
 
-	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_constructionState, m_GUI_VIEW, m_mazeView);
+	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_mazeEditor.getConstructionMode(), m_GUI_VIEW, m_mazeView);
 }
 
 /// <summary>
@@ -217,7 +182,7 @@ void Game::render()
 		break;
 	case GameState::BuildMode:
 		m_window.setView(m_mazeView);
-		m_renderer.drawMaze(m_cursor.m_selectedTile, m_constructionState,m_selectedTileType);
+		m_renderer.drawMaze(m_cursor.m_selectedTile, m_mazeEditor.getConstructionMode(), m_mazeEditor.getSelectedTileType());
 
 		m_window.setView(m_GUI_VIEW);
 		if (!m_simDetailsDisplay)
@@ -234,7 +199,7 @@ void Game::render()
 		break;
 	case GameState::Simulation:
 		m_window.setView(m_mazeView);
-		m_renderer.drawMazeWithSolvers(m_cursor.m_selectedTile, m_constructionState, m_selectedTileType);
+		m_renderer.drawMazeWithSolvers(m_cursor.m_selectedTile, m_mazeEditor.getConstructionMode(), m_mazeEditor.getSelectedTileType());
 
 		for (Paintball const& paintball : m_paintballs)
 		{
@@ -281,8 +246,7 @@ void Game::setupGame()
 	m_pauseText.setPosition(WINDOW_WIDTH / 2, static_cast<float>(WINDOW_HEIGHT) / 2.5f);
 	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 
-	m_constructionState = ConstructionMode::None;
-	m_selectedTileType = TileType::None;
+	m_mazeEditor.reset();
 	m_currency = 1000;
 	m_simDetailsDisplay = false;
 	m_gamePaused = false;
@@ -313,8 +277,7 @@ void Game::setupGame()
 /// </summary>
 void Game::resetSimulation()
 {
-	m_constructionState = ConstructionMode::None;
-	m_selectedTileType = TileType::None;
+	m_mazeEditor.reset();
 	m_prevTimeToComplete = 0;
 	m_timeToComplete = 0;
 	m_moneyEarned = 0;

@@ -1,9 +1,11 @@
 #include "HUD.h"
 
 /////////////////////////////////////////////////////////////////
-HUD::HUD(sf::View const& t_windowView) :
+HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 	m_shopItems{ {
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 64, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f - 110.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 96, 64, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
+		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 80, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 88, 16, 24 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, MUD_TEXT_RECT,{ t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f } },
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f } },
@@ -12,7 +14,8 @@ HUD::HUD(sf::View const& t_windowView) :
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 96, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
 	} },
 	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
-	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f })
+	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 64, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
+	m_mazeEditorRef{ t_mazeEditor }
 {
 	m_shopBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
 	m_shopBackground.setFillColor(sf::Color{ 247, 230, 134 });
@@ -107,13 +110,15 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_timeText.setCharacterSize(20u);
 
 	// Setup shop item names
-	m_shopItemNames.at(0).setString("Destroy Tool");
-	m_shopItemNames.at(1).setString("Wall");
-	m_shopItemNames.at(2).setString("Mud");
-	m_shopItemNames.at(3).setString("Treadmill");
-	m_shopItemNames.at(4).setString("Balancing\n    Pad");
-	m_shopItemNames.at(5).setString("Paintball\n  Turret");
-	m_shopItemNames.at(6).setString("Trapdoor");
+	m_shopItemNames.at(0).setString("Undo");
+	m_shopItemNames.at(1).setString("Destroy Tool");
+	m_shopItemNames.at(2).setString("Redo");
+	m_shopItemNames.at(3).setString("Wall");
+	m_shopItemNames.at(4).setString("Mud");
+	m_shopItemNames.at(5).setString("Treadmill");
+	m_shopItemNames.at(6).setString("Balancing\n    Pad");
+	m_shopItemNames.at(7).setString("Paintball\n  Turret");
+	m_shopItemNames.at(8).setString("Trapdoor");
 
 	m_shopItemPrices.at(0).setString("$" + std::to_string(Global::getTilePrice(TileType::Wall))); // Wall
 	m_shopItemPrices.at(1).setString("$" + std::to_string(Global::getTilePrice(TileType::Mud))); // Mud
@@ -137,12 +142,12 @@ HUD::HUD(sf::View const& t_windowView) :
 		m_shopItemPrices.at(i).setFillColor(sf::Color{ 120, 112, 65 });
 		m_shopItemPrices.at(i).setCharacterSize(13u);
 		m_shopItemPrices.at(i).setOrigin(m_shopItemPrices.at(i).getGlobalBounds().width / 2.0f, 0.0f);
-		m_shopItemPrices.at(i).setPosition(m_shopItemNames.at(i + 1).getPosition().x, m_shopItemNames.at(i + 1).getPosition().y + m_shopItemNames.at(i + 1).getGlobalBounds().height + 5);
+		m_shopItemPrices.at(i).setPosition(m_shopItemNames.at(i + 3).getPosition().x, m_shopItemNames.at(i + 3).getPosition().y + m_shopItemNames.at(i + 3).getGlobalBounds().height + 5);
 	}
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money)
+void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_money)
 {
 	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
@@ -152,33 +157,32 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 		{
 			switch (i)
 			{
-			case 0: // Destroy tool
-				t_constructionState = ConstructionMode::Destroying;
-				t_selectedTileType = TileType::None;
+			case 0: // Undo
+				m_mazeEditorRef.undoAction();
 				break;
-			case 1: // Wall tool
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::Wall;
+			case 1: // Destroy tool
+				m_mazeEditorRef.enableDestroyMode();
 				break;
-			case 2: // Mud tool
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::Mud;
+			case 2: // Redo
+				m_mazeEditorRef.redoAction();
 				break;
-			case 3: // Treadmill tool
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::TreadmillWest;
+			case 3: // Wall tool
+				m_mazeEditorRef.setSelectedTileType(TileType::Wall);
 				break;
-			case 4: // Stepping Stones tool
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::SteppingStones;
+			case 4: // Mud tool
+				m_mazeEditorRef.setSelectedTileType(TileType::Mud);
 				break;
-			case 5: // Stepping Stones tool
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::TurretWest;
+			case 5: // Treadmill tool
+				m_mazeEditorRef.setSelectedTileType(TileType::TreadmillWest);
 				break;
 			case 6: // Stepping Stones tool
-				t_constructionState = ConstructionMode::Placing;
-				t_selectedTileType = TileType::Trapdoor;
+				m_mazeEditorRef.setSelectedTileType(TileType::SteppingStones);
+				break;
+			case 7: // Turret tool
+				m_mazeEditorRef.setSelectedTileType(TileType::TurretWest);
+				break;
+			case 8: // Trapdoor tool
+				m_mazeEditorRef.setSelectedTileType(TileType::Trapdoor);
 				break;
 			}
 		}
@@ -186,8 +190,7 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 
 	if (t_cursor.m_cancelClicked)
 	{
-		t_constructionState = ConstructionMode::None;
-		t_selectedTileType = TileType::None;
+		m_mazeEditorRef.unselectEditTool();
 	}
 
 	if (m_playButton.update(t_cursor))

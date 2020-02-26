@@ -9,15 +9,16 @@
 #include "Globals.h"
 #include "Cursor.h"
 #include "RoundedRectangleShape.h"
+#include "MazeEditor.h"
 
 class Game;
 
 class HUD
 {
 public:
-	HUD(sf::View const& t_windowView);
+	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor);
 
-	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, ConstructionMode& t_constructionState, TileType& t_selectedTileType, int t_money);
+	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_money);
 	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window) const;
@@ -31,8 +32,8 @@ private:
 	sf::RectangleShape m_shopBackground;
 	sf::RectangleShape m_statsBackground;
 
-	std::array<GUI::Button, 7> m_shopItems;
-	std::array<sf::Text, 7> m_shopItemNames;
+	std::array<GUI::Button, 9> m_shopItems;
+	std::array<sf::Text, 9> m_shopItemNames;
 	std::array<sf::Text, 6> m_shopItemPrices;
 
 	GUI::Button m_playButton;
@@ -50,6 +51,8 @@ private:
 	sf::Text m_moneyEarnedText;
 
 	sf::RoundedRectangleShape m_menuTab;
+
+	MazeEditor& m_mazeEditorRef;
 };
 
 #include "Game.h"

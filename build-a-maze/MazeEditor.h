@@ -11,9 +11,33 @@ class MazeEditor
 {
 public:
 
-	MazeEditor(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_mazeRef);
+	MazeEditor(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_mazeRef, int & t_moneyRef);
 
-	void update(Cursor const & t_cursor, TileType t_selectedTileType, ConstructionMode t_constructionMode, int& t_currencyRef);
+	void update(Cursor const & t_cursor);
+
+	void handleKeyPresses(sf::Event t_event);
+
+	void undoAction();
+
+	void redoAction();
+
+	void setSelectedTileType(TileType t_tileType);
+
+	void enableDestroyMode();
+
+	/// <summary>
+	/// @Brief Sets the current constuction mode and selected tile type to 'none'
+	/// </summary>
+	void unselectEditTool();
+
+	const TileType getSelectedTileType() const;
+
+	const ConstructionMode getConstructionMode() const;
+
+	/// <summary>
+	/// @Brief Sets all values to default
+	/// </summary>
+	void reset();
 
 private:
 
@@ -30,6 +54,9 @@ private:
 	// Maze array reference
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
 
+	// Player's money reference
+	int & m_moneyRef;
+
 	// All actions performed this build mode
 	// Used for undo/redo
 	std::vector<Action> m_actions;
@@ -37,6 +64,12 @@ private:
 	// Current position in the action list
 	// Anything after this index is removed when a new action is added
 	int m_currentActionIndex;
+
+	// The player's currently selected tile type for building
+	TileType m_selectedTileType;
+
+	// The constuction mode the player is in (None, placing, destroying)
+	ConstructionMode m_constructionMode;
 };
 
 #endif // !MAZE_EDITOR_H

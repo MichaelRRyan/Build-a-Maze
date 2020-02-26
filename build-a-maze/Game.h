@@ -38,7 +38,6 @@ private:
 	// Engine functions
 	void processEvents();
 	void processKeyboardEvents(sf::Event t_event);
-	void processMouseEvents(sf::Event t_event);
 	void update(sf::Time t_deltaTime);
 	void render();
 
@@ -88,8 +87,8 @@ private:
 
 	// Enum variables
 	GameState m_gamestate;
-	ConstructionMode m_constructionState;
-	TileType m_selectedTileType;
+	//ConstructionMode m_constructionState;
+	//TileType m_selectedTileType;
 
 	MenuScreen m_menuScreen;
 	HUD m_hud;

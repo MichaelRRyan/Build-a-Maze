@@ -25,6 +25,12 @@
     <Filter Include="Source Files\GUI">
       <UniqueIdentifier>{250f9873-dec7-4e5f-aa48-ba21afb1086f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Maze">
+      <UniqueIdentifier>{6c95cb0d-8998-4bdf-a2bb-9b24e217c6b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Maze">
+      <UniqueIdentifier>{cc8a2b47-c35a-4780-bb18-c9bca2bc665d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -51,9 +57,6 @@
     <ClCompile Include="Button.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MazeGenerator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -64,9 +67,6 @@
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
     <ClCompile Include="Tile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MazeValidator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cursor.cpp">
@@ -82,7 +82,13 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MazeEditor.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Maze</Filter>
+    </ClCompile>
+    <ClCompile Include="MazeGenerator.cpp">
+      <Filter>Source Files\Maze</Filter>
+    </ClCompile>
+    <ClCompile Include="MazeValidator.cpp">
+      <Filter>Source Files\Maze</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,9 +119,6 @@
     <ClInclude Include="Button.h">
       <Filter>Header Files\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="MazeGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,9 +131,6 @@
     <ClInclude Include="Tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MazeValidator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Popup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -141,7 +141,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MazeEditor.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Maze</Filter>
+    </ClInclude>
+    <ClInclude Include="MazeGenerator.h">
+      <Filter>Header Files\Maze</Filter>
+    </ClInclude>
+    <ClInclude Include="MazeValidator.h">
+      <Filter>Header Files\Maze</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
