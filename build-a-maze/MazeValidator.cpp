@@ -2,12 +2,12 @@
 
 bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze)
 {
-	//sf::RenderWindow window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" };
-	//std::vector<MazeSolver *> m_mazeSolvers;
-	//Renderer renderer(window, t_maze, m_mazeSolvers);
-	//renderer.setup();
-	//sf::RectangleShape renderShape{ {TILE_SIZE, TILE_SIZE} };
-	//renderShape.setFillColor(sf::Color{ 255, 0, 0, 100 });
+#ifdef MAZE_VALIDATOR_DEBUG
+	sf::RenderWindow window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" };
+	std::vector<MazeSolver *> m_mazeSolvers;
+	Renderer renderer(window, window.getDefaultView(), t_maze, m_mazeSolvers);
+	sf::RectangleShape renderShape{ {TILE_SIZE, TILE_SIZE} };
+#endif // MAZE_VALIDATOR_DEBUG
 
 	std::array<std::array<bool, MAZE_SIZE>, MAZE_SIZE> tracedTiles{ false };
 
@@ -72,7 +72,6 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				if (row - 1 >= 0 && t_maze[row - 1][col] != TileType::Wall
 					&& t_maze[row - 1][col] != TileType::TurretWest
 					&& !tracedTiles[row - 1][col]) {
-					tracedTiles[row][col];
 					row -= 1;
 					deadEnd = false;
 				}
@@ -81,7 +80,6 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				if (row + 1 < MAZE_SIZE && t_maze[row + 1][col] != TileType::Wall
 					&& t_maze[row + 1][col] != TileType::TurretWest
 					&& !tracedTiles[row + 1][col]) {
-					tracedTiles[row][col];
 					row += 1;
 					deadEnd = false;
 				}
@@ -90,7 +88,6 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				if (col - 1 >= 0 && t_maze[row][col - 1] != TileType::Wall
 					&& t_maze[row][col - 1] != TileType::TurretWest
 					&& !tracedTiles[row][col - 1]) {
-					tracedTiles[row][col];
 					col -= 1;
 					deadEnd = false;
 				}
@@ -99,7 +96,6 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 				if (col + 1 < MAZE_SIZE && t_maze[row][col + 1] != TileType::Wall
 					&& t_maze[row][col + 1] != TileType::TurretWest
 					&& !tracedTiles[row][col + 1]) {
-					tracedTiles[row][col];
 					col += 1;
 					deadEnd = false;
 				}
@@ -112,48 +108,55 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 			}
 		}
 
-		//window.clear();
-		//renderer.drawMaze({ 0, 0 }, ConstructionMode::None, TileType::None);
+#ifdef MAZE_VALIDATOR_DEBUG
+		window.clear();
+		renderer.drawMaze({ 0, 0 }, ConstructionMode::None, TileType::None);
 
-		//for (int i = 0; i < MAZE_SIZE; i++)
-		//{
-		//	for (int j = 0; j < MAZE_SIZE; j++)
-		//	{
-		//		if (tracedTiles[i][j])
-		//		{
-		//			renderShape.setPosition(j * TILE_SIZE, i * TILE_SIZE);
-		//			window.draw(renderShape);
-		//		}
-		//	}
-		//}
+		renderShape.setFillColor(sf::Color{ 255, 0, 0, 100 });
+		for (int i = 0; i < MAZE_SIZE; i++)
+		{
+			for (int j = 0; j < MAZE_SIZE; j++)
+			{
+				if (tracedTiles[i][j])
+				{
+					renderShape.setPosition(j * TILE_SIZE, i * TILE_SIZE);
+					window.draw(renderShape);
+				}
+			}
+		}
 
-		//window.display();
-		//
-		//bool breakOut = false;;
-		//while (window.isOpen())
-		//{
-		//	sf::Event event;
+		renderShape.setFillColor(sf::Color{ 255, 0, 255, 100 });
+		renderShape.setPosition(col * TILE_SIZE, row * TILE_SIZE);
+		window.draw(renderShape);
 
-		//	while (window.pollEvent(event))
-		//	{
-		//		if (sf::Event::Closed == event.type)
-		//		{
-		//			window.close();
-		//		}
-		//		if (sf::Event::KeyPressed == event.type)
-		//		{
-		//			if (sf::Keyboard::Space == event.key.code)
-		//			{
-		//				breakOut = true;
-		//			}
-		//		}
-		//	}
+		window.display();
+		
+		bool breakOut = false;;
+		while (window.isOpen())
+		{
+			sf::Event event;
 
-		//	if (breakOut)
-		//	{
-		//		break;
-		//	}
-		//}
+			while (window.pollEvent(event))
+			{
+				if (sf::Event::Closed == event.type)
+				{
+					window.close();
+				}
+				if (sf::Event::KeyPressed == event.type)
+				{
+					if (sf::Keyboard::Space == event.key.code)
+					{
+						breakOut = true;
+					}
+				}
+			}
+
+			if (breakOut)
+			{
+				break;
+			}
+		}
+#endif // MAZE_VALIDATOR_DEBUG
 	}
 
 	return solvable;

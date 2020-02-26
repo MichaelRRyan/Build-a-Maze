@@ -102,9 +102,9 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_moneyEarnedText.setFillColor(sf::Color{ 120, 112, 65 });
 	m_timeText.setFillColor(sf::Color{ 120, 112, 65 });
 
-	m_numAIText.setCharacterSize(20.0f);
-	m_moneyEarnedText.setCharacterSize(20.0f);
-	m_timeText.setCharacterSize(20.0f);
+	m_numAIText.setCharacterSize(20u);
+	m_moneyEarnedText.setCharacterSize(20u);
+	m_timeText.setCharacterSize(20u);
 
 	// Setup shop item names
 	m_shopItemNames.at(0).setString("Destroy Tool");
@@ -122,7 +122,7 @@ HUD::HUD(sf::View const& t_windowView) :
 	m_shopItemPrices.at(4).setString("$" + std::to_string(Global::getTilePrice(TileType::TurretWest))); // Turret
 	m_shopItemPrices.at(5).setString("$" + std::to_string(Global::getTilePrice(TileType::Trapdoor))); // Trapdoor
 
-	for (int i = 0; i < m_shopItems.size(); i++)
+	for (unsigned i = 0; i < m_shopItems.size(); i++)
 	{
 		m_shopItemNames.at(i).setFont(m_hudFont);
 		m_shopItemNames.at(i).setFillColor(sf::Color::Black);
@@ -131,7 +131,7 @@ HUD::HUD(sf::View const& t_windowView) :
 		m_shopItemNames.at(i).setPosition(m_shopItems.at(i).getPosition().x, m_shopItems.at(i).getPosition().y + m_shopItems.at(i).getSize().y / 2.0f);
 	}
 
-	for (int i = 0; i < m_shopItemPrices.size(); i++)
+	for (unsigned i = 0; i < m_shopItemPrices.size(); i++)
 	{
 		m_shopItemPrices.at(i).setFont(m_hudFont);
 		m_shopItemPrices.at(i).setFillColor(sf::Color{ 120, 112, 65 });
@@ -146,7 +146,7 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 {
 	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
-	for (int i = 0; i < m_shopItems.size(); i++)
+	for (unsigned i = 0; i < m_shopItems.size(); i++)
 	{
 		if (m_shopItems.at(i).update(t_cursor))
 		{
@@ -234,7 +234,7 @@ void HUD::drawShop(sf::RenderWindow& t_window) const
 	shape.setOutlineThickness(0.0f);
 	t_window.draw(shape);
 
-	for (int i = 0; i < m_shopItems.size(); i++)
+	for (unsigned i = 0; i < m_shopItems.size(); i++)
 	{
 		t_window.draw(m_shopItems.at(i));
 		t_window.draw(m_shopItemNames.at(i));

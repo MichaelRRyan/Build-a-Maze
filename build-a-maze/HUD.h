@@ -21,7 +21,7 @@ public:
 	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window) const;
-	void drawStats(sf::RenderWindow& t_window);
+	void drawStats(sf::RenderWindow & t_window);
 
 private:
 	sf::Texture m_guiTextures;

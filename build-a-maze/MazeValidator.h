@@ -1,11 +1,16 @@
 #ifndef MAZE_VALIDATOR_H
 #define MAZE_VALIDATOR_H
 
+//#define MAZE_VALIDATOR_DEBUG
+
 #include <stack>
 #include <array>
 #include <iostream>
 #include "Tile.h"
+
+#ifdef MAZE_VALIDATOR_DEBUG
 #include "Renderer.h"
+#endif // MAZE_VALIDATOR_DEBUG
 
 class MazeValidator
 {
