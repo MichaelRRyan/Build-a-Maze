@@ -8,11 +8,12 @@
 #include <array>
 #include "Globals.h"
 #include "Tile.h"
+#include "Sheep.h"
 
 class MazeSolver
 {
 public:
-	MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
+	MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze, std::vector<Sheep*>& t_sheepRef);
 	virtual void loadFiles() = 0;
 	virtual void update() = 0; // Move the enemy if not blocked by an enemy or wall
 	virtual void move(sf::Vector2i t_newPosition); // Move the solver to a new position
@@ -21,7 +22,8 @@ public:
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
 
-	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the ghost
+	inline sf::Vector2i getPreviousPos() { return m_previousPos; } // Return the previous row and col position of the solver
+	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the solver
 	inline bool getActive() { return m_active; };
 	inline sf::Sprite getSprite() { return m_body; }
 
@@ -33,11 +35,18 @@ public:
 	void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
+	const int getMovementSpeed() const;
+
+	void hasFollower(bool t_hasFollower);
+
+protected:
+
 	void handleTreadmills();
 	void handleSteppingStones();
 	void handleTrapdoors();
 
-protected:
+	void checkForSheep();
+
 	// Declare private data members
 	const int DEFAULT_MOVE_SPEED = 20;
 	const int SLOW_MOVE_SPEED = 40;
@@ -57,6 +66,9 @@ protected:
 	int m_characterDirection;
 
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
+	std::vector<Sheep *> & m_sheepRef;
+
+	bool m_hasFollower; // Whether or not a sheep is following the solver
 };
 
 #endif // !MAZE_SOLVER_H

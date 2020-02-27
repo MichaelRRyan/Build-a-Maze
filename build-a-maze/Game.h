@@ -53,6 +53,10 @@ private:
 	void startAnimatingMaze();
 	void animateMaze();
 
+	void placeSheep();
+	void resetSheep();
+	void updateSheep();
+
 
 	// ************************* Variables *************************
 

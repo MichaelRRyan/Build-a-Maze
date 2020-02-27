@@ -3,16 +3,20 @@
 /// @Author Michael Rainsford Ryan
 /// @Date 28/09/2019
 
-MazeSolver::MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze) :
-	m_mazeRef{ t_maze }
+///////////////////////////////////////////////////////////////////////////
+MazeSolver::MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze, std::vector<Sheep*>& t_sheepRef) :
+	m_mazeRef{ t_maze },
+	m_sheepRef{ t_sheepRef }
 {
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::draw(sf::RenderWindow& t_window) const
 {
 	t_window.draw(m_body);
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::setPos(int t_row, int t_col)
 {
 	m_pos.x = t_col; // Set the column
@@ -22,6 +26,7 @@ void MazeSolver::setPos(int t_row, int t_col)
 	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * static_cast<int>(TILE_SIZE))); // Set the position to the current cell
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::move(sf::Vector2i t_newPosition)
 {
 	// Set the movement speed
@@ -41,6 +46,7 @@ void MazeSolver::move(sf::Vector2i t_newPosition)
 	handleTrapdoors();
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::findNewDirection()
 {
 	sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
@@ -76,6 +82,7 @@ void MazeSolver::findNewDirection()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 bool MazeSolver::isBlocked(sf::Vector2i t_mazePos)
 {
 	// If outside the maze bounds
@@ -96,6 +103,7 @@ bool MazeSolver::isBlocked(sf::Vector2i t_mazePos)
 	return false;
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::reset(int t_moveDelay)
 {
 	setPos(1, 0);
@@ -104,8 +112,10 @@ void MazeSolver::reset(int t_moveDelay)
 	m_characterDirection = -100; // TEMP: Sloppy fix but works for now
 	m_moveDir = Direction::East;
 	setTimeModifier(1);
+	hasFollower(false);
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::checkForExit()
 {
 	// Check Vertically
@@ -147,6 +157,7 @@ void MazeSolver::checkForExit()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::animate()
 {
 	// Work out the new X and Y with Linear Interpolation
@@ -162,6 +173,7 @@ void MazeSolver::animate()
 	m_body.setTextureRect(frame);
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::setTextureDirection()
 {
 	switch (m_moveDir)
@@ -187,6 +199,19 @@ void MazeSolver::setTextureDirection()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
+const int MazeSolver::getMovementSpeed() const
+{
+	return m_movementSpeed;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::hasFollower(bool t_hasFollower)
+{
+	m_hasFollower = t_hasFollower;
+}
+
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::handleTreadmills()
 {
 	// Only check for treadmill if the tile is animating
@@ -244,6 +269,7 @@ void MazeSolver::handleTreadmills()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::handleSteppingStones()
 {
 	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::SteppingStones)
@@ -257,6 +283,7 @@ void MazeSolver::handleSteppingStones()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::handleTrapdoors()
 {
 	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::Trapdoor)
@@ -267,3 +294,27 @@ void MazeSolver::handleTrapdoors()
 		}
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::checkForSheep()
+{
+	// Only check for sheep if the solver doesn't have a follower
+	if (!m_hasFollower)
+	{
+		// Loop all sheep
+		for (Sheep* sheep : m_sheepRef)
+		{
+			if (sheep->getActive())
+			{
+				// Check sprite collisions with the sheep
+				if (m_pos == sheep->getPos())
+				{
+					sheep->setFollowing(this);
+					hasFollower(true);
+				}
+			}
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////

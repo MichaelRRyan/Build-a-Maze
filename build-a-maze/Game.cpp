@@ -153,21 +153,13 @@ void Game::update(sf::Time t_deltaTime)
 		m_mazeEditor.update(m_cursor);
 		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_currency);
 		m_popup.update(m_cursor);
-
-		for (Sheep * sheep : m_sheep)
-		{
-			sheep->update();
-		}
+		updateSheep();
 
 		break;
 	case GameState::Simulation:
 		updateSimulation(t_deltaTime);
 		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, &Game::togglePause, m_noOfAI, m_timeToComplete, m_moneyEarned);
-
-		for (Sheep * sheep : m_sheep)
-		{
-			sheep->update();
-		}
+		updateSheep();
 
 		break;
 	}
@@ -283,44 +275,20 @@ void Game::setupGame()
 		switch (rand() % 3)
 		{
 		case 0:
-			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks });
+			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
 			break;
 
 		case 1:
-			m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks });
+			m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks, m_sheep });
 			break;
 
 		case 2:
-			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks });
+			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks, m_sheep });
 			break;
 		}
 	}
 
-	// Put the maze through the validator to get a stack of all accessible tiles
-	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
-
-	// Setup sheep
-	for (int i = 0; i < 3; i++)
-	{
-		m_sheep.push_back(new Sheep{ m_mazeBlocks });
-
-		std::stack<sf::Vector2i> availableTiles{ m_mazeValidator.getPreviousMovementHistory() };
-
-		int sheepPlacement = rand() % availableTiles.size() + 1;
-
-		for (int j = 0; j < sheepPlacement; j++)
-		{
-			// We want to have at least one position in the stack to set the sheeps position to
-			if (availableTiles.size() <= 1)
-			{
-				break;
-			}
-
-			availableTiles.pop();
-		}
-
-		m_sheep.at(i)->setPos(availableTiles.top().x, availableTiles.top().y);
-	}
+	placeSheep();
 }
 
 /// <summary>
@@ -436,6 +404,11 @@ void Game::processTimeModifierEvents(sf::Event t_event)
 		{
 			solver->setTimeModifier(m_timeModifier);
 		}
+
+		for (Sheep* sheep : m_sheep)
+		{
+			sheep->setTimeModifier(m_timeModifier);
+		}
 	}
 }
 
@@ -452,6 +425,7 @@ void Game::switchGameState()
 			m_gamestate = GameState::Simulation;
 			m_hud.animateInStats();
 			resetSimulation();
+			resetSheep();
 			startAnimatingMaze();
 		}
 		else
@@ -464,6 +438,7 @@ void Game::switchGameState()
 		m_gamestate = GameState::BuildMode;
 		m_hud.animateInShop();
 		m_gamePaused = false;
+		resetSheep();
 		startAnimatingMaze();
 	}
 }
@@ -566,6 +541,57 @@ void Game::animateMaze()
 		else if (GameState::Simulation == m_gamestate)
 		{
 			m_mazeView.setCenter(m_SIM_MODE_OFFSET, m_mazeView.getCenter().y);
+		}
+	}
+}
+
+/// <summary>
+/// @brief place the sheep in the maze in an accessible spot
+/// </summary>
+void Game::placeSheep()
+{
+	// Put the maze through the validator to get a stack of all accessible tiles
+	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
+
+	// Setup sheep
+	for (int i = 0; i < 3; i++)
+	{
+		m_sheep.push_back(new Sheep{ m_mazeBlocks });
+
+		std::stack<sf::Vector2i> availableTiles{ m_mazeValidator.getPreviousMovementHistory() };
+
+		int sheepPlacement = rand() % availableTiles.size() + 1;
+
+		for (int j = 0; j < sheepPlacement; j++)
+		{
+			// We want to have at least one position in the stack to set the sheeps position to
+			if (availableTiles.size() <= 1)
+			{
+				break;
+			}
+
+			availableTiles.pop();
+		}
+
+		m_sheep.at(i)->setPos(availableTiles.top().x, availableTiles.top().y);
+	}
+}
+
+void Game::resetSheep()
+{
+	for (Sheep* sheep : m_sheep)
+	{
+		sheep->reset();
+	}
+}
+
+void Game::updateSheep()
+{
+	for (Sheep* sheep : m_sheep)
+	{
+		if (sheep->getActive())
+		{
+			sheep->update();
 		}
 	}
 }

@@ -7,8 +7,8 @@
 /// <para>Load texture files, set the move direction, set the move timer,</para>
 /// <para>set the sight range and following player bool</para>
 /// </summary>
-BasicSolver::BasicSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze) :
-	MazeSolver{ t_maze }
+BasicSolver::BasicSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze, std::vector<Sheep*>& t_sheepRef) :
+	MazeSolver{ t_maze, t_sheepRef }
 {
  	loadFiles();
 	m_moveDir = Direction::East;
@@ -52,6 +52,8 @@ void BasicSolver::update()
 		m_active = false;
 		return;
 	}
+
+	checkForSheep();
 
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 	{

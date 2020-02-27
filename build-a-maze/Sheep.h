@@ -1,6 +1,11 @@
 #ifndef SHEEP_H
 #define SHEEP_H
 
+/// <summary>
+/// @Author Michael Rainsford Ryan
+/// @Date 27/02/2020
+/// </summary>
+
 #include <array>
 #include "Globals.h"
 #include "Tile.h"
@@ -23,8 +28,12 @@ public:
 
 	void setPos(int t_row, int t_col);
 
+	void setTimeModifier(float t_mod); // Set the time modifier for the movement speed
+
 	const sf::Vector2i getPos() const; // Return the row and col position of the sheep
 	const bool getActive() const;
+
+	const sf::Sprite getSprite() const;
 
 private:
 
@@ -41,6 +50,7 @@ private:
 	};
 
 	// Declare private data members
+	const int IDLE_SPEED = 100;
 	const int DEFAULT_MOVE_SPEED = 40;
 	const int SLOW_MOVE_SPEED = 80;
 

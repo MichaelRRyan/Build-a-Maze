@@ -2,10 +2,14 @@
 
 ///////////////////////////////////////////////////////////////////////////
 Sheep::Sheep(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_maze) :
-	m_mazeRef{ t_maze }
+	m_mazeRef{ t_maze },
+	m_followee{ nullptr }
 {
 	loadFiles();
 	reset();
+
+	setPos(1, 1);
+	m_active = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -15,7 +19,7 @@ void Sheep::update()
 	if (State::Follow == m_state)
 	{
 		// Check if the sheep made it to the end of the maze while following a solver
-		if (m_pos.x == MAZE_SIZE - 1 && m_pos.y == MAZE_SIZE - 2)
+		if (m_pos.x == MAZE_SIZE - 2 && m_pos.y == MAZE_SIZE - 2)
 		{
 			m_active = false;
 			return;
@@ -40,13 +44,18 @@ void Sheep::update()
 				m_state = State::Wander;
 				updateWander();
 			}
+			else
+			{
+				m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
+			}
+
 			break;
 		case Sheep::State::Wander:
 			// Random 1 in 10 chance of going back to idle
 			if (rand() % 10 == 0)
 			{
 				m_state = State::Idle;
-				m_movementSpeed = 100;
+				m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
 			}
 			else // Update wander if not going back to idle
 			{
@@ -55,9 +64,24 @@ void Sheep::update()
 
 			break;
 		case Sheep::State::Follow:
+
+			if (m_followee->getActive()
+				|| m_followee->getPos() == MAZE_EXIT)
+			{
+				m_previousPos = m_pos;
+				m_pos = m_followee->getPreviousPos();
+				m_movementSpeed = m_followee->getMovementSpeed();
+				m_moveDir = Global::getDirection(m_pos - m_previousPos);
+			}
+			else
+			{
+				m_followee = nullptr;
+				m_state = State::Idle;
+				m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
+			}
+
 			break;
 		}
-
 
 		m_moveTimer = m_movementSpeed;
 		setTextureDirection();
@@ -86,21 +110,25 @@ void Sheep::loadFiles()
 ///////////////////////////////////////////////////////////////////////////
 void Sheep::reset()
 {
-	setPos(1, 1);
-	m_active = true;
 	m_moveTimer = 0;
 	m_characterDirection = 0;
 	m_moveDir = Direction::South;
 	m_state = State::Idle;
-	m_movementSpeed = 100;
+	m_movementSpeed = IDLE_SPEED;
 	m_timeModifier = 1.0f;
+	m_followee = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 void Sheep::setFollowing(MazeSolver* t_followee)
 {
-	m_followee = t_followee;
-	m_state = State::Follow;
+	// Set the followee and state to following if not already following a solver
+	if (State::Follow != m_state)
+	{
+		m_followee = t_followee;
+		m_state = State::Follow;
+		m_moveTimer = 0;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -114,6 +142,27 @@ void Sheep::setPos(int t_row, int t_col)
 }
 
 ///////////////////////////////////////////////////////////////////////////
+void Sheep::setTimeModifier(float t_mod)
+{
+	m_timeModifier = t_mod;
+
+	switch (m_state)
+	{
+	case Sheep::State::Idle:
+		m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
+		break;
+	case Sheep::State::Wander:
+		m_movementSpeed = static_cast<int>(DEFAULT_MOVE_SPEED * m_timeModifier);
+		break;
+	}
+
+	if (m_moveTimer > m_movementSpeed)
+	{
+		m_moveTimer = m_movementSpeed;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
 const sf::Vector2i Sheep::getPos() const
 {
 	return m_pos;
@@ -123,6 +172,12 @@ const sf::Vector2i Sheep::getPos() const
 const bool Sheep::getActive() const
 {
 	return m_active;
+}
+
+///////////////////////////////////////////////////////////////////////////
+const sf::Sprite Sheep::getSprite() const
+{
+	return m_sprite;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -235,7 +290,7 @@ void Sheep::updateWander()
 	if (!directionFound)
 	{
 		m_state = State::Idle;
-		m_movementSpeed = 100;
+		m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
 	}
 }
 
