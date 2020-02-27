@@ -14,9 +14,11 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 96, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 110.0f } }
 	} },
 	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 96, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
-	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f + 4.0f }),
-	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 36.0f }),
-	m_mazeEditorRef{ t_mazeEditor }
+	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f + 4.0f }),
+	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 36.0f }),
+	m_mazeEditorRef{ t_mazeEditor },
+	m_SECONDS_TO_ANIMATE{ 0.2f },
+	m_animationState{ AnimationState::None }
 {
 	loadFiles();
 	setupShopMenu(t_windowView);
@@ -28,51 +30,62 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 {
 	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
-	for (unsigned i = 0; i < m_shopItems.size(); i++)
+	
+	if (AnimationState::ShopIn == m_animationState)
 	{
-		if (m_shopItems.at(i).update(t_cursor))
+		if (m_animationClock.getElapsedTime().asSeconds() >= m_SECONDS_TO_ANIMATE)
 		{
-			switch (i)
+			m_animationState = AnimationState::None;
+		}
+	}
+	else // Button functionality should not work when animating
+	{
+		for (unsigned i = 0; i < m_shopItems.size(); i++)
+		{
+			if (m_shopItems.at(i).update(t_cursor))
 			{
-			case 0: // Undo
-				m_mazeEditorRef.undoAction();
-				break;
-			case 1: // Destroy tool
-				m_mazeEditorRef.enableDestroyMode();
-				break;
-			case 2: // Redo
-				m_mazeEditorRef.redoAction();
-				break;
-			case 3: // Wall tool
-				m_mazeEditorRef.setSelectedTileType(TileType::Wall);
-				break;
-			case 4: // Mud tool
-				m_mazeEditorRef.setSelectedTileType(TileType::Mud);
-				break;
-			case 5: // Treadmill tool
-				m_mazeEditorRef.setSelectedTileType(TileType::TreadmillWest);
-				break;
-			case 6: // Stepping Stones tool
-				m_mazeEditorRef.setSelectedTileType(TileType::SteppingStones);
-				break;
-			case 7: // Turret tool
-				m_mazeEditorRef.setSelectedTileType(TileType::TurretWest);
-				break;
-			case 8: // Trapdoor tool
-				m_mazeEditorRef.setSelectedTileType(TileType::Trapdoor);
-				break;
+				switch (i)
+				{
+				case 0: // Undo
+					m_mazeEditorRef.undoAction();
+					break;
+				case 1: // Destroy tool
+					m_mazeEditorRef.enableDestroyMode();
+					break;
+				case 2: // Redo
+					m_mazeEditorRef.redoAction();
+					break;
+				case 3: // Wall tool
+					m_mazeEditorRef.setSelectedTileType(TileType::Wall);
+					break;
+				case 4: // Mud tool
+					m_mazeEditorRef.setSelectedTileType(TileType::Mud);
+					break;
+				case 5: // Treadmill tool
+					m_mazeEditorRef.setSelectedTileType(TileType::TreadmillWest);
+					break;
+				case 6: // Stepping Stones tool
+					m_mazeEditorRef.setSelectedTileType(TileType::SteppingStones);
+					break;
+				case 7: // Turret tool
+					m_mazeEditorRef.setSelectedTileType(TileType::TurretWest);
+					break;
+				case 8: // Trapdoor tool
+					m_mazeEditorRef.setSelectedTileType(TileType::Trapdoor);
+					break;
+				}
 			}
+		}
+
+		if (m_playButton.update(t_cursor))
+		{
+			t_func(t_game);
 		}
 	}
 
 	if (t_cursor.m_cancelClicked)
 	{
 		m_mazeEditorRef.unselectEditTool();
-	}
-
-	if (m_playButton.update(t_cursor))
-	{
-		t_func(t_game);
 	}
 }
 
@@ -96,21 +109,59 @@ void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)
 
 	m_moneyEarnedText.setString(std::to_string(t_moneyEarned));
 
-	if (m_stopButton.update(t_cursor))
+	if (AnimationState::StatsIn == m_animationState)
 	{
-		t_stopButtonFunc(t_game);
+		if (m_animationClock.getElapsedTime().asSeconds() >= m_SECONDS_TO_ANIMATE)
+		{
+			m_animationState = AnimationState::None;
+		}
 	}
-
-	if (m_pauseButton.update(t_cursor))
+	else // Button functionality should not work when animating
 	{
-		t_pauseButtonFunc(t_game);
+		if (m_stopButton.update(t_cursor))
+		{
+			t_stopButtonFunc(t_game);
+		}
+
+		if (m_pauseButton.update(t_cursor))
+		{
+			t_pauseButtonFunc(t_game);
+		}
 	}
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::drawShop(sf::RenderWindow& t_window) const
+void HUD::drawShop(sf::RenderWindow& t_window)
 {
+	// Get the current view
+	sf::View view{ t_window.getView() };
+
+	// If animating in
+	if (AnimationState::ShopIn == m_animationState)
+	{
+		drawStats(t_window);
+
+		float AnimationCompleteness{ m_animationClock.getElapsedTime().asSeconds() / m_SECONDS_TO_ANIMATE };
+		float animInOffset{ -m_shopBackground.getSize().x - (1.0f - AnimationCompleteness * m_shopBackground.getSize().x) };
+
+		sf::View modifiedView{ view };
+		modifiedView.move(animInOffset, 0.0f);
+		t_window.setView(modifiedView);
+	}
+	if (AnimationState::StatsIn == m_animationState)
+	{
+		float AnimationCompleteness{ m_animationClock.getElapsedTime().asSeconds() / m_SECONDS_TO_ANIMATE };
+		float animInOffset{ (1.0f - AnimationCompleteness * m_shopBackground.getSize().x) };
+
+		sf::View modifiedView{ view };
+		modifiedView.move(animInOffset, 0.0f);
+		t_window.setView(modifiedView);
+	}
+
 	sf::RoundedRectangleShape shape{ m_menuTab };
+
+	shape.setPosition(m_shopBackground.getPosition().x - m_menuTab.getGlobalBounds().width * 0.7f,
+		(m_shopBackground.getGlobalBounds().height / 2.0f) - m_menuTab.getGlobalBounds().height / 2.0f);
 
 	t_window.draw(shape);
 
@@ -133,12 +184,43 @@ void HUD::drawShop(sf::RenderWindow& t_window) const
 	t_window.draw(m_shopTitleText);
 	t_window.draw(m_moneyText);
 	t_window.draw(m_playButton);
+
+	// Reset the view to what it was before this function call
+	t_window.setView(view);
 }
 
 /////////////////////////////////////////////////////////////////
 void HUD::drawStats(sf::RenderWindow& t_window)
 {
+	// Get the current view
+	sf::View view{ t_window.getView() };
+
+	// If animating in
+	if (AnimationState::StatsIn == m_animationState)
+	{
+		drawShop(t_window);
+
+		float AnimationCompleteness{ m_animationClock.getElapsedTime().asSeconds() / m_SECONDS_TO_ANIMATE };
+		float animInOffset{ -m_shopBackground.getSize().x - (1.0f - AnimationCompleteness * m_shopBackground.getSize().x) };
+
+		sf::View modifiedView{ view };
+		modifiedView.move(animInOffset, 0.0f);
+		t_window.setView(modifiedView);
+	}
+	else if (AnimationState::ShopIn == m_animationState)
+	{
+		float AnimationCompleteness{ m_animationClock.getElapsedTime().asSeconds() / m_SECONDS_TO_ANIMATE };
+		float animInOffset{ ( 1.0f - AnimationCompleteness * m_shopBackground.getSize().x) };
+
+		sf::View modifiedView{ view };
+		modifiedView.move(animInOffset, 0.0f);
+		t_window.setView(modifiedView);
+	}
+
 	sf::RoundedRectangleShape shape{ m_menuTab };
+
+	shape.setPosition(m_statsBackground.getPosition().x - m_menuTab.getGlobalBounds().width * 0.7f,
+		(m_statsBackground.getGlobalBounds().height / 2.0f) - m_menuTab.getGlobalBounds().height / 2.0f);
 
 	t_window.draw(shape);
 
@@ -161,6 +243,29 @@ void HUD::drawStats(sf::RenderWindow& t_window)
 
 	t_window.draw(m_stopButton);
 	t_window.draw(m_pauseButton);
+
+	// Reset the view to what it was before this function call
+	t_window.setView(view);
+}
+
+/////////////////////////////////////////////////////////////////
+void HUD::animateInShop()
+{
+	m_animationState = AnimationState::ShopIn;
+	m_animationClock.restart();
+}
+
+/////////////////////////////////////////////////////////////////
+void HUD::animateInStats()
+{
+	m_animationState = AnimationState::StatsIn;
+	m_animationClock.restart();
+}
+
+/////////////////////////////////////////////////////////////////
+const float HUD::getSecondsToAnimate() const
+{
+	return m_SECONDS_TO_ANIMATE;
 }
 
 /////////////////////////////////////////////////////////////////
@@ -207,7 +312,8 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	// Setup the menu tab (Tab at the side of the menu to hold play/stop buttons)
 	m_menuTab.setSize({ 60.0f, 100.0f });
 	m_menuTab.setFillColor(sf::Color{ 247, 230, 134 });
-	m_menuTab.setPosition(t_windowView.getSize().x - m_shopBackground.getSize().x - m_menuTab.getGlobalBounds().width * 0.8f, (t_windowView.getSize().y / 2.0f) - m_menuTab.getGlobalBounds().height / 2.0f);
+	m_menuTab.setPosition(t_windowView.getSize().x - m_shopBackground.getSize().x - m_menuTab.getGlobalBounds().width * 0.8f,
+		(t_windowView.getSize().y / 2.0f) - m_menuTab.getGlobalBounds().height / 2.0f);
 
 	m_menuTab.setOutlineThickness(5.0f);
 	m_menuTab.setOutlineColor(sf::Color{ 120, 112, 65 });
@@ -277,9 +383,9 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 void HUD::setupStatsMenu(sf::View const& t_windowView)
 {
 	// Stats panel
-	m_statsBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
+	m_statsBackground.setSize({ t_windowView.getSize().x / 5.0f, t_windowView.getSize().y });
 	m_statsBackground.setFillColor(sf::Color{ 247, 230, 134 });
-	m_statsBackground.setPosition(t_windowView.getSize().x - m_shopBackground.getSize().x, 0.0f);
+	m_statsBackground.setPosition(t_windowView.getSize().x - m_statsBackground.getSize().x, 0.0f);
 
 	m_statsBackground.setOutlineColor(sf::Color{ 120, 112, 65 });
 	m_statsBackground.setOutlineThickness(5.0f);

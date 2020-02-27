@@ -21,14 +21,26 @@ public:
 	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_money);
 	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
-	void drawShop(sf::RenderWindow & t_window) const;
+	void drawShop(sf::RenderWindow & t_window);
 	void drawStats(sf::RenderWindow & t_window);
+
+	void animateInShop();
+	void animateInStats();
+
+	const float getSecondsToAnimate() const;
 
 private:
 
 	void loadFiles();
 	void setupShopMenu(sf::View const& t_windowView);
 	void setupStatsMenu(sf::View const& t_windowView);
+
+	enum class AnimationState
+	{
+		None,
+		ShopIn,
+		StatsIn
+	};
 
 	sf::Texture m_guiTextures;
 	sf::Texture m_iconTextures;
@@ -59,6 +71,11 @@ private:
 	sf::RoundedRectangleShape m_menuTab;
 
 	MazeEditor& m_mazeEditorRef;
+
+	sf::Clock m_animationClock;
+	const float m_SECONDS_TO_ANIMATE;
+
+	AnimationState m_animationState;
 };
 
 #include "Game.h"

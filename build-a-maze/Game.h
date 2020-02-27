@@ -49,6 +49,8 @@ private:
 	void switchGameState();
 	void handleClickEvents();
 	void togglePause();
+	void startAnimatingMaze();
+	void animateMaze();
 
 
 	// ************************* Variables *************************
@@ -104,6 +106,13 @@ private:
 	std::array<Paintball, 30> m_paintballs;
 
 	MazeEditor m_mazeEditor;
+
+	sf::Clock m_animationClock;
+
+	const float m_BUILD_MODE_OFFSET;
+	const float m_SIM_MODE_OFFSET;
+
+	bool m_animating;
 };
 
 #endif // !GAME

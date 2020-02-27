@@ -7,6 +7,8 @@
 Game::Game() :
 	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
 	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
+	m_BUILD_MODE_OFFSET{ 420.0f },
+	m_SIM_MODE_OFFSET{ 320.0f },
 	m_exitGame{ false },
 	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
 	m_timeModifier{ 1.0f },
@@ -18,21 +20,16 @@ Game::Game() :
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
 	m_currency{ 1000 }, // Set the player's currency to 400
-	m_mazeEditor{ m_mazeBlocks, m_currency }
+	m_mazeEditor{ m_mazeBlocks, m_currency },
+	m_animating{ false }
 {
+	m_mazeView.setCenter(m_BUILD_MODE_OFFSET, m_mazeView.getCenter().y);
+
 	m_window.setVerticalSyncEnabled(true);
 
 	MazeGenerator::generateMaze(m_mazeBlocks);
 
 	setupGame();
-
-	Tile tile;
-
-	tile.setType(TileType::TurretWest);
-
-	tile.setAnimating(true);
-
-	std::cout << tile.getFrame() << std::endl;
 }
 
 Game::~Game()
@@ -201,6 +198,11 @@ void Game::render()
 
 		m_popup.draw(m_window);
 
+		if (m_animating)
+		{
+			animateMaze();
+		}
+
 		break;
 	case GameState::Simulation:
 		m_window.setView(m_mazeView);
@@ -220,6 +222,11 @@ void Game::render()
 		}
 
 		m_hud.drawStats(m_window);
+
+		if (m_animating)
+		{
+			animateMaze();
+		}
 
 		break;
 	}
@@ -393,7 +400,9 @@ void Game::switchGameState()
 		else if (MazeValidator::isMazeSolvable(m_mazeBlocks))
 		{
 			m_gamestate = GameState::Simulation;
+			m_hud.animateInStats();
 			resetSimulation();
+			startAnimatingMaze();
 		}
 		else
 		{
@@ -403,7 +412,9 @@ void Game::switchGameState()
 	else if (m_gamestate == GameState::Simulation)
 	{
 		m_gamestate = GameState::BuildMode;
+		m_hud.animateInShop();
 		m_gamePaused = false;
+		startAnimatingMaze();
 	}
 }
 
@@ -473,4 +484,38 @@ void Game::handleClickEvents()
 void Game::togglePause()
 {
 	m_gamePaused = !m_gamePaused;
+}
+
+void Game::startAnimatingMaze()
+{
+	m_animationClock.restart();
+	m_animating = true;
+}
+
+void Game::animateMaze()
+{
+	if (GameState::BuildMode == m_gamestate)
+	{
+		float offset = m_BUILD_MODE_OFFSET + ((m_SIM_MODE_OFFSET - m_BUILD_MODE_OFFSET) * (1.0f - m_animationClock.getElapsedTime().asSeconds() / m_hud.getSecondsToAnimate()));
+		m_mazeView.setCenter(offset, m_mazeView.getCenter().y);
+	}
+	else if (GameState::Simulation == m_gamestate)
+	{
+		float offset = m_BUILD_MODE_OFFSET + ((m_SIM_MODE_OFFSET - m_BUILD_MODE_OFFSET) * (m_animationClock.getElapsedTime().asSeconds() / m_hud.getSecondsToAnimate()));
+		m_mazeView.setCenter(offset, m_mazeView.getCenter().y);
+	}
+
+	if (m_animationClock.getElapsedTime().asSeconds() >= m_hud.getSecondsToAnimate())
+	{
+		m_animating = false;
+
+		if (GameState::BuildMode == m_gamestate)
+		{
+			m_mazeView.setCenter(m_BUILD_MODE_OFFSET, m_mazeView.getCenter().y);
+		}
+		else if (GameState::Simulation == m_gamestate)
+		{
+			m_mazeView.setCenter(m_SIM_MODE_OFFSET, m_mazeView.getCenter().y);
+		}
+	}
 }
