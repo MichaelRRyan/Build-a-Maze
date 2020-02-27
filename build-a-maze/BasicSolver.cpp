@@ -50,6 +50,7 @@ void BasicSolver::update()
 	if (m_pos.x == MAZE_SIZE - 1 && m_pos.y == MAZE_SIZE - 2)
 	{
 		m_active = false;
+		return;
 	}
 
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero

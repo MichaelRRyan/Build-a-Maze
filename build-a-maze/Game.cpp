@@ -5,8 +5,8 @@
 
 
 Game::Game() :
-	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
-	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
+	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
+	//m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
 	m_BUILD_MODE_OFFSET{ 420.0f },
 	m_SIM_MODE_OFFSET{ 320.0f },
 	m_exitGame{ false },
@@ -314,6 +314,8 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 	if (!m_gamePaused)
 	{
 		// Reset AI count
+		int lastMax = m_noOfAI;
+		int i = SOLVERS_MAX;
 		m_noOfAI = 0;
 
 		// Loop through and update all AI. Count those that are still active
@@ -324,6 +326,16 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 				solver->update();
 				m_noOfAI++;
 			}
+			else if (solver->getPos().x != MAZE_SIZE - 1
+				&& solver->getPos().y != MAZE_SIZE - 2)
+			{
+				i--;
+			}
+		}
+
+		if (i < lastMax)
+		{
+			std::cout << lastMax - i << " AI Killed " << m_noOfAI << std::endl;
 		}
 
 		// If there are AI in the maze count the time
