@@ -23,6 +23,7 @@
 #include "Popup.h"
 #include "Paintball.h"
 #include "MazeEditor.h"
+#include "Sheep.h"
 
 class Game
 {
@@ -85,6 +86,7 @@ private:
 
 	// Objects
 	std::vector<MazeSolver *> m_mazeSolverPtrs;
+	std::vector<Sheep *> m_sheep;
 
 	Cursor m_cursor;
 
@@ -106,6 +108,7 @@ private:
 	std::array<Paintball, 30> m_paintballs;
 
 	MazeEditor m_mazeEditor;
+	MazeValidator m_mazeValidator;
 
 	sf::Clock m_animationClock;
 

@@ -1,9 +1,10 @@
 #include "Renderer.h"
 
-Renderer::Renderer(sf::RenderWindow& t_windowRef, sf::View const& t_view, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers) :
+Renderer::Renderer(sf::RenderWindow& t_windowRef, sf::View const& t_view, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers, std::vector<Sheep *> const& t_sheep) :
 	m_windowRef{ t_windowRef },
 	m_mazeRef{ t_mazeRef },
 	m_solversRef{ t_solvers },
+	m_sheepRef{ t_sheep },
 	m_view{ t_view }
 {
 	setup();
@@ -41,6 +42,7 @@ void Renderer::drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_construc
 	for (int row = 0; row < MAZE_SIZE; row++)
 	{
 		drawMazeWallRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
+		drawSheep(row);
 	}
 
 	// Draw maze UI
@@ -64,6 +66,7 @@ void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode
 	{
 		drawMazeWallRow(row, t_selectedTile, t_constructionMode, t_selectedTileType);
 		drawMazeSolvers(row);
+		drawSheep(row);
 	}
 }
 
@@ -291,6 +294,20 @@ void Renderer::drawMazeSolvers(int t_row)
 			if (solver->getPos().y == t_row)
 			{
 				solver->draw(m_windowRef);
+			}
+		}
+	}
+}
+
+void Renderer::drawSheep(int t_row)
+{
+	for (Sheep const* sheep : m_sheepRef)
+	{
+		if (sheep->getActive())
+		{
+			if (sheep->getPos().y == t_row)
+			{
+				sheep->draw(m_windowRef);
 			}
 		}
 	}

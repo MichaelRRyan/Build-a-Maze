@@ -56,8 +56,6 @@ protected:
 	sf::Vector2i m_characterNumber;
 	int m_characterDirection;
 
-	int tempTestVar;
-
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
 };
 

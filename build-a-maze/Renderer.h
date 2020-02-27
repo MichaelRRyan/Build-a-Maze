@@ -6,11 +6,12 @@
 #include <iostream>
 #include "Globals.h"
 #include "MazeSolver.h"
+#include "Sheep.h"
 
 class Renderer
 {
 public:
-	Renderer(sf::RenderWindow& t_window, sf::View const & t_view, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers);
+	Renderer(sf::RenderWindow& t_window, sf::View const & t_view, std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_mazeRef, std::vector<MazeSolver*> const& t_solvers, std::vector<Sheep *> const& t_sheep);
 
 	void drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType);
 
@@ -32,6 +33,8 @@ public:
 
 	void drawMazeSolvers(int t_row);
 
+	void drawSheep(int t_row);
+
 private:
 
 	void setup();
@@ -45,6 +48,7 @@ private:
 	sf::RenderWindow& m_windowRef;
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & m_mazeRef;
 	std::vector<MazeSolver*> const& m_solversRef;
+	std::vector<Sheep *> const& m_sheepRef;
 	sf::View const& m_view;
 };
 

@@ -11,7 +11,11 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 
 	std::array<std::array<bool, MAZE_SIZE>, MAZE_SIZE> tracedTiles{ false };
 
-	std::stack<sf::Vector2i> movementHistory;
+	// Reset the movement history
+	while (!m_movementHistory.empty())
+	{
+		m_movementHistory.pop();
+	}
 
 	// Start the maze at the top left corner
 	int row = 1;
@@ -28,26 +32,26 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 		// If the maze hits a dead end
 		if (deadEnd)
 		{
-			if (!movementHistory.empty())
+			if (!m_movementHistory.empty())
 			{
-				movementHistory.pop();
+				m_movementHistory.pop();
 			}
 
-			if (movementHistory.empty()) // if empty
+			if (m_movementHistory.empty()) // if empty
 			{
 				complete = true;
 				break;
 			}
 
-			row = movementHistory.top().x;
-			col = movementHistory.top().y;
+			row = m_movementHistory.top().x;
+			col = m_movementHistory.top().y;
 
 			deadEnd = false;
 		}
 		else
 		{
 			// Add the current position to the stack
-			movementHistory.push(sf::Vector2i{ row, col });
+			m_movementHistory.push(sf::Vector2i{ row, col });
 
 			// Set the current tile to a ground tile
 			tracedTiles[row][col] = true;
@@ -160,4 +164,9 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 	}
 
 	return solvable;
+}
+
+std::stack<sf::Vector2i> const & MazeValidator::getPreviousMovementHistory() const
+{
+	return m_movementHistory;
 }

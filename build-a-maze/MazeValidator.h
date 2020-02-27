@@ -15,7 +15,13 @@
 class MazeValidator
 {
 public:
-	static bool isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
+	bool isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
+
+	std::stack<sf::Vector2i>  const & getPreviousMovementHistory() const;
+
+private:
+
+	std::stack<sf::Vector2i> m_movementHistory;
 };
 
 #endif // !MAZE_VALIDATOR_H

@@ -5,8 +5,8 @@
 
 
 Game::Game() :
-	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
-	//m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
+	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
+	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
 	m_BUILD_MODE_OFFSET{ 420.0f },
 	m_SIM_MODE_OFFSET{ 320.0f },
 	m_exitGame{ false },
@@ -17,7 +17,7 @@ Game::Game() :
 	//m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_menuScreen{ m_GUI_VIEW },
 	m_hud{ m_GUI_VIEW, m_mazeEditor },
-	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs },
+	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs, m_sheep },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
 	m_currency{ 1000 }, // Set the player's currency to 400
 	m_mazeEditor{ m_mazeBlocks, m_currency },
@@ -26,8 +26,6 @@ Game::Game() :
 	m_mazeView.setCenter(m_BUILD_MODE_OFFSET, m_mazeView.getCenter().y);
 
 	m_window.setVerticalSyncEnabled(true);
-
-	MazeGenerator::generateMaze(m_mazeBlocks);
 
 	setupGame();
 }
@@ -155,10 +153,22 @@ void Game::update(sf::Time t_deltaTime)
 		m_mazeEditor.update(m_cursor);
 		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_currency);
 		m_popup.update(m_cursor);
+
+		for (Sheep * sheep : m_sheep)
+		{
+			sheep->update();
+		}
+
 		break;
 	case GameState::Simulation:
 		updateSimulation(t_deltaTime);
 		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, &Game::togglePause, m_noOfAI, m_timeToComplete, m_moneyEarned);
+
+		for (Sheep * sheep : m_sheep)
+		{
+			sheep->update();
+		}
+
 		break;
 	}
 
@@ -242,6 +252,8 @@ void Game::render()
 /// </summary>
 void Game::setupGame()
 {
+	MazeGenerator::generateMaze(m_mazeBlocks);
+
 	m_window.setMouseCursorVisible(false);
 
 	m_pauseScreenFade.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
@@ -282,6 +294,32 @@ void Game::setupGame()
 			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks });
 			break;
 		}
+	}
+
+	// Put the maze through the validator to get a stack of all accessible tiles
+	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
+
+	// Setup sheep
+	for (int i = 0; i < 3; i++)
+	{
+		m_sheep.push_back(new Sheep{ m_mazeBlocks });
+
+		std::stack<sf::Vector2i> availableTiles{ m_mazeValidator.getPreviousMovementHistory() };
+
+		int sheepPlacement = rand() % availableTiles.size() + 1;
+
+		for (int j = 0; j < sheepPlacement; j++)
+		{
+			// We want to have at least one position in the stack to set the sheeps position to
+			if (availableTiles.size() <= 1)
+			{
+				break;
+			}
+
+			availableTiles.pop();
+		}
+
+		m_sheep.at(i)->setPos(availableTiles.top().x, availableTiles.top().y);
 	}
 }
 
@@ -409,7 +447,7 @@ void Game::switchGameState()
 		{
 			m_simDetailsDisplay = false;
 		}
-		else if (MazeValidator::isMazeSolvable(m_mazeBlocks))
+		else if (m_mazeValidator.isMazeSolvable(m_mazeBlocks))
 		{
 			m_gamestate = GameState::Simulation;
 			m_hud.animateInStats();
