@@ -328,7 +328,9 @@ void Game::resetSimulation()
 	int moveDelayCounter = 0; // Counts the number of maze solvers and uses this to set the delay on movement
 	for (MazeSolver* solver : m_mazeSolverPtrs)
 	{
-		solver->reset(moveDelayCounter * 60);
+		solver->reset(moveDelayCounter * 64);
+		solver->setMoveTimer(moveDelayCounter * 64);
+		solver->setPreviousPos(1, -moveDelayCounter * 4);
 		moveDelayCounter++;
 	}
 }

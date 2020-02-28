@@ -15,6 +15,7 @@ Cartographer::Cartographer(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & 
 	m_active = true;
 	m_movementSpeed = DEFAULT_MOVE_SPEED;
 	m_timeModifier = 1.0f;
+	hasFollower(false);
 }
 
 /// <summary>

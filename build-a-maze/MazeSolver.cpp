@@ -27,6 +27,24 @@ void MazeSolver::setPos(int t_row, int t_col)
 }
 
 ///////////////////////////////////////////////////////////////////////////
+void MazeSolver::setPreviousPos(int t_row, int t_col)
+{
+	m_previousPos.x = t_col;
+	m_previousPos.y = t_row;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::setMoveTimer(int t_time)
+{
+	m_moveTimer = t_time;
+	
+	if (m_moveTimer > m_movementSpeed)
+	{
+		m_movementSpeed = m_moveTimer;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::move(sf::Vector2i t_newPosition)
 {
 	// Set the movement speed
@@ -109,7 +127,7 @@ void MazeSolver::reset(int t_moveDelay)
 	setPos(1, 0);
 	m_active = true;
 	m_moveTimer = t_moveDelay;
-	m_characterDirection = -100; // TEMP: Sloppy fix but works for now
+	m_characterDirection = 1;
 	m_moveDir = Direction::East;
 	setTimeModifier(1);
 	hasFollower(false);

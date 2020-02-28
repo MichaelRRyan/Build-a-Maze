@@ -29,6 +29,8 @@ public:
 
 	inline void setActive(bool t_active) { m_active = t_active; }
 	void setPos(int t_row, int t_col);
+	void setPreviousPos(int t_row, int t_col);
+	void setMoveTimer(int t_time);
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
 
 	void checkForExit(); // Check if the exit of the maze is within sight, set direction towards it
