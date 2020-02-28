@@ -42,6 +42,14 @@ private:
 		StatsIn
 	};
 
+	const sf::IntRect m_SHOP_ITEM_RECT;
+
+	const sf::Color m_mainColor;
+	const sf::Color m_secondaryColor;
+	const sf::Color m_secondaryTextColor;
+
+	const float m_VERTICAL_BUTTON_OFFSETS[3];
+
 	sf::Texture m_guiTextures;
 	sf::Texture m_iconTextures;
 	sf::Texture m_tileTextures;

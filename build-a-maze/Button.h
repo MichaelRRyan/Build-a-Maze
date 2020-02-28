@@ -36,6 +36,8 @@ namespace GUI
 
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
+		static constexpr float s_IMAGE_OVERLAY_SCALE{ 1.5f };
+
 		sf::Sprite m_sprite;
 		sf::Sprite m_image;
 		sf::Text m_text;

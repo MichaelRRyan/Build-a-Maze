@@ -2,18 +2,25 @@
 
 /////////////////////////////////////////////////////////////////
 HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
+	m_SHOP_ITEM_RECT{ 0, 80, 48, 48 },
+	m_mainColor{ 247, 230, 134 },
+	m_secondaryColor{ 120, 112, 65 },
+	m_secondaryTextColor{ 100, 92, 45 },
+	m_VERTICAL_BUTTON_OFFSETS{ t_windowView.getSize().y / 2.0f - 50.0f,
+								t_windowView.getSize().y / 2.0f + 60.0f,
+								t_windowView.getSize().y / 2.0f + 150.0f },
 	m_shopItems{ {
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 64, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f - 110.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 96, 64, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 80, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f - 110.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 88, 16, 24 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 20.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, MUD_TEXT_RECT,{ t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 20.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 0, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 20.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 112, 16, 16 }, { t_windowView.getSize().x / 1.5f, t_windowView.getSize().y / 2.0f + 130.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 0, 128, 16, 16 }, { t_windowView.getSize().x / 1.5f + 96.0f, t_windowView.getSize().y / 2.0f + 130.0f } },
-		{ m_guiTextures, m_tileTextures, { 0, 80, 64, 64 }, { 16, 96, 16, 16 }, { t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 130.0f } }
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 64, 0, 16, 16 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 96, 64, 16, 16 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 80, 0, 16, 16 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 0, 88, 16, 24 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, MUD_TEXT_RECT },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 16, 0, 16, 16 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 0, 112, 16, 16 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 0, 128, 16, 16 } },
+		{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, { 16, 96, 16, 16 } }
 	} },
-	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 96, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 2.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
+	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 96, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 3.3f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
 	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f + 4.0f }),
 	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 36.0f }),
 	m_mazeEditorRef{ t_mazeEditor },
@@ -302,48 +309,51 @@ void HUD::loadFiles()
 void HUD::setupShopMenu(sf::View const& t_windowView)
 {
 	// Setup the shop background
-	m_shopBackground.setSize({ t_windowView.getSize().x / 2.7f, t_windowView.getSize().y });
-	m_shopBackground.setFillColor(sf::Color{ 247, 230, 134 });
+	m_shopBackground.setSize({ t_windowView.getSize().x / 3.5f, t_windowView.getSize().y });
+	m_shopBackground.setFillColor(m_mainColor);
 	m_shopBackground.setPosition(t_windowView.getSize().x - m_shopBackground.getSize().x, 0.0f);
-	m_shopBackground.setOutlineColor(sf::Color{ 120, 112, 65 });
+	m_shopBackground.setOutlineColor(m_secondaryColor);
 	m_shopBackground.setOutlineThickness(5.0f);
 
 	// Find the centre of the shop background
 	float shopCentre = m_shopBackground.getPosition().x + m_shopBackground.getSize().x / 2.0f;
 
 	// Setup the shop divider
-	m_shopDivider.setSize({ t_windowView.getSize().x / 3.5f, 4.0f });
-	m_shopDivider.setFillColor(sf::Color{ 120, 112, 65, 100 });
-	m_shopDivider.setPosition(shopCentre, t_windowView.getSize().y / 2.0f - 10);
+	m_shopDivider.setSize({ m_shopBackground.getSize().x * 0.8f, 2.0f });
+	m_shopDivider.setFillColor(m_secondaryColor);
+	m_shopDivider.setPosition(shopCentre, m_VERTICAL_BUTTON_OFFSETS[0] + m_shopItems.at(0).getSize().y + 42.0f);
 	m_shopDivider.setOrigin(m_shopDivider.getSize().x / 2.0f, 0.0f);
 
 	// Setup the menu tab (Tab at the side of the menu to hold play/stop buttons)
 	m_menuTab.setSize({ 60.0f, 100.0f });
-	m_menuTab.setFillColor(sf::Color{ 247, 230, 134 });
+	m_menuTab.setFillColor(m_mainColor);
 	m_menuTab.setPosition(t_windowView.getSize().x - m_shopBackground.getSize().x - m_menuTab.getGlobalBounds().width * 0.8f,
 		(t_windowView.getSize().y / 2.0f) - m_menuTab.getGlobalBounds().height / 2.0f);
 
 	m_menuTab.setOutlineThickness(5.0f);
-	m_menuTab.setOutlineColor(sf::Color{ 120, 112, 65 });
+	m_menuTab.setOutlineColor(m_secondaryColor);
 	m_menuTab.setCornerRadius(15.0f);
 
 	// Setup the shop text
 	m_shopTitleText.setFont(m_hudFont);
 	m_shopTitleText.setString("CONSTRUCTION SHOP");
+	m_shopTitleText.setCharacterSize(22.0f);
 	m_shopTitleText.setPosition(shopCentre, t_windowView.getSize().y * 0.05f);
 	m_shopTitleText.setFillColor(sf::Color::Black);
 	m_shopTitleText.setOrigin(m_shopTitleText.getGlobalBounds().width / 2, 0.0f);
+	
 
 	// Setup the money text
 	m_moneyText.setFont(m_hudFont);
-	m_moneyText.setPosition(shopCentre, t_windowView.getSize().y * 0.15f);
+	m_moneyText.setCharacterSize(20.0f);
+	m_moneyText.setPosition(shopCentre, t_windowView.getSize().y * 0.11f);
 	m_moneyText.setString("BALANCE: 400");
-	m_moneyText.setFillColor(sf::Color{ 120, 112, 65 });
+	m_moneyText.setFillColor(m_secondaryColor);
 	m_moneyText.setOrigin(m_moneyText.getGlobalBounds().width / 2, 0.0f);
 
 	// Setup shop item names
 	m_shopItemNames.at(0).setString("Undo");
-	m_shopItemNames.at(1).setString("Destroy Tool");
+	m_shopItemNames.at(1).setString("Destroy\n  Tool");
 	m_shopItemNames.at(2).setString("Redo");
 	m_shopItemNames.at(3).setString("Bale");
 	m_shopItemNames.at(4).setString("Mud");
@@ -359,17 +369,7 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	m_shopItemPrices.at(4).setString("$" + std::to_string(Global::getTilePrice(TileType::TurretWest))); // Turret
 	m_shopItemPrices.at(5).setString("$" + std::to_string(Global::getTilePrice(TileType::Trapdoor))); // Trapdoor
 
-
-
-	/*{ t_windowView.getSize().x / 1.5f,			t_windowView.getSize().y / 2.0f - 110.0f }
-	{ t_windowView.getSize().x / 1.5f + 96.0f,	t_windowView.getSize().y / 2.0f - 110.0f }
-	{ t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f - 110.0f }
-	{ t_windowView.getSize().x / 1.5f,			t_windowView.getSize().y / 2.0f + 20.0f }
-	{ t_windowView.getSize().x / 1.5f + 96.0f,	t_windowView.getSize().y / 2.0f + 20.0f }
-	{ t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 20.0f }
-	{ t_windowView.getSize().x / 1.5f,			t_windowView.getSize().y / 2.0f + 130.0f }
-	{ t_windowView.getSize().x / 1.5f + 96.0f,	t_windowView.getSize().y / 2.0f + 130.0f }
-	{ t_windowView.getSize().x / 1.5f + 192.0f, t_windowView.getSize().y / 2.0f + 130.0f }*/
+	// t_windowView.getSize().y / 2.0f - 110.0f
 
 	float spacing{ 32.0f };
 	float baseX{ shopCentre - (m_shopItems.at(0).getSize().x * 1.5f) - spacing };
@@ -377,7 +377,7 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	// Setup the item names
 	for (unsigned i = 0; i < m_shopItems.size(); i++)
 	{
-		m_shopItems.at(i).setPosition({ baseX + (m_shopItems.at(i).getSize().x + spacing) * (i % 3), m_shopItems.at(i).getPosition().y - m_shopItems.at(i).getSize().y / 2.0f });
+		m_shopItems.at(i).setPosition({ baseX + (m_shopItems.at(i).getSize().x + spacing) * (i % 3), m_VERTICAL_BUTTON_OFFSETS[static_cast<int>(i / 3)] });
 
 		m_shopItems.at(i).setup();
 
@@ -392,8 +392,8 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	for (unsigned i = 0; i < m_shopItemPrices.size(); i++)
 	{
 		m_shopItemPrices.at(i).setFont(m_hudFont);
-		m_shopItemPrices.at(i).setFillColor(sf::Color{ 120, 112, 65 });
-		m_shopItemPrices.at(i).setCharacterSize(13u);
+		m_shopItemPrices.at(i).setFillColor(m_secondaryColor);
+		m_shopItemPrices.at(i).setCharacterSize(15u);
 		m_shopItemPrices.at(i).setOrigin(m_shopItemPrices.at(i).getGlobalBounds().width / 2.0f, 0.0f);
 		m_shopItemPrices.at(i).setPosition(m_shopItemNames.at(i + 3).getPosition().x, m_shopItemNames.at(i + 3).getPosition().y + m_shopItemNames.at(i + 3).getGlobalBounds().height + 5);
 	}
@@ -409,10 +409,10 @@ void HUD::setupStatsMenu(sf::View const& t_windowView)
 {
 	// Stats panel
 	m_statsBackground.setSize({ t_windowView.getSize().x / 5.0f, t_windowView.getSize().y });
-	m_statsBackground.setFillColor(sf::Color{ 247, 230, 134 });
+	m_statsBackground.setFillColor(m_mainColor);
 	m_statsBackground.setPosition(t_windowView.getSize().x - m_statsBackground.getSize().x, 0.0f);
 
-	m_statsBackground.setOutlineColor(sf::Color{ 120, 112, 65 });
+	m_statsBackground.setOutlineColor(m_secondaryColor);
 	m_statsBackground.setOutlineThickness(5.0f);
 
 	m_iconsPosition = { m_statsBackground.getPosition().x + m_statsBackground.getSize().x * 0.2f, t_windowView.getSize().y * 0.4f };
@@ -427,9 +427,9 @@ void HUD::setupStatsMenu(sf::View const& t_windowView)
 	m_timeText.setPosition(m_iconsPosition.x + 50.0f, m_iconsPosition.y + 32.0f * 1.2f);
 	m_moneyEarnedText.setPosition(m_iconsPosition.x + 50.0f, m_iconsPosition.y + 32.0f * 1.2f * 2.0f);
 
-	m_numAIText.setFillColor(sf::Color{ 120, 112, 65 });
-	m_moneyEarnedText.setFillColor(sf::Color{ 120, 112, 65 });
-	m_timeText.setFillColor(sf::Color{ 120, 112, 65 });
+	m_numAIText.setFillColor(m_secondaryColor);
+	m_moneyEarnedText.setFillColor(m_secondaryColor);
+	m_timeText.setFillColor(m_secondaryColor);
 
 	m_numAIText.setCharacterSize(20u);
 	m_moneyEarnedText.setCharacterSize(20u);

@@ -40,21 +40,6 @@ namespace GUI
 		m_image.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
 	}
 
-	//////////////////////////////////////////////////////////////
-	//void Button::draw(sf::RenderWindow& t_window) const
-	//{
-	//	if (!m_imageButton)
-	//	{
-	//		t_window.draw(m_sprite);
-	//		t_window.draw(m_text);
-	//	}
-	//	else
-	//	{
-	//		t_window.draw(m_sprite);
-	//		t_window.draw(m_image);
-	//	}
-	//}
-
 	////////////////////////////////////////////////////////////
 	void Button::setup()
 	{
@@ -63,7 +48,7 @@ namespace GUI
 		m_sprite.setOrigin(m_sprite.getGlobalBounds().width / 2.0f, m_sprite.getGlobalBounds().height / 2.0f);
 
 		m_image.setOrigin(m_image.getGlobalBounds().width / 2.0f, m_image.getGlobalBounds().height / 2.0f);
-		m_image.setScale(2.0f, 2.0f);
+		m_image.setScale(s_IMAGE_OVERLAY_SCALE, s_IMAGE_OVERLAY_SCALE);
 	}
 
 	////////////////////////////////////////////////////////////
@@ -162,7 +147,7 @@ namespace GUI
 		{
 			m_sprite.setScale(m_sprite.getScale().x - 0.02f, m_sprite.getScale().y - 0.02f);
 			m_text.setScale(m_sprite.getScale());
-			m_image.setScale(m_sprite.getScale() * 2.0f);
+			m_image.setScale(m_sprite.getScale() * s_IMAGE_OVERLAY_SCALE);
 
 			if (!m_imageButton)
 			{
@@ -175,7 +160,7 @@ namespace GUI
 		{
 			m_sprite.setScale(m_sprite.getScale().x + 0.02f, m_sprite.getScale().y + 0.02f);
 			m_text.setScale(m_sprite.getScale());
-			m_image.setScale(m_sprite.getScale() * 2.0f);
+			m_image.setScale(m_sprite.getScale() * s_IMAGE_OVERLAY_SCALE);
 
 			if (!m_imageButton)
 			{
