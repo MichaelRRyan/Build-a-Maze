@@ -16,9 +16,16 @@ void MazeSolver::draw(sf::RenderWindow& t_window) const
 	t_window.draw(m_body);
 }
 
-void MazeSolver::setAnimatingOutside(bool t_state)
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::setAnimatingIn(bool t_state)
 {
-	m_animatingOutside = t_state;
+	m_animatingIn = t_state;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::setAnimatingOut(bool t_state)
+{
+	m_animatingOut = t_state;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -90,9 +97,15 @@ const int MazeSolver::getMoveTimer() const
 }
 
 ///////////////////////////////////////////////////////////////////////////
-const bool MazeSolver::isAnimatingOutside() const
+const bool MazeSolver::isAnimatingIn() const
 {
-	return m_animatingOutside;
+	return m_animatingIn;
+}
+
+///////////////////////////////////////////////////////////////////////////
+const bool MazeSolver::isAnimatingOut() const
+{
+	return m_animatingOut;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -187,8 +200,8 @@ void MazeSolver::reset(int t_moveDelay)
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::checkForExit()
 {
-	// Only go towards exit if we have a sheep
-	if (m_hasFollower)
+	// Only go towards exit if we have a sheep or none left
+	if (m_hasFollower || m_sheepRef.empty())
 	{
 		// Check Vertically
 		if (m_pos.y < 4 && m_pos.x == 1)
@@ -473,9 +486,9 @@ void MazeSolver::checkIfOutOfMaze()
 	if (m_pos == MAZE_EXIT)
 	{
 		// Check if we have a follower or none are available
-		if (m_hasFollower || !sheepAvailable())
+		if (m_hasFollower || m_sheepRef.empty())
 		{
- 			m_active = false; // No longer active, made it to the end of the game
+			setAnimatingOut(true); // Animate out of the screen
 		}
 	}
 }

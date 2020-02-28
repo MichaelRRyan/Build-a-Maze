@@ -28,10 +28,12 @@ public:
 	inline bool getActive() { return m_active; };
 	inline sf::Sprite getSprite() { return m_body; }
 	const int getMoveTimer() const;
-	const bool isAnimatingOutside() const;
+	const bool isAnimatingIn() const;
+	const bool isAnimatingOut() const;
 
 	// Setters
-	void setAnimatingOutside(bool t_state);
+	void setAnimatingIn(bool t_state);
+	void setAnimatingOut(bool t_state);
 	inline void setActive(bool t_active) { m_active = t_active; }
 	void setPos(int t_row, int t_col);
 	void setPreviousPos(int t_row, int t_col);
@@ -85,7 +87,8 @@ protected:
 	std::vector<Sheep *> & m_sheepRef;
 
 	bool m_hasFollower; // Whether or not a sheep is following the solver
-	bool m_animatingOutside; // Whether or not the solver is animating
+	bool m_animatingIn; // Whether or not the solver is animating into the maze
+	bool m_animatingOut; // Whether or not the solver is animating out of the maze
 };
 
 #endif // !MAZE_SOLVER_H

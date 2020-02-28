@@ -14,12 +14,18 @@ public:
 
 	void draw();
 
-	void startAnimating();
+	void startAnimatingIn();
+	void startAnimatingOut();
 	const bool isAnimating() const;
 
 	void setTimeModifier(float t_modifier);
 
 private:
+
+	void animateIn(MazeSolver* t_solver);
+	void animateOut(MazeSolver* t_solver);
+
+	void moveSolver(MazeSolver* t_solver, Direction t_direction);
 
 	sf::RenderWindow & m_windowRef;
 	std::vector<MazeSolver*> & m_solversRef;
