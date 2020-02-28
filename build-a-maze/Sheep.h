@@ -32,8 +32,8 @@ public:
 
 	const sf::Vector2i getPos() const; // Return the row and col position of the sheep
 	const bool getActive() const;
-
 	const sf::Sprite getSprite() const;
+	const bool isFollowing() const; // Whether or not the sheep is following a solver
 
 private:
 
@@ -41,6 +41,7 @@ private:
 	void setTextureDirection();
 	bool isBlocked(sf::Vector2i t_mazePos);
 	void updateWander();
+	void handleTreadmills();
 
 	enum class State
 	{

@@ -15,17 +15,6 @@ Sheep::Sheep(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_maze) :
 ///////////////////////////////////////////////////////////////////////////
 void Sheep::update()
 {
-	// Check if in the follow state
-	if (State::Follow == m_state)
-	{
-		// Check if the sheep made it to the end of the maze while following a solver
-		if (m_pos.x == MAZE_SIZE - 2 && m_pos.y == MAZE_SIZE - 2)
-		{
-			m_active = false;
-			return;
-		}
-	}
-
 	// Decrement the move timer and animate
 	if (m_moveTimer > 0)
 	{
@@ -72,6 +61,13 @@ void Sheep::update()
 				m_pos = m_followee->getPreviousPos();
 				m_movementSpeed = m_followee->getMovementSpeed();
 				m_moveDir = Global::getDirection(m_pos - m_previousPos);
+
+				// Check if the sheep made it to the end of the maze while following a solver
+				if (m_pos.x == MAZE_SIZE - 2 && m_pos.y == MAZE_SIZE - 2)
+				{
+					m_active = false;
+				}
+
 			}
 			else
 			{
@@ -181,6 +177,12 @@ const sf::Sprite Sheep::getSprite() const
 }
 
 ///////////////////////////////////////////////////////////////////////////
+const bool Sheep::isFollowing() const
+{
+	return State::Follow == m_state;
+}
+
+///////////////////////////////////////////////////////////////////////////
 void Sheep::animate()
 {
 	// Grazing animation
@@ -283,6 +285,8 @@ void Sheep::updateWander()
 				m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);
 			}
 
+			handleTreadmills();
+
 			break;
 		}
 	}
@@ -291,6 +295,64 @@ void Sheep::updateWander()
 	{
 		m_state = State::Idle;
 		m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+void Sheep::handleTreadmills()
+{
+	// Only check for treadmill if the tile is animating
+	if (m_mazeRef[m_previousPos.y][m_previousPos.x].getAnimating())
+	{
+		// Current tile
+		if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillEast
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillNorth
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth)
+		{
+			// Can be slowed and pushed aside
+			TileType tile = m_mazeRef[m_previousPos.y][m_previousPos.x].getType();
+
+			// If the threadmill is going the same direction as the solver
+			if (Global::getDirection(tile) == m_moveDir)
+			{
+				m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
+			}
+			// If the treadmill is going the opposite direction to the solver
+			else if (Global::getDirectionVector(Global::getDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+			{
+				m_movementSpeed = SLOW_MOVE_SPEED;
+			}
+			else
+			{
+				sf::Vector2i directionVector = Global::getDirectionVector(Global::getDirection(tile));
+
+				if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
+				{
+					m_pos = m_previousPos + directionVector;
+				}
+			}
+		}
+		// Target tile
+		else if (m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillWest
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillEast
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillNorth
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillSouth)
+		{
+			// Can be slowed and pushed aside
+			TileType tile = m_mazeRef[m_pos.y][m_pos.x].getType();
+
+			// If the threadmill is going the same direction as the solver
+			if (Global::getDirection(tile) == m_moveDir)
+			{
+				m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
+			}
+			// If the treadmill is going the opposite direction to the solver
+			else if (Global::getDirectionVector(Global::getDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+			{
+				m_movementSpeed = SLOW_MOVE_SPEED;
+			}
+		}
 	}
 }
 

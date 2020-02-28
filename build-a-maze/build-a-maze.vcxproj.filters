@@ -93,6 +93,9 @@
     <ClCompile Include="Sheep.cpp">
       <Filter>Source Files\Solvers</Filter>
     </ClCompile>
+    <ClCompile Include="EndGameUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Sheep.h">
       <Filter>Header Files\Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="EndGameUI.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

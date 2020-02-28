@@ -5,6 +5,7 @@
 
 #include <stack>
 #include <array>
+#include <vector>
 #include <iostream>
 #include "Tile.h"
 
@@ -17,11 +18,11 @@ class MazeValidator
 public:
 	bool isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 
-	std::stack<sf::Vector2i>  const & getPreviousMovementHistory() const;
+	std::vector<sf::Vector2i> const & getAccessibleTiles() const;
 
 private:
 
-	std::stack<sf::Vector2i> m_movementHistory;
+	std::vector<sf::Vector2i> m_accessibleTiles;
 };
 
 #endif // !MAZE_VALIDATOR_H

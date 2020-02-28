@@ -6,6 +6,7 @@
 #include <SFML\Graphics.hpp>
 #include <iostream>
 #include <stack>
+#include <array>
 #include "Globals.h"
 #include "MazeSolver.h"
 
@@ -21,13 +22,14 @@ public:
 	virtual bool isBlocked(sf::Vector2i t_mazePos) override; // Check if a tile is a wall
 	virtual void reset(int t_moveDelay) override;
 	virtual void draw(sf::RenderWindow& t_window) const override;
+	virtual void hasFollower(bool t_hasFollower) override;
 
 protected:
 	// Declare private data members
 	static const int s_DEFAULT_MOVE_SPEED = 16;
 	static const int s_SLOW_MOVE_SPEED = 32;
 	std::stack<sf::Vector2i> m_previousTiles;
-	bool m_deadEnds[MAZE_SIZE][MAZE_SIZE];
+	std::array<std::array<bool, MAZE_SIZE>, MAZE_SIZE> m_deadEnds;
 };
 
 #endif // !CARTOGRAPHER_H

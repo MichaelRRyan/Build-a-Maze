@@ -5,17 +5,17 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 #ifdef MAZE_VALIDATOR_DEBUG
 	sf::RenderWindow window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" };
 	std::vector<MazeSolver *> m_mazeSolvers;
-	Renderer renderer(window, window.getDefaultView(), t_maze, m_mazeSolvers);
+	std::vector<Sheep*> m_sheep;
+	Renderer renderer(window, window.getDefaultView(), t_maze, m_mazeSolvers, m_sheep);
 	sf::RectangleShape renderShape{ {TILE_SIZE, TILE_SIZE} };
 #endif // MAZE_VALIDATOR_DEBUG
 
 	std::array<std::array<bool, MAZE_SIZE>, MAZE_SIZE> tracedTiles{ false };
 
-	// Reset the movement history
-	while (!m_movementHistory.empty())
-	{
-		m_movementHistory.pop();
-	}
+	std::stack<sf::Vector2i> movementHistory;
+
+	// Clear the accessible tiles
+	m_accessibleTiles.clear();
 
 	// Start the maze at the top left corner
 	int row = 1;
@@ -32,29 +32,31 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 		// If the maze hits a dead end
 		if (deadEnd)
 		{
-			if (!m_movementHistory.empty())
+			if (!movementHistory.empty())
 			{
-				m_movementHistory.pop();
+				movementHistory.pop();
 			}
 
-			if (m_movementHistory.empty()) // if empty
+			if (movementHistory.empty()) // if empty
 			{
 				complete = true;
 				break;
 			}
 
-			row = m_movementHistory.top().x;
-			col = m_movementHistory.top().y;
+			row = movementHistory.top().x;
+			col = movementHistory.top().y;
 
 			deadEnd = false;
 		}
 		else
 		{
 			// Add the current position to the stack
-			m_movementHistory.push(sf::Vector2i{ row, col });
+			movementHistory.push(sf::Vector2i{ row, col });
 
 			// Set the current tile to a ground tile
 			tracedTiles[row][col] = true;
+
+			m_accessibleTiles.push_back({ col, row });
 		}
 
 		// Dead end is true until a path has been found
@@ -66,9 +68,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 			if (row == MAZE_SIZE - 2 && col == MAZE_SIZE - 2)
 			{
 				// Maze is solvable
-				complete = true;
 				solvable = true;
-				break;
 			}
 
 			switch (i) {
@@ -166,7 +166,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 	return solvable;
 }
 
-std::stack<sf::Vector2i> const & MazeValidator::getPreviousMovementHistory() const
+std::vector<sf::Vector2i> const& MazeValidator::getAccessibleTiles() const
 {
-	return m_movementHistory;
+	return m_accessibleTiles;
 }

@@ -47,7 +47,8 @@ enum class GameState {
 	TitleScreen,
 	SettingsScreen,
 	BuildMode,
-	Simulation
+	Simulation,
+	GameEnd
 };
 
 enum class Direction

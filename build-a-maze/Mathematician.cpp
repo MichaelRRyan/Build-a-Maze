@@ -47,12 +47,7 @@ void Mathematician::loadFiles()
 /// <param name="t_ghosts"></param>
 void Mathematician::update()
 {
-	if (m_pos.x == MAZE_SIZE - 1 && m_pos.y == MAZE_SIZE - 2)
-	{
-		m_active = false;
-	}
-
-	checkForSheep();
+	checkSheepCollisions();
 
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 	{
@@ -76,7 +71,8 @@ void Mathematician::update()
 			}
 		}
 
-		checkForExit();
+		checkForExit(); // Check for the exit nearby
+		checkForSheep(); // Check for sheep nearby
 
 		m_previousPos = m_pos; // Set the previous position to the current one before moving
 
@@ -98,6 +94,8 @@ void Mathematician::update()
 
 		setTextureDirection(); // Set the texture to the direction
 		m_moveTimer = m_movementSpeed; // Reset the move timer
+
+		checkIfOutOfMaze(); // Check if the solver has gotten out of the maze
 	}
 	else
 	{

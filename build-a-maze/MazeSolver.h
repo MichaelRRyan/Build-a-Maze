@@ -37,7 +37,7 @@ public:
 
 	const int getMovementSpeed() const;
 
-	void hasFollower(bool t_hasFollower);
+	virtual void hasFollower(bool t_hasFollower);
 
 protected:
 
@@ -45,7 +45,11 @@ protected:
 	void handleSteppingStones();
 	void handleTrapdoors();
 
-	void checkForSheep();
+	void checkForSheep(); // Check if there are any unclaimed sheep in sight
+	void checkSheepCollisions();
+	bool sheepAvailable();
+
+	void checkIfOutOfMaze();
 
 	// Declare private data members
 	const int DEFAULT_MOVE_SPEED = 20;

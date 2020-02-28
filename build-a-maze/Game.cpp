@@ -2,8 +2,7 @@
 
 #include "Game.h"
 
-
-
+///////////////////////////////////////////////////////////////////////////
 Game::Game() :
 	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
 	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
@@ -21,15 +20,16 @@ Game::Game() :
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
 	m_currency{ 1000 }, // Set the player's currency to 400
 	m_mazeEditor{ m_mazeBlocks, m_currency },
-	m_animating{ false }
+	m_animatingHUD{ false },
+	m_endGameUI{ m_GUI_VIEW }
 {
-	m_mazeView.setCenter(m_BUILD_MODE_OFFSET, m_mazeView.getCenter().y);
-
 	m_window.setVerticalSyncEnabled(true);
 
+	setupObjects();
 	setupGame();
 }
 
+///////////////////////////////////////////////////////////////////////////
 Game::~Game()
 {
 	for (MazeSolver* solver : m_mazeSolverPtrs)
@@ -40,6 +40,7 @@ Game::~Game()
 	m_mazeSolverPtrs.clear();
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::run()
 {
 	sf::Clock clock;
@@ -111,6 +112,11 @@ void Game::processKeyboardEvents(sf::Event t_event)
 		{
 			switchGameState();
 		}
+
+		if (sf::Keyboard::S == t_event.key.code)
+		{
+			placeSheep();
+		}
 		break;
 	case GameState::Simulation:
 		// Pause the game
@@ -162,6 +168,9 @@ void Game::update(sf::Time t_deltaTime)
 		updateSheep();
 
 		break;
+	case GameState::GameEnd:
+		m_endGameUI.update(m_cursor, this, &Game::restartGame, &Game::exitToMenu);
+		break;
 	}
 
 	m_cursor.update(m_window, m_mazeBlocks, m_gamestate, m_mazeEditor.getConstructionMode(), m_GUI_VIEW, m_mazeView);
@@ -200,36 +209,24 @@ void Game::render()
 
 		m_popup.draw(m_window);
 
-		if (m_animating)
+		if (m_animatingHUD)
 		{
 			animateMaze();
 		}
 
 		break;
 	case GameState::Simulation:
-		m_window.setView(m_mazeView);
-		m_renderer.drawMazeWithSolvers(m_cursor.m_selectedTile, m_mazeEditor.getConstructionMode(), m_mazeEditor.getSelectedTileType());
-
-		for (Paintball const& paintball : m_paintballs)
-		{
-			m_window.draw(paintball);
-		}
-
+		drawSimulation();
+		break;
+	case GameState::GameEnd:
 		m_window.setView(m_GUI_VIEW);
-		
-		if (m_gamePaused)
+
+		if (m_endGameUI.isAnimating())
 		{
-			m_window.draw(m_pauseScreenFade);
-			m_window.draw(m_pauseText);
+			drawSimulation();
 		}
 
-		m_hud.drawStats(m_window);
-
-		if (m_animating)
-		{
-			animateMaze();
-		}
-
+		m_endGameUI.draw(m_window);
 		break;
 	}
 
@@ -244,32 +241,21 @@ void Game::render()
 /// </summary>
 void Game::setupGame()
 {
+	m_mazeView.setCenter(m_BUILD_MODE_OFFSET, m_mazeView.getCenter().y);
 	MazeGenerator::generateMaze(m_mazeBlocks);
-
-	m_window.setMouseCursorVisible(false);
-
-	m_pauseScreenFade.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
-	m_pauseScreenFade.setFillColor(sf::Color{ 255, 255, 255, 100 });
-
-	if (!m_mainFont.loadFromFile("ASSETS/FONTS/tf2build.ttf"))
-	{
-		std::cout << "Error loading main font (tf2 font)";
-	}
-
-	m_pauseText.setString("PAUSED");
-	m_pauseText.setCharacterSize(100u);
-	m_pauseText.setFont(m_mainFont);
-	m_pauseText.setFillColor(sf::Color{0, 0, 0, 150});
-	m_pauseText.setPosition(m_GUI_VIEW.getSize().x / 3.0f, m_GUI_VIEW.getSize().y / 2.5f);
-	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
-
 	m_mazeEditor.reset();
 	m_currency = 1000;
 	m_simDetailsDisplay = false;
 	m_gamePaused = false;
 
+	// Delete and clear any previous AI
+	for (MazeSolver* solver : m_mazeSolverPtrs)
+	{
+		delete solver;
+	}
+	m_mazeSolverPtrs.clear();
+
 	// Add a random selection of AI to the maze
-	m_mazeSolverPtrs.clear(); // Clear any previous AI
 	for (int i = 0; i < SOLVERS_MAX ; i++)
 	{
 		switch (rand() % 3)
@@ -288,7 +274,41 @@ void Game::setupGame()
 		}
 	}
 
+	// Delete all sheep and clear the vector
+	for (Sheep* sheep : m_sheep)
+	{
+		delete sheep;
+	}
+	m_sheep.clear();
+
+	// Setup 3 sheep
+	for (int i = 0; i < 3; i++)
+	{
+		m_sheep.push_back(new Sheep{ m_mazeBlocks }); // Push back a new sheep into the vector
+	}
+
 	placeSheep();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void Game::setupObjects()
+{
+	m_window.setMouseCursorVisible(false);
+
+	m_pauseScreenFade.setSize({ static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT) });
+	m_pauseScreenFade.setFillColor(sf::Color{ 255, 255, 255, 100 });
+
+	if (!m_mainFont.loadFromFile("ASSETS/FONTS/tf2build.ttf"))
+	{
+		std::cout << "Error loading main font (tf2 font)";
+	}
+
+	m_pauseText.setString("PAUSED");
+	m_pauseText.setCharacterSize(100u);
+	m_pauseText.setFont(m_mainFont);
+	m_pauseText.setFillColor(sf::Color{ 0, 0, 0, 150 });
+	m_pauseText.setPosition(m_GUI_VIEW.getSize().x / 3.0f, m_GUI_VIEW.getSize().y / 2.5f);
+	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 }
 
 /// <summary>
@@ -332,8 +352,7 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 				solver->update();
 				m_noOfAI++;
 			}
-			else if (solver->getPos().x != MAZE_SIZE - 1
-				&& solver->getPos().y != MAZE_SIZE - 2)
+			else if (solver->getPos().x != MAZE_SIZE - 1 && solver->getPos().y != MAZE_SIZE - 2)
 			{
 				i--;
 			}
@@ -412,6 +431,7 @@ void Game::processTimeModifierEvents(sf::Event t_event)
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::switchGameState()
 {
 	if (m_gamestate == GameState::BuildMode)
@@ -443,6 +463,7 @@ void Game::switchGameState()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::handleClickEvents()
 {
 	if (m_cursor.m_clicked)
@@ -506,17 +527,28 @@ void Game::handleClickEvents()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::togglePause()
 {
 	m_gamePaused = !m_gamePaused;
 }
 
+///////////////////////////////////////////////////////////////////////////
+void Game::endGame()
+{
+	m_gamestate = GameState::GameEnd;
+	m_animationClock.restart();
+	m_endGameUI.setAnimating();
+}
+
+///////////////////////////////////////////////////////////////////////////
 void Game::startAnimatingMaze()
 {
 	m_animationClock.restart();
-	m_animating = true;
+	m_animatingHUD = true;
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::animateMaze()
 {
 	if (GameState::BuildMode == m_gamestate)
@@ -532,7 +564,7 @@ void Game::animateMaze()
 
 	if (m_animationClock.getElapsedTime().asSeconds() >= m_hud.getSecondsToAnimate())
 	{
-		m_animating = false;
+		m_animatingHUD = false;
 
 		if (GameState::BuildMode == m_gamestate)
 		{
@@ -552,46 +584,113 @@ void Game::placeSheep()
 {
 	// Put the maze through the validator to get a stack of all accessible tiles
 	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
+	std::vector<sf::Vector2i> availableTiles{ m_mazeValidator.getAccessibleTiles() }; // Get all the accessible tiles in the maze
 
 	// Setup sheep
-	for (int i = 0; i < 3; i++)
+	for (Sheep * sheep : m_sheep)
 	{
-		m_sheep.push_back(new Sheep{ m_mazeBlocks });
+		sf::Vector2i sheepPosition{ availableTiles.at(rand() % availableTiles.size()) }; // Get a random position for the sheep
 
-		std::stack<sf::Vector2i> availableTiles{ m_mazeValidator.getPreviousMovementHistory() };
-
-		int sheepPlacement = rand() % availableTiles.size() + 1;
-
-		for (int j = 0; j < sheepPlacement; j++)
-		{
-			// We want to have at least one position in the stack to set the sheeps position to
-			if (availableTiles.size() <= 1)
-			{
-				break;
-			}
-
-			availableTiles.pop();
-		}
-
-		m_sheep.at(i)->setPos(availableTiles.top().x, availableTiles.top().y);
+		sheep->setPos(sheepPosition.y, sheepPosition.x); // Set the position of the sheep
 	}
+
+#ifdef PLACE_SHEEP_DEBUG
+	sf::RectangleShape shape{ { TILE_SIZE, TILE_SIZE } };
+
+	shape.setFillColor(sf::Color{ 255, 255, 255, 100 });
+
+	m_window.setView(m_mazeView);
+
+	for (sf::Vector2i vec : availableTiles)
+	{
+		shape.setPosition(static_cast<sf::Vector2f>(vec) * TILE_SIZE);
+		m_window.draw(shape);
+	}
+
+	m_window.display();
+
+	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+	{
+
+	}
+#endif // PLACE_SHEEP_DEBUG
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::resetSheep()
 {
+	// Loop all sheep
 	for (Sheep* sheep : m_sheep)
 	{
-		sheep->reset();
+		sheep->reset(); // Reset the current sheep
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
 void Game::updateSheep()
 {
-	for (Sheep* sheep : m_sheep)
+	// Loop all sheep
+	for (int i = 0; i < m_sheep.size(); i++)
 	{
-		if (sheep->getActive())
+		// Check if the current sheep is active
+		if (m_sheep.at(i)->getActive())
 		{
-			sheep->update();
+			m_sheep.at(i)->update(); // Update the sheep if active
+		}
+		else // If not active
+		{
+			delete m_sheep.at(i); // Delete the sheep from memory
+			m_sheep.erase(m_sheep.begin() + i); // Erase the sheep from the vector
+			i--; // Decrement the index to not disturb the update loop
 		}
 	}
+
+	// If no sheep remain, game over
+	if (m_sheep.size() == 0)
+	{
+		endGame();
+	}
 }
+
+///////////////////////////////////////////////////////////////////////////
+void Game::drawSimulation()
+{
+	m_window.setView(m_mazeView);
+	m_renderer.drawMazeWithSolvers(m_cursor.m_selectedTile, m_mazeEditor.getConstructionMode(), m_mazeEditor.getSelectedTileType());
+
+	for (Paintball const& paintball : m_paintballs)
+	{
+		m_window.draw(paintball);
+	}
+
+	m_window.setView(m_GUI_VIEW);
+
+	if (m_gamePaused)
+	{
+		m_window.draw(m_pauseScreenFade);
+		m_window.draw(m_pauseText);
+	}
+
+	m_hud.drawStats(m_window);
+
+	if (m_animatingHUD)
+	{
+		animateMaze();
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+void Game::exitToMenu()
+{
+	setupGame();
+	m_gamestate = GameState::TitleScreen;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void Game::restartGame()
+{
+	setupGame();
+	m_gamestate = GameState::BuildMode;
+}
+
+///////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,8 @@
 #ifndef GAME
 #define GAME
 
+//#define PLACE_SHEEP_DEBUG
+
 #include <SFML/Graphics.hpp>
 #include <array>
 #include <vector>
@@ -10,19 +12,22 @@
 
 #include "MazeGenerator.h"
 #include "MazeValidator.h"
+#include "MazeEditor.h"
+
+#include "MazeSolver.h"
 #include "BasicSolver.h"
 #include "Mathematician.h"
+#include "Cartographer.h"
+
 #include "Globals.h"
 #include "Cursor.h"
-#include "MazeSolver.h"
-#include "Cartographer.h"
 #include "Renderer.h"
 #include "MenuScreen.h"
 #include "HUD.h"
+#include "EndGameUI.h"
 #include "Tile.h"
 #include "Popup.h"
 #include "Paintball.h"
-#include "MazeEditor.h"
 #include "Sheep.h"
 
 class Game
@@ -44,18 +49,26 @@ private:
 
 	// Game functions
 	void setupGame();
+	void setupObjects();
 	void resetSimulation();
 	void updateSimulation(sf::Time t_deltaTime);
 	void processTimeModifierEvents(sf::Event t_event);
 	void switchGameState();
 	void handleClickEvents();
 	void togglePause();
+
+	void endGame();
 	void startAnimatingMaze();
 	void animateMaze();
 
 	void placeSheep();
 	void resetSheep();
 	void updateSheep();
+
+	void drawSimulation();
+
+	void exitToMenu();
+	void restartGame();
 
 
 	// ************************* Variables *************************
@@ -97,17 +110,13 @@ private:
 	// Enum variables
 	GameState m_gamestate;
 
+	// UI Objects
 	MenuScreen m_menuScreen;
 	HUD m_hud;
+	EndGameUI m_endGameUI;
+	GUI::Popup m_popup;
 
 	Renderer m_renderer;
-
-	/// <summary>
-	/// A temporary vector of tiles for buying from the shop. Reset every time the tiles are placed or the purchase is canceled
-	/// </summary>
-	std::vector<sf::Vector2i> m_tempTiles;
-
-	GUI::Popup m_popup;
 
 	std::array<Paintball, 30> m_paintballs;
 
@@ -119,7 +128,7 @@ private:
 	const float m_BUILD_MODE_OFFSET;
 	const float m_SIM_MODE_OFFSET;
 
-	bool m_animating;
+	bool m_animatingHUD;
 };
 
 #endif // !GAME

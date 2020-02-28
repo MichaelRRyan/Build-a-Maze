@@ -118,41 +118,45 @@ void MazeSolver::reset(int t_moveDelay)
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::checkForExit()
 {
-	// Check Vertically
-	if (m_pos.y > MAZE_SIZE - 5 && m_pos.x == MAZE_SIZE - 2)
+	// Only go towards exit if we have a sheep or none are available
+	if (m_hasFollower || !sheepAvailable())
 	{
-		bool goalBlocked = false;
-
-		for (int i = m_pos.y; i < MAZE_SIZE - 1; i++)
+		// Check Vertically
+		if (m_pos.y > MAZE_SIZE - 5 && m_pos.x == MAZE_SIZE - 2)
 		{
-			if (isBlocked({ m_pos.x, i }))
+			bool goalBlocked = false;
+
+			for (int i = m_pos.y; i < MAZE_SIZE - 1; i++)
 			{
-				goalBlocked = true;
-				break;
+				if (isBlocked({ m_pos.x, i }))
+				{
+					goalBlocked = true;
+					break;
+				}
+			}
+			if (goalBlocked == false)
+			{
+				m_moveDir = Direction::South;
 			}
 		}
-		if (goalBlocked == false)
-		{
-			m_moveDir = Direction::South;
-		}
-	}
 
-	// Check horisontally
-	if (m_pos.x > MAZE_SIZE - 5 && m_pos.y == MAZE_SIZE - 2)
-	{
-		bool goalBlocked = false;
-
-		for (int i = m_pos.x; i < MAZE_SIZE; i++)
+		// Check horisontally
+		if (m_pos.x > MAZE_SIZE - 5 && m_pos.y == MAZE_SIZE - 2)
 		{
-			if (isBlocked({ i, m_pos.y }))
+			bool goalBlocked = false;
+
+			for (int i = m_pos.x; i < MAZE_SIZE; i++)
 			{
-				goalBlocked = true;
-				break;
+				if (isBlocked({ i, m_pos.y }))
+				{
+					goalBlocked = true;
+					break;
+				}
 			}
-		}
-		if (goalBlocked == false)
-		{
-			m_moveDir = Direction::East;
+			if (goalBlocked == false)
+			{
+				m_moveDir = Direction::East;
+			}
 		}
 	}
 }
@@ -298,13 +302,72 @@ void MazeSolver::handleTrapdoors()
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::checkForSheep()
 {
+	// Only check for sheep if we don't have a sheep and there are sheep available
+	if (!m_hasFollower && sheepAvailable())
+	{
+		int sightRange = 5;
+		int closestSheep = sightRange + 1;
+
+		// Loop for the 4 directions (enum starts at index 1)
+		for (int i = 1; i < 5; i++)
+		{
+			Direction direction = static_cast<Direction>(i);
+			sf::Vector2i dirVec = Global::getDirectionVector(direction);
+
+			// Loop for 5 tiles in each direction
+			for (int j = 1; j <= sightRange; j++)
+			{
+				// Get the position from the solver position plus the direction times the current distance
+				sf::Vector2i position = m_pos + (dirVec * j);
+
+				if (isBlocked(position))
+				{
+					// Vision blocked, break
+					break;
+				}
+				else
+				{
+					// Loop all sheep
+					for (Sheep* sheep : m_sheepRef)
+					{
+						// Check that the sheep is active and isn't already following another solver
+						if (sheep->getActive() && !sheep->isFollowing())
+						{
+							// Check if the sheep position matches the current tile
+							if (sheep->getPos() == position)
+							{
+								// Check if this is the closest sheep
+								if (j < closestSheep)
+								{
+									m_moveDir = direction; // Move towards sheep
+									closestSheep = j; // Overwrite the closest sheep variable to find the closest sheep
+								}
+								break; // Found goal, break
+							}
+						}
+					}
+				}
+			} // End inner for
+
+			// If the closest sheep is 1 tile away, break, as that is as close as we can get
+			if (1 == closestSheep)
+			{
+				break;
+			}
+		} // End outer for
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::checkSheepCollisions()
+{
 	// Only check for sheep if the solver doesn't have a follower
 	if (!m_hasFollower)
 	{
 		// Loop all sheep
 		for (Sheep* sheep : m_sheepRef)
 		{
-			if (sheep->getActive())
+			if (sheep->getActive() && !sheep->isFollowing())
 			{
 				// Check sprite collisions with the sheep
 				if (m_pos == sheep->getPos())
@@ -313,6 +376,37 @@ void MazeSolver::checkForSheep()
 					hasFollower(true);
 				}
 			}
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+bool MazeSolver::sheepAvailable()
+{
+	// Check if there are any available sheep (active sheep not following anyone)
+	bool sheepAvailable{ false };
+	for (Sheep* sheep : m_sheepRef)
+	{
+		if (sheep->getActive() && !sheep->isFollowing())
+		{
+			sheepAvailable = true;
+			break;
+		}
+	}
+
+	return sheepAvailable;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::checkIfOutOfMaze()
+{
+	// Check if at the maze exit
+	if (m_pos == MAZE_EXIT)
+	{
+		// Check if we have a follower or none are available
+		if (m_hasFollower || !sheepAvailable())
+		{
+ 			m_active = false; // No longer active, made it to the end of the game
 		}
 	}
 }
