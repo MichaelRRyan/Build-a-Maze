@@ -49,7 +49,7 @@ void SolverAnimator::startAnimatingIn()
 	for (MazeSolver* solver : m_solversRef)
 	{
 		solver->setMovementSpeed(20);
-		solver->setPos(1, -8 - (i * 3));
+		solver->setPos(GAME_EXIT.y, GAME_EXIT.x - (i * 3));
 		solver->setAnimatingIn(true);
 		solver->setMovementDirection(Direction::East);
 		solver->animate();
@@ -97,23 +97,23 @@ void SolverAnimator::animateIn(MazeSolver* t_solver)
 	// If the move timer is up
 	if (t_solver->getMoveTimer() == 0)
 	{
-		// If the solver has reached the maze vertically
-		if (t_solver->getPos().y == 1)
+		if (t_solver->getPos().x < -3)
 		{
-			if (t_solver->getPos().x == 0)
-			{
-				t_solver->reset(0);
-				t_solver->setAnimatingIn(false);
-				t_solver->setTimeModifier(m_timeModifer);
-			}
-			else
-			{
-				moveSolver(t_solver, Direction::East);
-			}
+			moveSolver(t_solver, Direction::East);
 		}
-		else // If the solver has not reached the maze vertically
+		else if (t_solver->getPos().y > 1)
 		{
 			moveSolver(t_solver, Direction::North);
+		}
+		else if (t_solver->getPos().x < 0)
+		{
+			moveSolver(t_solver, Direction::East);
+		}
+		else
+		{
+			t_solver->reset(0);
+			t_solver->setAnimatingIn(false);
+			t_solver->setTimeModifier(m_timeModifer);
 		}
 	}
 	else
@@ -133,11 +133,11 @@ void SolverAnimator::animateOut(MazeSolver* t_solver)
 		{
 			moveSolver(t_solver, Direction::West);
 		}
-		else if (t_solver->getPos().y < 4)
+		else if (t_solver->getPos().y < GAME_EXIT.y)
 		{
 			moveSolver(t_solver, Direction::South);
 		}
-		else if (t_solver->getPos().x > -8)
+		else if (t_solver->getPos().x > GAME_EXIT.x)
 		{
 			moveSolver(t_solver, Direction::West);
 		}

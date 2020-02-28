@@ -20,6 +20,10 @@ void Renderer::setup()
 	m_textureTile.setTexture(m_tileTexture);
 	m_textureTile.setScale(2.0f, 2.0f);
 
+	m_caveSprite.setTexture(m_tileTexture);
+	m_caveSprite.setPosition((GAME_EXIT.x + 3) * TILE_SIZE, (GAME_EXIT.y - 2) * TILE_SIZE);
+	m_caveSprite.setScale(2.0f, 2.0f);
+
 	m_tileSelector.setSize({ 32, 32 });
 	m_tileSelector.setFillColor(sf::Color::Transparent);
 	m_tileSelector.setOutlineColor(sf::Color::White);
@@ -29,6 +33,9 @@ void Renderer::setup()
 void Renderer::drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
 {
 	drawMazeBackground();
+
+	m_caveSprite.setTextureRect({ 0, 160, 32, 64 });
+	m_windowRef.draw(m_caveSprite);
 
 	drawTileSelector(t_selectedTile);
 
@@ -47,11 +54,17 @@ void Renderer::drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_construc
 
 	// Draw maze UI
 	drawMazeUI(t_selectedTile, t_selectedTileType);
+
+	m_caveSprite.setTextureRect({ 32, 160, 32, 64 });
+	m_windowRef.draw(m_caveSprite);
 }
 
 void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
 {
 	drawMazeBackground();
+
+	m_caveSprite.setTextureRect({ 0, 160, 32, 64 });
+	m_windowRef.draw(m_caveSprite);
 
 	drawTileSelector(t_selectedTile);
 
@@ -68,6 +81,9 @@ void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode
 		drawMazeSolvers(row);
 		drawSheep(row);
 	}
+
+	m_caveSprite.setTextureRect({ 32, 160, 32, 64 });
+	m_windowRef.draw(m_caveSprite);
 }
 
 void Renderer::drawMazeBackground()

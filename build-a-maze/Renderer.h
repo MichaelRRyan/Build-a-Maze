@@ -41,6 +41,7 @@ private:
 
 	sf::Texture m_tileTexture;
 	sf::Sprite m_textureTile;
+	sf::Sprite m_caveSprite;
 	sf::Clock m_animationClock;
 	sf::RectangleShape m_tileSelector;
 
