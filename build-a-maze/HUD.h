@@ -18,7 +18,7 @@ class HUD
 public:
 	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor);
 
-	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_money);
+	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money);
 	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window);
@@ -55,8 +55,9 @@ private:
 	sf::Texture m_tileTextures;
 
 	sf::RectangleShape m_shopBackground;
-	sf::RectangleShape m_shopDivider;
 	sf::RectangleShape m_statsBackground;
+
+	sf::RectangleShape m_shopDividers[2];
 
 	std::array<GUI::Button, 9> m_shopItems;
 	std::array<sf::Text, 9> m_shopItemNames;
@@ -65,6 +66,10 @@ private:
 	GUI::Button m_playButton;
 	GUI::Button m_stopButton;
 	GUI::Button m_pauseButton;
+
+	GUI::Button m_sheepButton;
+	sf::Text m_sheepText;
+	sf::Text m_sheepPrice;
 
 	sf::Font m_hudFont;
 	sf::Text m_shopTitleText;

@@ -62,8 +62,10 @@ private:
 	void animateMaze();
 
 	void placeSheep();
+	void placeSheep(Sheep * t_sheep);
 	void resetSheep();
 	void updateSheep();
+	void purchaseSheep();
 
 	void drawSimulation();
 

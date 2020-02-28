@@ -21,6 +21,8 @@ const sf::IntRect MUD_TEXT_RECT{ 48, 64, 16, 16 };
 const float GAMEPLAY_SECTION_END{ 800.0f };
 const float SIM_PANEL_START{ 1000 };
 
+const int SHEEP_PRICE{ 800 };
+
 enum class ConstructionMode
 {
 	None,

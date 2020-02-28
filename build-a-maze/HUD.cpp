@@ -23,6 +23,7 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 96, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 3.3f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
 	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f + 4.0f }),
 	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 36.0f }),
+	m_sheepButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {112, 64, 16, 17} },
 	m_mazeEditorRef{ t_mazeEditor },
 	m_SECONDS_TO_ANIMATE{ 0.2f },
 	m_animationState{ AnimationState::None }
@@ -33,7 +34,7 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_func, int t_money)
+void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money)
 {
 	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
@@ -84,9 +85,14 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 			}
 		}
 
+		if (m_sheepButton.update(t_cursor))
+		{
+			t_purchaseSheepFunc(t_game);
+		}
+
 		if (m_playButton.update(t_cursor))
 		{
-			t_func(t_game);
+			t_playButtonFunc(t_game);
 		}
 	}
 
@@ -174,7 +180,8 @@ void HUD::drawShop(sf::RenderWindow& t_window)
 
 	t_window.draw(m_shopBackground);
 
-	t_window.draw(m_shopDivider);
+	t_window.draw(m_shopDividers[0]);
+	t_window.draw(m_shopDividers[1]);
 
 	shape.setOutlineThickness(0.0f);
 	t_window.draw(shape);
@@ -193,6 +200,10 @@ void HUD::drawShop(sf::RenderWindow& t_window)
 	t_window.draw(m_shopTitleText);
 	t_window.draw(m_moneyText);
 	t_window.draw(m_playButton);
+
+	t_window.draw(m_sheepButton);
+	t_window.draw(m_sheepText);
+	t_window.draw(m_sheepPrice);
 
 	// Reset the view to what it was before this function call
 	t_window.setView(view);
@@ -318,12 +329,6 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	// Find the centre of the shop background
 	float shopCentre = m_shopBackground.getPosition().x + m_shopBackground.getSize().x / 2.0f;
 
-	// Setup the shop divider
-	m_shopDivider.setSize({ m_shopBackground.getSize().x * 0.8f, 2.0f });
-	m_shopDivider.setFillColor(m_secondaryColor);
-	m_shopDivider.setPosition(shopCentre, m_VERTICAL_BUTTON_OFFSETS[0] + m_shopItems.at(0).getSize().y + 42.0f);
-	m_shopDivider.setOrigin(m_shopDivider.getSize().x / 2.0f, 0.0f);
-
 	// Setup the menu tab (Tab at the side of the menu to hold play/stop buttons)
 	m_menuTab.setSize({ 60.0f, 100.0f });
 	m_menuTab.setFillColor(m_mainColor);
@@ -374,6 +379,25 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	float spacing{ 32.0f };
 	float baseX{ shopCentre - (m_shopItems.at(0).getSize().x * 1.5f) - spacing };
 
+	// Setup the sheep button
+	m_sheepButton.setPosition({ baseX + (m_sheepButton.getSize().x + spacing), m_VERTICAL_BUTTON_OFFSETS[0] - 112.0f });
+	m_sheepButton.setup();
+
+	m_sheepText.setString("Sheep");
+	m_sheepText.setFont(m_hudFont);
+	m_sheepText.setFillColor(sf::Color::Black);
+	m_sheepText.setCharacterSize(13u);
+	m_sheepText.setOrigin(m_sheepText.getGlobalBounds().width / 2.0f, 0.0f);
+	m_sheepText.setPosition(m_sheepButton.getPosition().x, m_sheepButton.getPosition().y + m_sheepButton.getSize().y / 2.0f);
+
+	m_sheepPrice.setString("$" + std::to_string(SHEEP_PRICE));
+	m_sheepPrice.setFont(m_hudFont);
+	m_sheepPrice.setFillColor(m_secondaryColor);
+	m_sheepPrice.setCharacterSize(15u);
+	m_sheepPrice.setOrigin(m_sheepPrice.getGlobalBounds().width / 2.0f, 0.0f);
+	m_sheepPrice.setPosition(m_sheepText.getPosition().x, m_sheepText.getPosition().y + m_sheepText.getGlobalBounds().height + 5);
+
+
 	// Setup the item names
 	for (unsigned i = 0; i < m_shopItems.size(); i++)
 	{
@@ -397,6 +421,17 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 		m_shopItemPrices.at(i).setOrigin(m_shopItemPrices.at(i).getGlobalBounds().width / 2.0f, 0.0f);
 		m_shopItemPrices.at(i).setPosition(m_shopItemNames.at(i + 3).getPosition().x, m_shopItemNames.at(i + 3).getPosition().y + m_shopItemNames.at(i + 3).getGlobalBounds().height + 5);
 	}
+
+	// Setup the shop divider
+	for (int i = 0; i < 2; i++)
+	{
+		m_shopDividers[i].setSize({ m_shopBackground.getSize().x * 0.8f, 2.0f });
+		m_shopDividers[i].setFillColor(m_secondaryColor);
+		m_shopDividers[i].setOrigin(m_shopDividers[i].getSize().x / 2.0f, 0.0f);
+	}
+
+	m_shopDividers[0].setPosition(shopCentre, m_sheepButton.getPosition().y + 68.0f);
+	m_shopDividers[1].setPosition(shopCentre, m_VERTICAL_BUTTON_OFFSETS[0] + m_shopItems.at(0).getSize().y + 42.0f);
 
 	// Setup the three game buttons
 	m_playButton.setup();

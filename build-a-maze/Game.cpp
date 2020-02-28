@@ -113,10 +113,12 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			switchGameState();
 		}
 
+#ifdef PLACE_SHEEP_DEBUG
 		if (sf::Keyboard::S == t_event.key.code)
 		{
 			placeSheep();
 		}
+#endif //PLACE_SHEEP_DEBUG
 		break;
 	case GameState::Simulation:
 		// Pause the game
@@ -157,7 +159,7 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	case GameState::BuildMode:
 		m_mazeEditor.update(m_cursor);
-		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, m_currency);
+		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, &Game::purchaseSheep, m_currency);
 		m_popup.update(m_cursor);
 		updateSheep();
 
@@ -609,11 +611,23 @@ void Game::placeSheep()
 
 	m_window.display();
 
-	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::G))
+	while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
 
 	}
 #endif // PLACE_SHEEP_DEBUG
+}
+
+///////////////////////////////////////////////////////////////////////////
+void Game::placeSheep(Sheep* t_sheep)
+{
+	// Put the maze through the validator to get a stack of all accessible tiles
+	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
+	std::vector<sf::Vector2i> availableTiles{ m_mazeValidator.getAccessibleTiles() }; // Get all the accessible tiles in the maze
+
+	sf::Vector2i sheepPosition{ availableTiles.at(rand() % availableTiles.size()) }; // Get a random position for the sheep
+
+	t_sheep->setPos(sheepPosition.y, sheepPosition.x); // Set the position of the sheep
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -649,6 +663,19 @@ void Game::updateSheep()
 	if (m_sheep.size() == 0)
 	{
 		endGame();
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+void Game::purchaseSheep()
+{
+	if (m_currency >= SHEEP_PRICE)
+	{
+		m_currency -= SHEEP_PRICE;
+
+		m_sheep.push_back(new Sheep(m_mazeBlocks));
+
+		placeSheep(m_sheep.at(m_sheep.size() - 1));
 	}
 }
 
