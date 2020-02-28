@@ -27,7 +27,8 @@ namespace GUI
 	Button::Button(sf::Texture const& t_guiTexture, sf::Texture const& t_imageTexture, sf::IntRect t_guiRect, sf::IntRect t_imageRect, sf::Vector2f t_position) :
 		m_locked{ false },
 		m_imageButton{ true },
-		m_hovered{ false }
+		m_hovered{ false },
+		m_rotDirection{ 0.0f }
 	{
 		// Button background
 		m_sprite.setTexture(t_guiTexture);
@@ -37,7 +38,7 @@ namespace GUI
 		// Image overlay
 		m_image.setTexture(t_imageTexture);
 		m_image.setTextureRect(t_imageRect);
-		m_image.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
+		m_image.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0f, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
 	}
 
 	////////////////////////////////////////////////////////////
@@ -122,9 +123,14 @@ namespace GUI
 	////////////////////////////////////////////////////////////
 	void Button::setPosition(sf::Vector2f t_position)
 	{
+		// Reset the button animation before getting the size (effected by rotation)
+		m_sprite.setRotation(0.0f);
+		m_sprite.setScale(1.0f, 1.0f);
+		
+		// Set the position of all components
 		m_sprite.setPosition(t_position.x + getSize().x / 2.0f, t_position.y + getSize().y / 2.0f);
 		m_text.setPosition(t_position.x + getSize().x / 2.0f, t_position.y + getSize().y / 2.2f);
-		m_image.setPosition(t_position.x + getSize().x / 2.0, t_position.y + getSize().y / 2.0f);
+		m_image.setPosition(t_position.x + getSize().x / 2.0f, t_position.y + getSize().y / 2.0f);
 	}
 
 	////////////////////////////////////////////////////////////

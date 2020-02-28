@@ -8,15 +8,18 @@
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <functional>
 #include "Button.h"
 #include "Globals.h"
+
+class Game;
 
 class MenuScreen
 {
 public:
 	MenuScreen(sf::View const & t_windowView);
 
-	void update(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame);
+	void update(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame, Game * t_game, std::function<void(Game*)> t_restartFunc);
 
 	void draw(sf::RenderWindow & t_window) const;
 
@@ -31,7 +34,14 @@ private:
 	sf::Text m_titleText;
 
 	GUI::Button m_playButton;
+	GUI::Button m_restartButton;
 	GUI::Button m_exitButton;
+
+	bool m_gameStarted;
+
+	sf::Vector2f m_windowSize;
 };
+
+#include "Game.h"
 
 #endif // !MENU_SCREEN_H

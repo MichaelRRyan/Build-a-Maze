@@ -342,7 +342,7 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	// Setup the shop text
 	m_shopTitleText.setFont(m_hudFont);
 	m_shopTitleText.setString("CONSTRUCTION SHOP");
-	m_shopTitleText.setCharacterSize(22.0f);
+	m_shopTitleText.setCharacterSize(22u);
 	m_shopTitleText.setPosition(shopCentre, t_windowView.getSize().y * 0.05f);
 	m_shopTitleText.setFillColor(sf::Color::Black);
 	m_shopTitleText.setOrigin(m_shopTitleText.getGlobalBounds().width / 2, 0.0f);
@@ -350,7 +350,7 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 
 	// Setup the money text
 	m_moneyText.setFont(m_hudFont);
-	m_moneyText.setCharacterSize(20.0f);
+	m_moneyText.setCharacterSize(20u);
 	m_moneyText.setPosition(shopCentre, t_windowView.getSize().y * 0.11f);
 	m_moneyText.setString("BALANCE: 400");
 	m_moneyText.setFillColor(m_secondaryColor);

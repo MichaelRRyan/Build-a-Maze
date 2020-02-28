@@ -153,7 +153,7 @@ void Game::update(sf::Time t_deltaTime)
 	switch (m_gamestate)
 	{
 	case GameState::TitleScreen:
-		m_menuScreen.update(m_cursor, m_gamestate, m_exitGame);
+		m_menuScreen.update(m_cursor, m_gamestate, m_exitGame, this, &Game::restartGame);
 		break;
 	case GameState::SettingsScreen:
 		break;
@@ -644,7 +644,7 @@ void Game::resetSheep()
 void Game::updateSheep()
 {
 	// Loop all sheep
-	for (int i = 0; i < m_sheep.size(); i++)
+	for (unsigned i = 0; i < m_sheep.size(); i++)
 	{
 		// Check if the current sheep is active
 		if (m_sheep.at(i)->getActive())
