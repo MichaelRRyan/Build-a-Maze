@@ -3,7 +3,8 @@
 SolverAnimator::SolverAnimator(sf::RenderWindow& t_window, std::vector<MazeSolver*>& t_solvers) :
 	m_windowRef{ t_window },
 	m_solversRef{ t_solvers },
-	m_animating{ false }
+	m_animating{ false },
+	m_timeModifer{ 1.0f }
 {
 }
 
@@ -28,10 +29,11 @@ void SolverAnimator::update()
 						{
 							solver->reset(0);
 							solver->setAnimatingOutside(false);
+							solver->setTimeModifier(m_timeModifer);
 						}
 						else
 						{
-							solver->setMoveTimer(20);
+							solver->resetMoveTimer();
 
 							sf::Vector2i pos = solver->getPos();
 
@@ -44,7 +46,7 @@ void SolverAnimator::update()
 					}
 					else // If the solver has not reached the maze vertically
 					{
-						solver->setMoveTimer(20);
+						solver->resetMoveTimer();
 
 						sf::Vector2i pos = solver->getPos();
 
@@ -55,7 +57,7 @@ void SolverAnimator::update()
 				}
 				else
 				{
-					solver->setMoveTimer(solver->getMoveTimer() - 1);
+					solver->decrementMoveTimer();
 					solver->animate();
 				}
 			}
@@ -78,10 +80,11 @@ void SolverAnimator::startAnimating()
 	int i = 0;
 	for (MazeSolver* solver : m_solversRef)
 	{
-		solver->setMoveTimer(20);
+		solver->setMovementSpeed(20);
 		solver->setPos(1, -8 - (i * 3));
 		solver->setAnimatingOutside(true);
 		solver->setMovementDirection(Direction::East);
+		solver->animate();
 		i++;
 	}
 }
@@ -89,4 +92,17 @@ void SolverAnimator::startAnimating()
 const bool SolverAnimator::isAnimating() const
 {
 	return m_animating;
+}
+
+void SolverAnimator::setTimeModifier(float t_modifier)
+{
+	m_timeModifer = t_modifier;
+
+	for (MazeSolver* solver : m_solversRef)
+	{
+		if (solver->isAnimatingOutside())
+		{
+			solver->setTimeModifier(t_modifier, 20);
+		}
+	}
 }

@@ -17,10 +17,14 @@ public:
 	void startAnimating();
 	const bool isAnimating() const;
 
+	void setTimeModifier(float t_modifier);
+
 private:
 
 	sf::RenderWindow & m_windowRef;
 	std::vector<MazeSolver*> & m_solversRef;
+
+	float m_timeModifer;
 
 	bool m_animating;
 };

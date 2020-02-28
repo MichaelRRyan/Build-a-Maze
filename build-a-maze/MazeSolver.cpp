@@ -38,21 +38,49 @@ void MazeSolver::setPreviousPos(int t_row, int t_col)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void MazeSolver::setMoveTimer(int t_time)
+void MazeSolver::setMovementSpeed(float t_speed)
 {
-	m_moveTimer = t_time;
-	
+	m_movementSpeed = t_speed;
+
+	// If the movement timer is greater than the movement speed, set it to the movement speed
 	if (m_moveTimer > m_movementSpeed)
 	{
-		m_movementSpeed = m_moveTimer;
+		m_moveTimer = m_movementSpeed;
 	}
 }
 
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::setTimeModifier(float t_mod)
+{
+	m_timeModifier = t_mod;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::setTimeModifier(float t_mod, int m_movementSpeed)
+{
+	m_timeModifier = t_mod;
+
+	setMovementSpeed(static_cast<int>(m_movementSpeed * t_mod));
+}
+
+///////////////////////////////////////////////////////////////////////////
 void MazeSolver::setMovementDirection(Direction t_direction)
 {
 	m_moveDir = t_direction;
 
 	setTextureDirection();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::resetMoveTimer()
+{
+	m_moveTimer = m_movementSpeed;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::decrementMoveTimer()
+{
+	m_moveTimer--;
 }
 
 ///////////////////////////////////////////////////////////////////////////

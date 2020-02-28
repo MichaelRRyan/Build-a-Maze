@@ -81,7 +81,7 @@ void EndGameUI::setAnimating()
 	m_animating = true;
 	m_animationClock.restart();
 	m_background.setFillColor({ 0, 0, 0, 0 });
-	m_message.setFillColor({ 255, 255, 0 });
+	m_message.setFillColor({ 255, 255, 255, 0 });
 	m_restartButton.setOpacity(0u);
 	m_menuButton.setOpacity(0u);
 }
