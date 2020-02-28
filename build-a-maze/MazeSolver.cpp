@@ -83,7 +83,7 @@ void MazeSolver::findNewDirection()
 }
 
 ///////////////////////////////////////////////////////////////////////////
-bool MazeSolver::isBlocked(sf::Vector2i t_mazePos)
+bool MazeSolver::isBlocked(sf::Vector2i t_mazePos) const
 {
 	// If outside the maze bounds
 	if (t_mazePos.x < 0 || t_mazePos.x >= MAZE_SIZE
@@ -118,15 +118,15 @@ void MazeSolver::reset(int t_moveDelay)
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::checkForExit()
 {
-	// Only go towards exit if we have a sheep or none are available
-	if (m_hasFollower || !sheepAvailable())
+	// Only go towards exit if we have a sheep
+	if (m_hasFollower)
 	{
 		// Check Vertically
-		if (m_pos.y > MAZE_SIZE - 5 && m_pos.x == MAZE_SIZE - 2)
+		if (m_pos.y < 4 && m_pos.x == 1)
 		{
 			bool goalBlocked = false;
 
-			for (int i = m_pos.y; i < MAZE_SIZE - 1; i++)
+			for (int i = m_pos.y; i > 0; i--)
 			{
 				if (isBlocked({ m_pos.x, i }))
 				{
@@ -136,16 +136,16 @@ void MazeSolver::checkForExit()
 			}
 			if (goalBlocked == false)
 			{
-				m_moveDir = Direction::South;
+				m_moveDir = Direction::North;
 			}
 		}
 
 		// Check horisontally
-		if (m_pos.x > MAZE_SIZE - 5 && m_pos.y == MAZE_SIZE - 2)
+		if (m_pos.x < 4 && m_pos.y == 1)
 		{
 			bool goalBlocked = false;
 
-			for (int i = m_pos.x; i < MAZE_SIZE; i++)
+			for (int i = m_pos.x; i > 0; i--)
 			{
 				if (isBlocked({ i, m_pos.y }))
 				{
@@ -155,7 +155,7 @@ void MazeSolver::checkForExit()
 			}
 			if (goalBlocked == false)
 			{
-				m_moveDir = Direction::East;
+				m_moveDir = Direction::West;
 			}
 		}
 	}

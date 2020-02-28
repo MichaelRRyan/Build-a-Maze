@@ -63,7 +63,7 @@ void Sheep::update()
 				m_moveDir = Global::getDirection(m_pos - m_previousPos);
 
 				// Check if the sheep made it to the end of the maze while following a solver
-				if (m_pos.x == MAZE_SIZE - 2 && m_pos.y == MAZE_SIZE - 2)
+				if (m_pos.x == 1 && m_pos.y == 1)
 				{
 					m_active = false;
 				}

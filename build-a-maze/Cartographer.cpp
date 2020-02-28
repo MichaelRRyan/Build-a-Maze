@@ -48,6 +48,11 @@ void Cartographer::update()
 
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 	{
+		if (isCornered())
+		{
+			clearMap();
+		}
+
 		// Check for new pathways on all sides
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 
@@ -185,21 +190,49 @@ void Cartographer::hasFollower(bool t_hasFollower)
 	if (!m_hasFollower && t_hasFollower)
 	{
 		// Reset the "map" when the solver gets a follower
-		while (!m_previousTiles.empty())
-		{
-			m_previousTiles.pop();
-		}
-
-		for (int i = 0; i < m_deadEnds.size(); i++)
-		{
-			for (int j = 0; j < m_deadEnds.at(i).size(); j++)
-			{
-				m_deadEnds[i][j] = false;
-			}
-		}
+		clearMap();
 	}
 
 	m_hasFollower = t_hasFollower;
+}
+
+bool Cartographer::isCornered() const
+{
+	bool blocked = true;
+
+	// Loop for the 4 directions (enum starts at index 1)
+	for (int i = 1; i < 5; i++)
+	{
+		Direction direction = static_cast<Direction>(i);
+		sf::Vector2i dirVec = Global::getDirectionVector(direction);
+
+		// If not blocked return false
+		if (!isBlocked(m_pos + dirVec))
+		{
+			blocked = false;
+			break;
+		}
+	}
+
+	return blocked;
+}
+
+void Cartographer::clearMap()
+{
+	// Loop and clear the previous tiles stack
+	while (!m_previousTiles.empty())
+	{
+		m_previousTiles.pop();
+	}
+
+	// Setup dead ends array
+	for (int row = 0; row < MAZE_SIZE; row++)
+	{
+		for (int col = 0; col < MAZE_SIZE; col++)
+		{
+			m_deadEnds[row][col] = false;
+		}
+	}
 }
 
 void Cartographer::findNewDirection()
@@ -241,7 +274,7 @@ void Cartographer::findNewDirection()
 	}
 }
 
-bool Cartographer::isBlocked(sf::Vector2i t_mazePos)
+bool Cartographer::isBlocked(sf::Vector2i t_mazePos) const
 {
 	// If outside the maze bounds
 	if (t_mazePos.x < 0 || t_mazePos.x >= MAZE_SIZE
@@ -276,18 +309,5 @@ void Cartographer::reset(int t_moveDelay)
 	m_moveDir = Direction::East;
 	setTimeModifier(1);
 
-	// Loop and clear the previous tiles stack
-	while (!m_previousTiles.empty())
-	{
-		m_previousTiles.pop();
-	}
-
-	// Setup dead ends array
-	for (int row = 0; row < MAZE_SIZE; row++)
-	{
-		for (int col = 0; col < MAZE_SIZE; col++)
-		{
-			m_deadEnds[row][col] = false;
-		}
-	}
+	clearMap();
 }

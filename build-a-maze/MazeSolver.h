@@ -18,7 +18,7 @@ public:
 	virtual void update() = 0; // Move the enemy if not blocked by an enemy or wall
 	virtual void move(sf::Vector2i t_newPosition); // Move the solver to a new position
 	virtual void findNewDirection(); // Finds a new direction (direction solver is not facing). Always goes right or left before turning around
-	virtual bool isBlocked(sf::Vector2i t_mazePos); // Check if a tile is a wall
+	virtual bool isBlocked(sf::Vector2i t_mazePos) const; // Check if a tile is a wall
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
 

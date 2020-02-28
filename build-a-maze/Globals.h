@@ -8,7 +8,7 @@
 const int MAZE_SIZE{ 15 };
 const float TILE_SIZE{ 32.0f };
 
-const sf::Vector2i MAZE_EXIT{ MAZE_SIZE - 1, MAZE_SIZE - 2 };
+const sf::Vector2i MAZE_EXIT{ 0, 1 };
 
 const int SOLVERS_MAX{ 20 };
 

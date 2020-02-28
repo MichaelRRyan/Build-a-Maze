@@ -132,5 +132,5 @@ void MazeGenerator::generateMaze(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SI
 
 	// Clear the maze entrance and finish
 	t_maze[1][0].setType(TileType::None);
-	t_maze[MAZE_SIZE - 2][MAZE_SIZE - 1].setType(TileType::None);
+	//t_maze[MAZE_SIZE - 2][MAZE_SIZE - 1].setType(TileType::None);
 }
