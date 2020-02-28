@@ -10,10 +10,10 @@ namespace GUI
 	{
 	public:
 		// Text button constructer
-		Button(sf::Texture const& t_texture, sf::IntRect t_buttonRect, sf::Font const& t_font, std::string t_textString, sf::Vector2f t_position);
+		Button(sf::Texture const& t_texture, sf::IntRect t_buttonRect, sf::Font const& t_font, std::string t_textString, sf::Vector2f t_position = { 0.0f, 0.0f });
 
 		// Image button constructer
-		Button(sf::Texture const& t_guiTexture, sf::Texture const& t_imageTexture, sf::IntRect t_guiRect, sf::IntRect t_imageRect, sf::Vector2f t_position);
+		Button(sf::Texture const& t_guiTexture, sf::Texture const& t_imageTexture, sf::IntRect t_guiRect, sf::IntRect t_imageRect, sf::Vector2f t_position = { 0.0f, 0.0f });
 
 		//void draw(sf::RenderWindow& t_window) const;
 		void setup();
@@ -25,6 +25,8 @@ namespace GUI
 		bool getLocked() const;
 
 		void setCharacterSize(unsigned t_characterSize);
+
+		void setPosition(sf::Vector2f t_position);
 
 		const sf::Vector2f getPosition() const;
 		const sf::Vector2f getSize() const;

@@ -135,6 +135,14 @@ namespace GUI
 	}
 
 	////////////////////////////////////////////////////////////
+	void Button::setPosition(sf::Vector2f t_position)
+	{
+		m_sprite.setPosition(t_position.x + getSize().x / 2.0f, t_position.y + getSize().y / 2.0f);
+		m_text.setPosition(t_position.x + getSize().x / 2.0f, t_position.y + getSize().y / 2.2f);
+		m_image.setPosition(t_position.x + getSize().x / 2.0, t_position.y + getSize().y / 2.0f);
+	}
+
+	////////////////////////////////////////////////////////////
 	const sf::Vector2f Button::getPosition() const
 	{
 		return m_sprite.getPosition();

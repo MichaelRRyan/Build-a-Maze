@@ -47,6 +47,7 @@ private:
 	sf::Texture m_tileTextures;
 
 	sf::RectangleShape m_shopBackground;
+	sf::RectangleShape m_shopDivider;
 	sf::RectangleShape m_statsBackground;
 
 	std::array<GUI::Button, 9> m_shopItems;
