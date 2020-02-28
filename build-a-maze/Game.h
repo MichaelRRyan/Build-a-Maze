@@ -14,6 +14,8 @@
 #include "MazeValidator.h"
 #include "MazeEditor.h"
 
+#include "SolverAnimator.h"
+
 #include "MazeSolver.h"
 #include "BasicSolver.h"
 #include "Mathematician.h"
@@ -131,6 +133,8 @@ private:
 	const float m_SIM_MODE_OFFSET;
 
 	bool m_animatingHUD;
+
+	SolverAnimator m_solverAnimator;
 };
 
 #endif // !GAME

@@ -144,6 +144,7 @@
     </ClCompile>
     <ClCompile Include="RoundedRectangleShape.cpp" />
     <ClCompile Include="Sheep.cpp" />
+    <ClCompile Include="SolverAnimator.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="XBox360Controller.cpp" />
   </ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RoundedRectangleShape.h" />
     <ClInclude Include="Sheep.h" />
+    <ClInclude Include="SolverAnimator.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="XBox360Controller.h" />
   </ItemGroup>

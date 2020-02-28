@@ -341,7 +341,7 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 
 	// Setup the shop text
 	m_shopTitleText.setFont(m_hudFont);
-	m_shopTitleText.setString("CONSTRUCTION SHOP");
+	m_shopTitleText.setString("Farmers Market");
 	m_shopTitleText.setCharacterSize(22u);
 	m_shopTitleText.setPosition(shopCentre, t_windowView.getSize().y * 0.05f);
 	m_shopTitleText.setFillColor(sf::Color::Black);

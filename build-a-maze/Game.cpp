@@ -21,7 +21,8 @@ Game::Game() :
 	m_currency{ 1000 }, // Set the player's currency to 400
 	m_mazeEditor{ m_mazeBlocks, m_currency },
 	m_animatingHUD{ false },
-	m_endGameUI{ m_GUI_VIEW }
+	m_endGameUI{ m_GUI_VIEW },
+	m_solverAnimator{ m_window, m_mazeSolverPtrs }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -167,7 +168,6 @@ void Game::update(sf::Time t_deltaTime)
 	case GameState::Simulation:
 		updateSimulation(t_deltaTime);
 		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, &Game::togglePause, m_noOfAI, m_timeToComplete, m_moneyEarned);
-		updateSheep();
 
 		break;
 	case GameState::GameEnd:
@@ -325,14 +325,12 @@ void Game::resetSimulation()
 	m_timeModifier = 1.0f;
 
 	// Reset all AI's positions to the start of the maze
-	int moveDelayCounter = 0; // Counts the number of maze solvers and uses this to set the delay on movement
 	for (MazeSolver* solver : m_mazeSolverPtrs)
 	{
-		solver->reset(moveDelayCounter * 64);
-		solver->setMoveTimer(moveDelayCounter * 64);
-		solver->setPreviousPos(1, -moveDelayCounter * 4);
-		moveDelayCounter++;
+		solver->reset(0);
 	}
+
+	m_solverAnimator.startAnimating();
 }
 
 /// <summary>
@@ -344,8 +342,8 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 	if (!m_gamePaused)
 	{
 		// Reset AI count
-		int lastMax = m_noOfAI;
-		int i = SOLVERS_MAX;
+		int lastMax = m_noOfAI; // TEMP
+		int i = SOLVERS_MAX; // TEMP
 		m_noOfAI = 0;
 
 		// Loop through and update all AI. Count those that are still active
@@ -353,16 +351,19 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 		{
 			if (solver->getActive())
 			{
-				solver->update();
+				if (!solver->isAnimatingOutside())
+				{
+					solver->update();
+				}
 				m_noOfAI++;
 			}
-			else if (solver->getPos().x != MAZE_SIZE - 1 && solver->getPos().y != MAZE_SIZE - 2)
+			else if (solver->getPos().x != MAZE_SIZE - 1 && solver->getPos().y != MAZE_SIZE - 2) // TEMP
 			{
-				i--;
+				i--; // TEMP
 			}
 		}
 
-		if (i < lastMax)
+		if (i < lastMax) // TEMP
 		{
 			std::cout << lastMax - i << " AI Killed " << m_noOfAI << std::endl;
 		}
@@ -393,6 +394,9 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 		}
 
 		handleClickEvents();
+		updateSheep();
+
+		m_solverAnimator.update();
 	}
 }
 

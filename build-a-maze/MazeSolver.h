@@ -22,16 +22,22 @@ public:
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
 
+	// Getters
 	inline sf::Vector2i getPreviousPos() { return m_previousPos; } // Return the previous row and col position of the solver
 	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the solver
 	inline bool getActive() { return m_active; };
 	inline sf::Sprite getSprite() { return m_body; }
+	const int getMoveTimer() const;
+	const bool isAnimatingOutside() const;
 
+	// Setters
+	void setAnimatingOutside(bool t_state);
 	inline void setActive(bool t_active) { m_active = t_active; }
 	void setPos(int t_row, int t_col);
 	void setPreviousPos(int t_row, int t_col);
 	void setMoveTimer(int t_time);
 	inline void setTimeModifier(float t_mod) { m_timeModifier = t_mod; } // Set the time modifier for the movement speed
+	void setMovementDirection(Direction t_direction);
 
 	void checkForExit(); // Check if the exit of the maze is within sight, set direction towards it
 	void animate();
@@ -75,6 +81,7 @@ protected:
 	std::vector<Sheep *> & m_sheepRef;
 
 	bool m_hasFollower; // Whether or not a sheep is following the solver
+	bool m_animatingOutside; // Whether or not the solver is animating
 };
 
 #endif // !MAZE_SOLVER_H

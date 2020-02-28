@@ -16,6 +16,11 @@ void MazeSolver::draw(sf::RenderWindow& t_window) const
 	t_window.draw(m_body);
 }
 
+void MazeSolver::setAnimatingOutside(bool t_state)
+{
+	m_animatingOutside = t_state;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::setPos(int t_row, int t_col)
 {
@@ -23,7 +28,6 @@ void MazeSolver::setPos(int t_row, int t_col)
 	m_pos.y = t_row; // Set the row
 
 	m_previousPos = m_pos; // Set the previous position for animation
-	m_body.setPosition(static_cast<sf::Vector2f>(m_pos * static_cast<int>(TILE_SIZE))); // Set the position to the current cell
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -42,6 +46,25 @@ void MazeSolver::setMoveTimer(int t_time)
 	{
 		m_movementSpeed = m_moveTimer;
 	}
+}
+
+void MazeSolver::setMovementDirection(Direction t_direction)
+{
+	m_moveDir = t_direction;
+
+	setTextureDirection();
+}
+
+///////////////////////////////////////////////////////////////////////////
+const int MazeSolver::getMoveTimer() const
+{
+	return m_moveTimer;
+}
+
+///////////////////////////////////////////////////////////////////////////
+const bool MazeSolver::isAnimatingOutside() const
+{
+	return m_animatingOutside;
 }
 
 ///////////////////////////////////////////////////////////////////////////
