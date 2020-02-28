@@ -92,6 +92,24 @@ namespace GUI
 	}
 
 	////////////////////////////////////////////////////////////
+	void Button::setOpacity(sf::Uint8 t_value)
+	{
+		m_sprite.setColor({ 255, 255, 255, t_value });
+		m_image.setColor({ 255, 255, 255, t_value });
+
+		if (!m_imageButton)
+		{
+			sf::Color color{ m_text.getFillColor() };
+			color.a = t_value;
+			m_text.setFillColor(color);
+
+			color = m_text.getOutlineColor();
+			color.a = t_value;
+			m_text.setOutlineColor(color);
+		}
+	}
+
+	////////////////////////////////////////////////////////////
 	void Button::setLocked(bool t_state)
 	{
 		m_locked = t_state;

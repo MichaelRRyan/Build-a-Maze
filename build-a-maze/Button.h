@@ -20,6 +20,11 @@ namespace GUI
 		//bool processMouseEvents(Cursor const & t_cursor);
 		bool update(Cursor const& t_cursor);
 		
+		/// <summary>
+		/// @brief Set the opacity of the button
+		/// </summary>
+		/// <param name="t_value">opacity between 0 and 255</param>
+		void setOpacity(sf::Uint8 t_value);
 
 		void setLocked(bool t_state);
 		bool getLocked() const;

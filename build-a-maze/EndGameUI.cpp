@@ -37,13 +37,17 @@ void EndGameUI::update(Cursor const& t_cursor, Game* t_game, std::function<void(
 		m_animating = false;
 		m_background.setFillColor({ 0, 0, 0, 255 });
 		m_message.setFillColor({ 255, 255, 255 });
+		m_restartButton.setOpacity(255u);
+		m_menuButton.setOpacity(255u);
 	}
-	else // Animate the background and text
+	else // Animate the background, text and buttons
 	{
 		float animProgress{ m_animationClock.getElapsedTime().asSeconds() / m_SECONDS_TO_ANIMATE };
 
 		m_background.setFillColor({ 0, 0, 0, static_cast<sf::Uint8>(255.0f * animProgress) });
 		m_message.setFillColor({ 255, 255, 255, static_cast<sf::Uint8>(255.0f * animProgress) });
+		m_restartButton.setOpacity(static_cast<sf::Uint8>(255.0f * animProgress));
+		m_menuButton.setOpacity(static_cast<sf::Uint8>(255.0f * animProgress));
 	}
 	
 	// Update the buttons
@@ -76,4 +80,8 @@ void EndGameUI::setAnimating()
 {
 	m_animating = true;
 	m_animationClock.restart();
+	m_background.setFillColor({ 0, 0, 0, 0 });
+	m_message.setFillColor({ 255, 255, 0 });
+	m_restartButton.setOpacity(0u);
+	m_menuButton.setOpacity(0u);
 }
