@@ -126,6 +126,7 @@
     <ClCompile Include="Cartographer.cpp" />
     <ClCompile Include="Cursor.cpp" />
     <ClCompile Include="EndGameUI.cpp" />
+    <ClCompile Include="Farmer.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="main.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Cartographer.h" />
     <ClInclude Include="EndGameUI.h" />
+    <ClInclude Include="Farmer.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="BasicSolver.h" />
     <ClInclude Include="Globals.h" />

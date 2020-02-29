@@ -321,7 +321,7 @@ void Game::generateNewSolvers()
 	// Add a random selection of AI to the maze
 	for (int i = 0; i < numOfSolvers; i++)
 	{
-		switch (rand() % 3)
+		switch (rand() % 4)
 		{
 		case 0:
 			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
@@ -333,6 +333,10 @@ void Game::generateNewSolvers()
 
 		case 2:
 			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks, m_sheep });
+			break;
+
+		case 3:
+			m_mazeSolverPtrs.push_back(new Farmer{ m_mazeBlocks, m_sheep });
 			break;
 		}
 	}

@@ -100,7 +100,7 @@ void Sheep::loadFiles()
 	}
 
 	m_sprite.setTexture(m_spriteSheet); // Set the character texture
-	m_sprite.setTextureRect({ 16, 320, 16, 32 }); // Set the character
+	m_sprite.setTextureRect({ 16, 384, 16, 32 }); // Set the character
 	m_sprite.setOrigin(0.0f, 16.0f); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
@@ -190,7 +190,7 @@ void Sheep::animate()
 	if (State::Idle == m_state)
 	{
 		int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 4);
-		sf::IntRect frame = { (16 * frameNum), 288, 16, 32 }; // Character height = 64, character width = 32
+		sf::IntRect frame = { (16 * frameNum), 384, 16, 32 }; // Character height = 64, character width = 32
 
 		m_sprite.setTextureRect(frame);
 	}
@@ -204,7 +204,7 @@ void Sheep::animate()
 		m_sprite.setPosition(static_cast<float>(newX), static_cast<float>(newY));
 
 		int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
-		sf::IntRect frame = { (16 * frameNum), 320 + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
+		sf::IntRect frame = { (16 * frameNum), 416 + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
 
 		m_sprite.setTextureRect(frame);
 	}

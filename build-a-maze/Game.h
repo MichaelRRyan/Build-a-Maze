@@ -20,6 +20,7 @@
 #include "BasicSolver.h"
 #include "Mathematician.h"
 #include "Cartographer.h"
+#include "Farmer.h"
 
 #include "Globals.h"
 #include "Cursor.h"

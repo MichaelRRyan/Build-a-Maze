@@ -99,6 +99,9 @@
     <ClCompile Include="Popup.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Farmer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="Popup.h">
       <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Farmer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
