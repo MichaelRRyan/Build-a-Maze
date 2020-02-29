@@ -31,8 +31,8 @@ void BasicSolver::loadFiles()
 	}
 
 	m_body.setTexture(m_spriteSheet); // Set the character texture
-	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x * 2, m_characterNumber.y, 32, 64 }); // Set the character
-	m_body.setOrigin(0.0f, 32.0f); // Set the origin of the sprite to ignore the head part of the sprite
+	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x, m_characterNumber.y, 16, 32 }); // Set the character
+	m_body.setOrigin(0.0f, 16.0f); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
 /// <summary>

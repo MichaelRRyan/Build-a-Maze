@@ -24,15 +24,15 @@ Mathematician::Mathematician(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> 
 /// </summary>
 void Mathematician::loadFiles()
 {
-	m_characterNumber = { 0, 64 * 3 };
+	m_characterNumber = { 0, 32 * 3 };
 
 	if (!m_spriteSheet.loadFromFile("ASSETS\\IMAGES\\character_sheet.png"))
 	{
 		// Error loading image
 	}
 	m_body.setTexture(m_spriteSheet); // Set the character texture
-	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x + 32, m_characterNumber.y, 32, 64 }); // Set the character
-	m_body.setOrigin(0.0f, 32.0f); // Set the origin of the sprite to ignore the head part of the sprite
+	m_body.setTextureRect(sf::IntRect{ m_characterNumber.x + 16, m_characterNumber.y, 16, 32 }); // Set the character
+	m_body.setOrigin(0.0f, 16.0f); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
 /// <summary>

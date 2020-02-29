@@ -18,6 +18,7 @@ MazeSolver::MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_ma
 	m_animatingOut{ false },
 	m_active{ false }
 {
+	m_body.setScale(2.0f, 2.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -294,7 +295,7 @@ void MazeSolver::animate()
 	m_body.setPosition(static_cast<float>(newX), static_cast<float>(newY));
 
 	int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
-	sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (32 * frameNum), m_characterNumber.y + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
+	sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (16 * frameNum), m_characterNumber.y + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
 
 	m_body.setTextureRect(frame);
 }
@@ -312,12 +313,12 @@ void MazeSolver::setTextureDirection()
 		break;
 	case Direction::West: // Set the sprite to the look left texture
 		m_characterDirection = 1;
-		m_body.setScale(-1.0f, 1.0f);
-		m_body.setOrigin(static_cast<float>(32), m_body.getOrigin().y);
+		m_body.setScale(-2.0f, 2.0f);
+		m_body.setOrigin(static_cast<float>(16), m_body.getOrigin().y);
 		break;
 	case Direction::East: // Set the sprite to the look right texture
 		m_characterDirection = 1;
-		m_body.setScale(1.0f, 1.0f);
+		m_body.setScale(2.0f, 2.0f);
 		m_body.setOrigin(0.0f, m_body.getOrigin().y);
 		break;
 	default:

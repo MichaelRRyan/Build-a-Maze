@@ -5,6 +5,7 @@ Sheep::Sheep(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_maze) :
 	m_mazeRef{ t_maze },
 	m_followee{ nullptr }
 {
+	m_sprite.setScale(2.0f, 2.0f);
 	loadFiles();
 	reset();
 
@@ -99,8 +100,8 @@ void Sheep::loadFiles()
 	}
 
 	m_sprite.setTexture(m_spriteSheet); // Set the character texture
-	m_sprite.setTextureRect({ 32, 640, 32, 64 }); // Set the character
-	m_sprite.setOrigin(0.0f, 32.0f); // Set the origin of the sprite to ignore the head part of the sprite
+	m_sprite.setTextureRect({ 16, 320, 16, 32 }); // Set the character
+	m_sprite.setOrigin(0.0f, 16.0f); // Set the origin of the sprite to ignore the head part of the sprite
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -189,7 +190,7 @@ void Sheep::animate()
 	if (State::Idle == m_state)
 	{
 		int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 4);
-		sf::IntRect frame = { (32 * frameNum), 576, 32, 64 }; // Character height = 64, character width = 32
+		sf::IntRect frame = { (16 * frameNum), 288, 16, 32 }; // Character height = 64, character width = 32
 
 		m_sprite.setTextureRect(frame);
 	}
@@ -203,7 +204,7 @@ void Sheep::animate()
 		m_sprite.setPosition(static_cast<float>(newX), static_cast<float>(newY));
 
 		int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
-		sf::IntRect frame = { (32 * frameNum), 640 + m_characterDirection * 64, 32, 64 }; // Character height = 64, character width = 32
+		sf::IntRect frame = { (16 * frameNum), 320 + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
 
 		m_sprite.setTextureRect(frame);
 	}
@@ -222,12 +223,12 @@ void Sheep::setTextureDirection()
 		break;
 	case Direction::West: // Set the sprite to the look left texture
 		m_characterDirection = 1;
-		m_sprite.setScale(-1.0f, 1.0f);
-		m_sprite.setOrigin(32.0f, m_sprite.getOrigin().y);
+		m_sprite.setScale(-2.0f, 2.0f);
+		m_sprite.setOrigin(16.0f, m_sprite.getOrigin().y);
 		break;
 	case Direction::East: // Set the sprite to the look right texture
 		m_characterDirection = 1;
-		m_sprite.setScale(1.0f, 1.0f);
+		m_sprite.setScale(2.0f, 2.0f);
 		m_sprite.setOrigin(0.0f, m_sprite.getOrigin().y);
 		break;
 	}

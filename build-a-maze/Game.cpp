@@ -383,7 +383,6 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 		{
 			m_currency += m_moneyEarned;
 			switchGameState();
-			//m_simDetailsDisplay = true;
 			m_roundNumber++;
 		}
 
