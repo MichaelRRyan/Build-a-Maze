@@ -255,7 +255,7 @@ void Renderer::drawMazeHighlights()
 			else if (m_mazeRef[row + 1][col] == TileType::TurretWest
 				|| m_mazeRef[row + 1][col] == TileType::TurretWest)
 			{
-				if (!m_mazeRef[row][col].getAnimating())
+				if (!m_mazeRef[row + 1][col].getAnimating())
 				{
 					float animFrame = m_animationClock.getElapsedTime().asMilliseconds() / 100 % 6;
 

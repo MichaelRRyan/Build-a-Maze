@@ -521,39 +521,39 @@ void Game::handleClickEvents()
 			{
 				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
 
-				if (selectedTile != TileType::Wall
-					&& selectedTile != TileType::Mud
-					&& selectedTile != TileType::None)
+				if (m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x] == TileType::TurretWest
+					|| m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x] == TileType::TurretEast)
 				{
-					if (selectedTile == TileType::TurretWest
-						|| selectedTile == TileType::TurretEast)
+					if (!m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x].getAnimating())
 					{
-						if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
+						// Turn on animation
+						m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x].setAnimating(true);
+
+						// Loop all the paintballs
+						for (Paintball& paintball : m_paintballs)
 						{
-							// Turn on animation
-							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
-
-							// Loop all the paintballs
-							for (Paintball& paintball : m_paintballs)
+							// Find an inactive one
+							if (!paintball.isActive())
 							{
-								// Find an inactive one
-								if (!paintball.isActive())
+								sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE }; // Find the turret position
+								position.y += 18.0f; // Adjust height for barrel height
+
+								if (m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x] == TileType::TurretEast)
 								{
-									sf::Vector2f position{ static_cast<sf::Vector2f>(m_cursor.m_selectedTile)* TILE_SIZE }; // Find the turret position
-									position.y -= 18.0f; // Adjust height for barrel height
-
-									if (selectedTile == TileType::TurretEast)
-									{
-										position.x += 32.0f;
-									}
-
-									paintball.fire(position, Global::getDirection(selectedTile), sf::Color{ 135, 113, 85 }); // Fire a bullet
-									break; // Break once a bullet has been found
+									position.x += 32.0f;
 								}
+
+								paintball.fire(position, Global::getDirection(m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x].getType()), sf::Color{ 135, 113, 85 }); // Fire a bullet
+								break; // Break once a bullet has been found
 							}
 						}
 					}
-					else if (selectedTile == TileType::SteppingStones)
+				}
+				else if (selectedTile != TileType::Wall
+					&& selectedTile != TileType::Mud
+					&& selectedTile != TileType::None)
+				{
+					if (selectedTile == TileType::SteppingStones)
 					{
 						if (!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating())
 						{

@@ -70,7 +70,7 @@ void Tile::setType(TileType t_type)
 		|| m_type == TileType::TurretEast)
 	{
 		m_maxFrames = 7;
-		m_animFrameTime = 0.3f;
+		m_animFrameTime = 0.6f;
 		m_loop = false;
 	}
 	else if (m_type == TileType::Trapdoor)
