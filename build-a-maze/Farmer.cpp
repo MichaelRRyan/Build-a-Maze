@@ -43,7 +43,7 @@ void Farmer::update()
 		// Positive
 		if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x }))
 		{
-			if (rand() % 2 == 0) {
+			if (rand() % 5 == 0) {
 				m_moveDir = Global::getDirection({ dir.y, dir.x });
 			}
 		}
@@ -51,7 +51,7 @@ void Farmer::update()
 		// Negative
 		if (!isBlocked({ m_pos.x - dir.y, m_pos.y - dir.x }))
 		{
-			if (rand() % 2 == 0) {
+			if (rand() % 5 == 0) {
 				m_moveDir = Global::getDirection({ dir.y * -1, dir.x * -1 });
 			}
 		}
@@ -70,6 +70,15 @@ void Farmer::update()
 			{
 				move(desiredPosition);
 				break; // Break from the loop if the enemy can move
+			}
+			// Random chance to destroy a wall if blocked
+			else if (rand() % 5 == 0 // 1 in 5 chance
+				&& desiredPosition.x > 0 && desiredPosition.x < MAZE_SIZE - 1 // Boundary checking
+				&& desiredPosition.y > 0 && desiredPosition.y < MAZE_SIZE - 1 // Boundary checking
+				&& m_mazeRef[desiredPosition.y][desiredPosition.x] == TileType::Wall) // Check if wall
+			{
+				m_mazeRef[desiredPosition.y][desiredPosition.x].setType(TileType::None);
+				break;
 			}
 			else
 			{
