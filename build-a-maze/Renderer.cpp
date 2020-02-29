@@ -145,7 +145,6 @@ void Renderer::drawMazeFloorRow(int t_row, sf::Vector2i t_selectedTile, Construc
 			if (t_selectedTileType != TileType::Wall
 				&& t_selectedTileType != TileType::TurretWest)
 			{
-				m_mazeRef[t_row][col].updateAnimation();
 				drawTile(t_selectedTileType, 0, t_row, col, sf::Color{ 50,100,200,180 });
 			}
 		}

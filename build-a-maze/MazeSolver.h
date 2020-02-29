@@ -23,10 +23,10 @@ public:
 	virtual void draw(sf::RenderWindow& t_window) const;
 
 	// Getters
-	inline sf::Vector2i getPreviousPos() { return m_previousPos; } // Return the previous row and col position of the solver
-	inline sf::Vector2i getPos() { return m_pos; } // Return the row and col position of the solver
-	inline bool getActive() { return m_active; };
-	inline sf::Sprite getSprite() { return m_body; }
+	const sf::Vector2i getPreviousPos() const; // Return the previous row and col position of the solver
+	const sf::Vector2i getPos() const; // Return the row and col position of the solver
+	const bool getActive() const;
+	const sf::Sprite getSprite() const;
 	const int getMoveTimer() const;
 	const bool isAnimatingIn() const;
 	const bool isAnimatingOut() const;
@@ -34,7 +34,7 @@ public:
 	// Setters
 	void setAnimatingIn(bool t_state);
 	void setAnimatingOut(bool t_state);
-	inline void setActive(bool t_active) { m_active = t_active; }
+	void setActive(bool t_active);
 	void setPos(int t_row, int t_col);
 	void setPreviousPos(int t_row, int t_col);
 	void setMovementSpeed(float t_speed);
