@@ -176,6 +176,9 @@
     <ClInclude Include="Farmer.h">
       <Filter>Header Files\Solvers</Filter>
     </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Font Include="ASSETS\FONTS\arial.ttf">

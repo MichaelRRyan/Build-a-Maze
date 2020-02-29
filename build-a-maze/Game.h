@@ -23,6 +23,7 @@
 #include "Farmer.h"
 
 #include "Globals.h"
+#include "Config.h"
 #include "Cursor.h"
 #include "Renderer.h"
 #include "MenuScreen.h"
@@ -105,6 +106,8 @@ private:
 	int m_currency;
 	int m_moneyEarned;
 	int m_noOfAI;
+
+	int m_aliveAI;
 
 	float m_secondsSinceSheepCheck;
 

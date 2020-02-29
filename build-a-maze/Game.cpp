@@ -4,8 +4,8 @@
 
 ///////////////////////////////////////////////////////////////////////////
 Game::Game() :
-	//m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
-	m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
+	m_window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" },
+	//m_window{ sf::VideoMode::getDesktopMode(), "Build-a-Maze", sf::Style::Fullscreen },
 	m_BUILD_MODE_OFFSET{ 420.0f },
 	m_SIM_MODE_OFFSET{ 320.0f },
 	m_exitGame{ false },
@@ -326,6 +326,7 @@ void Game::generateNewSolvers()
 	int inaccessibleSheep = countInaccessibleSheep();
 
 	int numOfSolvers = m_STARTING_SOLVERS * m_roundNumber;
+	m_aliveAI = numOfSolvers;
 
 	// Add a random selection of AI to the maze
 	for (int i = 0; i < numOfSolvers; i++)
@@ -368,8 +369,7 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 	if (!m_gamePaused)
 	{
 		// Reset AI count
-		int lastMax = m_noOfAI; // TEMP
-		int i = m_mazeSolverPtrs.size(); // TEMP
+		int aliveAI = m_mazeSolverPtrs.size(); // TEMP
 		m_noOfAI = 0;
 
 		// Loop through and update all AI. Count those that are still active
@@ -383,18 +383,18 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 				}
 				m_noOfAI++;
 			}
-			else if (solver->getPos().x != MAZE_SIZE - 1 && solver->getPos().y != MAZE_SIZE - 2) // TEMP
+			else if (solver->getPos().x > 0) // Check if the solver is outside the maze (he won)
 			{
-				i--; // TEMP
+				aliveAI--;
 			}
 		}
 
-#ifdef _DEBUG
-		if (i < lastMax) // TEMP
+		if (aliveAI < m_aliveAI)
 		{
-			std::cout << lastMax - i << " AI Killed " << m_noOfAI << std::endl;
+			std::cout << m_aliveAI - aliveAI << " AI Killed " << m_noOfAI << std::endl;
+			m_aliveAI = aliveAI;
+			m_moneyEarned += SOLVER_DEATH_PRICE;
 		}
-#endif // _DEBUG
 
 		// If there are AI in the maze count the time
 		if (m_noOfAI > 0)
@@ -410,24 +410,18 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 				{
 					m_mazeSolverPtrs.push_back(new Farmer(m_mazeBlocks, m_sheep));
 					m_solverAnimator.animateIn(m_mazeSolverPtrs.back(), m_timeModifier);
+					m_aliveAI++;
 				}
 			}
 		}
-		// Else add the money earned to currency and switch modes
-		else
+		else // Else add the money earned to currency and switch modes
 		{
 			m_currency += m_moneyEarned;
 			switchGameState();
 			m_roundNumber++;
 		}
 
-		// Update the money earned from a sim each second
-		if (static_cast<int>(floor(m_prevTimeToComplete)) < static_cast<int>(floor(m_timeToComplete)))
-		{
-			m_moneyEarned += m_noOfAI;
-			m_prevTimeToComplete = m_timeToComplete;
-		}
-
+		// Update the paintballs
 		for (Paintball& paintball : m_paintballs)
 		{
 			paintball.update(m_mazeSolverPtrs);
@@ -745,6 +739,15 @@ int Game::countInaccessibleSheep()
 			{
 				inaccessibleSheep--;
 			}
+		}
+	}
+
+	for (Sheep* sheep : m_sheep)
+	{
+		// Check if the sheep is outside the maze
+		if (sheep->getPos().x < 0)
+		{
+			inaccessibleSheep--;
 		}
 	}
 

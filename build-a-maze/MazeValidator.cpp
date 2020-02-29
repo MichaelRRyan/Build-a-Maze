@@ -19,7 +19,7 @@ bool MazeValidator::isMazeBigEnough(std::array<std::array<Tile, MAZE_SIZE>, MAZE
 
 	// Start the maze at the top left corner
 	int row = 1;
-	int col = 1;
+	int col = 0;
 
 	bool deadEnd = false;
 

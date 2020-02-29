@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="Cartographer.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="EndGameUI.h" />
     <ClInclude Include="Farmer.h" />
     <ClInclude Include="Game.h" />
