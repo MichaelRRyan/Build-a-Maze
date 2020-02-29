@@ -53,6 +53,7 @@ void BasicSolver::update()
 	{
 		// Check for new pathways on all sides
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
+		m_previousMoveDir = m_moveDir;
 
 		// Positive
 		if (!isBlocked({ m_pos.x + dir.y, m_pos.y + dir.x }))

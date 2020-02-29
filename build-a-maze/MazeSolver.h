@@ -73,6 +73,7 @@ protected:
 	sf::Sprite m_body;
 	sf::Vector2i m_pos;
 	sf::Vector2i m_previousPos; // Used for animation
+	Direction m_previousMoveDir;
 	Direction m_moveDir;
 	int m_moveTimer;
 	int m_movementSpeed;

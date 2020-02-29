@@ -330,57 +330,57 @@ void MazeSolver::hasFollower(bool t_hasFollower)
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::handleTreadmills()
 {
-	// Only check for treadmill if the tile is animating
-	if (m_mazeRef[m_previousPos.y][m_previousPos.x].getAnimating())
-	{
-		// Current tile
-		if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
+	// Check if the current tile is an animating treadmill
+	if (m_mazeRef[m_previousPos.y][m_previousPos.x].getAnimating()
+		&& (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillWest
 			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillEast
 			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillNorth
-			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth)
+			|| m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::TreadmillSouth))
+	{
+		// Can be slowed and pushed aside
+		TileType tile = m_mazeRef[m_previousPos.y][m_previousPos.x].getType();
+
+		// If the threadmill is going the same direction as the solver
+		if (Global::getDirection(tile) == m_moveDir)
 		{
-			// Can be slowed and pushed aside
-			TileType tile = m_mazeRef[m_previousPos.y][m_previousPos.x].getType();
+			m_movementSpeed = static_cast<int>((DEFAULT_MOVE_SPEED / 2) * m_timeModifier);
+		}
+		// If the treadmill is going the opposite direction to the solver
+		else if (Global::getDirectionVector(Global::getDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+		{
+			m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);;
+		}
+		// Check if the solver is turning from the treadmill
+		else if (Global::getDirection(tile) != m_previousMoveDir
+			&& Global::getDirectionVector(Global::getDirection(tile)) != -Global::getDirectionVector(m_previousMoveDir))
+		{
+			sf::Vector2i directionVector = Global::getDirectionVector(Global::getDirection(tile));
 
-			// If the threadmill is going the same direction as the solver
-			if (Global::getDirection(tile) == m_moveDir)
+			if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
 			{
-				m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
-			}
-			// If the treadmill is going the opposite direction to the solver
-			else if (Global::getDirectionVector(Global::getDirection(tile)) == -Global::getDirectionVector(m_moveDir))
-			{
-				m_movementSpeed = SLOW_MOVE_SPEED;
-			}
-			else
-			{
-				sf::Vector2i directionVector = Global::getDirectionVector(Global::getDirection(tile));
-
-				if (m_mazeRef[m_previousPos.y + directionVector.y][m_previousPos.x + directionVector.x] != TileType::Wall)
-				{
-					m_pos = m_previousPos + directionVector;
-				}
+				m_pos = m_previousPos + directionVector;
 			}
 		}
-		// Target tile
-		else if (m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillWest
+	}
+	// Check if the target (next) tile is an animating treadmill
+	else if (m_mazeRef[m_pos.y][m_pos.x].getAnimating()
+		&& (m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillWest
 			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillEast
 			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillNorth
-			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillSouth)
-		{
-			// Can be slowed and pushed aside
-			TileType tile = m_mazeRef[m_pos.y][m_pos.x].getType();
+			|| m_mazeRef[m_pos.y][m_pos.x] == TileType::TreadmillSouth))
+	{
+		// Can be slowed and pushed aside
+		TileType tile = m_mazeRef[m_pos.y][m_pos.x].getType();
 
-			// If the threadmill is going the same direction as the solver
-			if (Global::getDirection(tile) == m_moveDir)
-			{
-				m_movementSpeed = DEFAULT_MOVE_SPEED / 2;
-			}
-			// If the treadmill is going the opposite direction to the solver
-			else if (Global::getDirectionVector(Global::getDirection(tile)) == -Global::getDirectionVector(m_moveDir))
-			{
-				m_movementSpeed = SLOW_MOVE_SPEED;
-			}
+		// If the threadmill is going the same direction as the solver
+		if (Global::getDirection(tile) == m_moveDir)
+		{
+			m_movementSpeed = static_cast<int>((DEFAULT_MOVE_SPEED / 2) * m_timeModifier);
+		}
+		// If the treadmill is going the opposite direction to the solver
+		else if (Global::getDirectionVector(Global::getDirection(tile)) == -Global::getDirectionVector(m_moveDir))
+		{
+			m_movementSpeed = static_cast<int>(SLOW_MOVE_SPEED * m_timeModifier);;
 		}
 	}
 }

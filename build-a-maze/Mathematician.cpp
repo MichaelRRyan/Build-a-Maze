@@ -53,6 +53,7 @@ void Mathematician::update()
 	{
 		// Check for new pathways on all sides
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
+		m_previousMoveDir = m_moveDir;
 
 		if (m_takeLefts)
 		{
