@@ -19,10 +19,15 @@ public:
 	void loadFiles();
 	void update(); // Move the enemy if not blocked by an enemy or wall
 
+	virtual void animate() override;
+
 protected:
+
 	// Declare private data members
 	const int DEFAULT_MOVE_SPEED = 16;
 	const int SLOW_MOVE_SPEED = 32;
+
+	bool m_destroying;
 };
 
 #endif // !FARMER_H

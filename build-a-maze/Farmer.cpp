@@ -14,6 +14,7 @@ Farmer::Farmer(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_maze, std::
 	m_active = true;
 	m_movementSpeed = DEFAULT_MOVE_SPEED;
 	m_timeModifier = 1.0f;
+	m_destroying = false;
 }
 
 void Farmer::loadFiles()
@@ -36,6 +37,8 @@ void Farmer::update()
 
 	if (m_moveTimer <= 0) // The enemy can only move once its timer reaches zero
 	{
+		m_destroying = false;
+
 		// Check for new pathways on all sides
 		sf::Vector2i dir = Global::getDirectionVector(m_moveDir);
 		m_previousMoveDir = m_moveDir;
@@ -78,6 +81,7 @@ void Farmer::update()
 				&& m_mazeRef[desiredPosition.y][desiredPosition.x] == TileType::Wall) // Check if wall
 			{
 				m_mazeRef[desiredPosition.y][desiredPosition.x].setType(TileType::None);
+				m_destroying = true;
 				break;
 			}
 			else
@@ -95,5 +99,30 @@ void Farmer::update()
 	{
 		m_moveTimer--;
 		animate();
+	}
+}
+
+void Farmer::animate()
+{
+	// Work out the new X and Y with Linear Interpolation
+	float newX = (m_pos.x * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.x * 32) * (1.0f * m_moveTimer / m_movementSpeed);
+	float newY = (m_pos.y * 32) * (1.0f - (1.0f * m_moveTimer / m_movementSpeed)) + (m_previousPos.y * 32) * (1.0f * m_moveTimer / m_movementSpeed);
+
+	// Set the position to the current cell
+	m_body.setPosition(static_cast<float>(newX), static_cast<float>(newY));
+
+	int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
+
+	if (m_destroying)
+	{
+		sf::IntRect frame = sf::IntRect{ m_characterNumber.x + 48 + (16 * frameNum), m_characterNumber.y + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
+
+		m_body.setTextureRect(frame);
+	}
+	else
+	{
+		sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (16 * frameNum), m_characterNumber.y + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
+
+		m_body.setTextureRect(frame);
 	}
 }

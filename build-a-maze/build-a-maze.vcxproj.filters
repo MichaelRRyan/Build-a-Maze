@@ -99,11 +99,11 @@
     <ClCompile Include="Popup.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Farmer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Globals.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Farmer.cpp">
+      <Filter>Source Files\Solvers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -174,7 +174,7 @@
       <Filter>Header Files\GUI</Filter>
     </ClInclude>
     <ClInclude Include="Farmer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Solvers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

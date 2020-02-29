@@ -46,7 +46,7 @@ public:
 	void decrementMoveTimer();
 
 	void checkForExit(); // Check if the exit of the maze is within sight, set direction towards it
-	void animate();
+	virtual void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
 	const int getMovementSpeed() const;
