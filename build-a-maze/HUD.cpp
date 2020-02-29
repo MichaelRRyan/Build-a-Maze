@@ -89,6 +89,8 @@ void HUD::updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButt
 		if (m_sheepButton.update(t_cursor))
 		{
 			t_purchaseSheepFunc(m_gamePtr);
+			m_mazeEditorRef.unselectEditTool();
+			m_mazeEditorRef.purchaseSheep();
 		}
 
 		if (m_playButton.update(t_cursor))

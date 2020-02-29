@@ -19,7 +19,7 @@ Game::Game() :
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs, m_sheep },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
 	m_currency{ 1000 }, // Set the player's currency to 400
-	m_mazeEditor{ m_mazeBlocks, m_currency },
+	m_mazeEditor{ m_mazeBlocks, m_sheep, m_currency },
 	m_animatingHUD{ false },
 	m_endGameUI{ m_GUI_VIEW },
 	m_solverAnimator{ m_window, m_mazeSolverPtrs },

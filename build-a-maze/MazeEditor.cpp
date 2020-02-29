@@ -1,9 +1,10 @@
 #include "MazeEditor.h"
 
 /////////////////////////////////////////////////////////////////
-MazeEditor::MazeEditor(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_mazeRef, int& t_moneyRef) :
+MazeEditor::MazeEditor(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_mazeRef, std::vector<Sheep*>& t_sheepRef, int& t_moneyRef) :
 	m_mazeRef{ t_mazeRef },
 	m_moneyRef{ t_moneyRef },
+	m_sheepRef{ t_sheepRef },
 	m_currentActionIndex{ 0 },
 	m_constructionMode{ ConstructionMode::None },
 	m_selectedTileType{ TileType::None }
@@ -136,12 +137,27 @@ void MazeEditor::undoAction()
 		// Decrement first as the index starts from zero
 		m_currentActionIndex--;
 
-		// Replace the previous tile
-		sf::Vector2i position = m_actions.at(m_currentActionIndex).m_position;
-		m_mazeRef[position.y][position.x].setType(m_actions.at(m_currentActionIndex).m_prevTile);
+		// Check if the action was a sheep purchase
+		if (m_actions.at(m_currentActionIndex).m_sheep)
+		{
+			// Save the sheep to a vector in case of redo
+			m_deletedSheep.push_back(m_sheepRef.at(m_sheepRef.size() - 1));
 
-		// Add/remove player's money back to before the transaction
-		m_moneyRef += m_actions.at(m_currentActionIndex).m_moneySpent;
+			// Remove the sheep from the player's vector
+			m_sheepRef.pop_back();
+
+			// Add the player's money back
+			m_moneyRef += SHEEP_PRICE;
+		}
+		else
+		{
+			// Replace the previous tile
+			sf::Vector2i position = m_actions.at(m_currentActionIndex).m_position;
+			m_mazeRef[position.y][position.x].setType(m_actions.at(m_currentActionIndex).m_prevTile);
+
+			// Add/remove player's money back to before the transaction
+			m_moneyRef += m_actions.at(m_currentActionIndex).m_moneySpent;
+		}
 	}
 }
 
@@ -151,11 +167,26 @@ void MazeEditor::redoAction()
 	// If we are behind on actions that we can redo
 	if (m_currentActionIndex < m_actions.size())
 	{
-		sf::Vector2i position = m_actions.at(m_currentActionIndex).m_position;
-		m_mazeRef[position.y][position.x].setType(m_actions.at(m_currentActionIndex).m_newTile);
+		// Check if the action was a sheep purchase
+		if (m_actions.at(m_currentActionIndex).m_sheep)
+		{
+			// Re-add the sheep from the top of the deleted sheep vector
+			m_sheepRef.push_back(m_deletedSheep.at(m_deletedSheep.size() - 1));
 
-		// Add/remove player's money back to after the transaction
-		m_moneyRef -= m_actions.at(m_currentActionIndex).m_moneySpent;
+			// Remove the sheep from the deleted sheep vector
+			m_deletedSheep.pop_back();
+
+			// remove the player's money for the sheep
+			m_moneyRef -= SHEEP_PRICE;
+		}
+		else
+		{
+			sf::Vector2i position = m_actions.at(m_currentActionIndex).m_position;
+			m_mazeRef[position.y][position.x].setType(m_actions.at(m_currentActionIndex).m_newTile);
+
+			// Add/remove player's money back to after the transaction
+			m_moneyRef -= m_actions.at(m_currentActionIndex).m_moneySpent;
+		}
 
 		// Increment by one action
 		m_currentActionIndex++;
@@ -211,6 +242,43 @@ void MazeEditor::reset()
 	m_selectedTileType = TileType::None;
 	m_actions.clear();
 	m_currentActionIndex = 0;
+
+	// Delete and remove all deleted sheep
+	for (Sheep* sheep : m_deletedSheep)
+	{
+		delete sheep;
+	}
+
+	m_deletedSheep.clear();
+}
+
+/////////////////////////////////////////////////////////////////
+void MazeEditor::purchaseSheep()
+{
+	// Remove all recent actions while the action count is above the current index (no longer able to redo)
+	while (m_actions.size() > m_currentActionIndex)
+	{
+		// Check if the top action is a sheep action
+		if (m_actions.at(m_actions.size() - 1).m_sheep)
+		{
+			// Delete and remove a sheep from deleted sheep vector if the action is a sheep action
+			delete m_deletedSheep.at(m_deletedSheep.size() - 1);
+			m_deletedSheep.pop_back();
+		}
+
+		m_actions.pop_back();
+	}
+
+	// Setup the new action
+	Action action;
+
+	action.m_sheep = true;
+
+	// Push the new action onto the actions vector
+	m_actions.push_back(action);
+
+	// Keep the current action index up-to-date
+	m_currentActionIndex = m_actions.size();
 }
 
 /////////////////////////////////////////////////////////////////
@@ -219,12 +287,21 @@ void MazeEditor::addAction(TileType t_newTile, TileType t_prevTile, sf::Vector2i
 	// Remove all recent actions while the action count is above the current index (no longer able to redo)
 	while (m_actions.size() > m_currentActionIndex)
 	{
+		// Check if the top action is a sheep action
+		if (m_actions.at(m_actions.size() - 1).m_sheep)
+		{
+			// Delete and remove a sheep from deleted sheep vector if the action is a sheep action
+			delete m_deletedSheep.at(m_deletedSheep.size() - 1);
+			m_deletedSheep.pop_back();
+		}
+
 		m_actions.pop_back();
 	}
 
 	// Setup the new action
 	Action action;
 
+	action.m_sheep = false;
 	action.m_newTile = t_newTile;
 	action.m_prevTile = t_prevTile;
 	action.m_position = t_position;

@@ -6,12 +6,13 @@
 #include "Globals.h"
 #include "Tile.h"
 #include "Cursor.h"
+#include "Sheep.h"
 
 class MazeEditor
 {
 public:
 
-	MazeEditor(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_mazeRef, int & t_moneyRef);
+	MazeEditor(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE>& t_mazeRef, std::vector<Sheep *> & t_sheepRef, int & t_moneyRef);
 
 	void update(Cursor const & t_cursor);
 
@@ -39,10 +40,13 @@ public:
 	/// </summary>
 	void reset();
 
+	void purchaseSheep();
+
 private:
 
 	struct Action
 	{
+		bool m_sheep; // Whether the action is a sheep purchase or not
 		TileType m_newTile;
 		TileType m_prevTile;
 		sf::Vector2i m_position; // Col, row format
@@ -56,6 +60,12 @@ private:
 
 	// Player's money reference
 	int & m_moneyRef;
+
+	// Reference to the player's sheep
+	std::vector<Sheep*> & m_sheepRef;
+
+	// A vector to hold deleted sheep
+	std::vector<Sheep*> m_deletedSheep;
 
 	// All actions performed this build mode
 	// Used for undo/redo
