@@ -28,6 +28,10 @@ void Renderer::setup()
 	m_tileSelector.setFillColor(sf::Color::Transparent);
 	m_tileSelector.setOutlineColor(sf::Color::White);
 	m_tileSelector.setOutlineThickness(3.0f);
+
+	m_highlighter.setOutlineThickness(5.0f);
+	m_highlighter.setOutlineColor(sf::Color{ 255,255,255,100 });
+	m_highlighter.setFillColor(sf::Color::Transparent);
 }
 
 void Renderer::drawMaze(sf::Vector2i t_selectedTile, ConstructionMode t_constructionMode, TileType t_selectedTileType)
@@ -84,6 +88,8 @@ void Renderer::drawMazeWithSolvers(sf::Vector2i t_selectedTile, ConstructionMode
 
 	m_caveSprite.setTextureRect({ 32, 160, 32, 64 });
 	m_windowRef.draw(m_caveSprite);
+
+	drawMazeHighlights();
 }
 
 void Renderer::drawMazeBackground()
@@ -220,6 +226,48 @@ void Renderer::drawMazeUI(sf::Vector2i t_selectedTile, TileType t_selectedTileTy
 			&& m_mazeRef[t_selectedTile.y][t_selectedTile.x] == TileType::Wall)
 		{
 			drawDirectionTile(Global::getDirection(t_selectedTileType), t_selectedTile.y, t_selectedTile.x, sf::Color{ 255,255,255,180 });
+		}
+	}
+}
+
+void Renderer::drawMazeHighlights()
+{
+	// Loop through the maze
+	for (int row = 1; row < MAZE_SIZE - 1; row++)
+	{
+		for (int col = 1; col < MAZE_SIZE - 1; col++)
+		{
+			if (m_mazeRef[row][col] == TileType::Trapdoor)
+			{
+				if (m_mazeRef[row][col].getFrame() == 0)
+				{
+					float animFrame = m_animationClock.getElapsedTime().asMilliseconds() / 100 % 6;
+
+					if (animFrame > 3)
+						animFrame = 6 - animFrame;
+
+					m_highlighter.setSize({ TILE_SIZE + animFrame * 2.0f, TILE_SIZE + animFrame * 2.0f });
+					m_highlighter.setPosition(col * TILE_SIZE - animFrame, row * TILE_SIZE - animFrame);
+
+					m_windowRef.draw(m_highlighter);
+				}
+			}
+			else if (m_mazeRef[row + 1][col] == TileType::TurretWest
+				|| m_mazeRef[row + 1][col] == TileType::TurretWest)
+			{
+				if (!m_mazeRef[row][col].getAnimating())
+				{
+					float animFrame = m_animationClock.getElapsedTime().asMilliseconds() / 100 % 6;
+
+					if (animFrame > 3)
+						animFrame = 6 - animFrame;
+
+					m_highlighter.setSize({ TILE_SIZE + animFrame * 2.0f, TILE_SIZE + animFrame * 2.0f });
+					m_highlighter.setPosition(col * TILE_SIZE - animFrame, row * TILE_SIZE - animFrame);
+
+					m_windowRef.draw(m_highlighter);
+				}
+			}
 		}
 	}
 }

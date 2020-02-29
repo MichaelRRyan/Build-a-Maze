@@ -27,6 +27,8 @@ public:
 
 	void drawMazeUI(sf::Vector2i t_selectedTile, TileType t_selectedTileType);
 
+	void drawMazeHighlights();
+
 	void drawTile(TileType t_tileType, int t_frame, int t_row, int t_col, sf::Color t_colorOverlay);
 
 	void drawDirectionTile(Direction t_direction, int t_row, int t_col, sf::Color t_colorOverlay);
@@ -44,6 +46,7 @@ private:
 	sf::Sprite m_caveSprite;
 	sf::Clock m_animationClock;
 	sf::RectangleShape m_tileSelector;
+	sf::RectangleShape m_highlighter;
 
 	// References
 	sf::RenderWindow& m_windowRef;
