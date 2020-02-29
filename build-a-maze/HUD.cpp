@@ -1,7 +1,7 @@
 #include "HUD.h"
 
 /////////////////////////////////////////////////////////////////
-HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game * t_game) :
+HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game* t_game) :
 	m_SHOP_ITEM_RECT{ 0, 80, 48, 48 },
 	m_mainColor{ 247, 230, 134 },
 	m_secondaryColor{ 120, 112, 65 },
@@ -26,6 +26,7 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game * t_game) 
 	m_sheepButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {112, 64, 16, 17} },
 	m_mazeEditorRef{ t_mazeEditor },
 	m_SECONDS_TO_ANIMATE{ 0.2f },
+	m_SECONDS_TO_DISPLAY_ROUND{ 2.0f },
 	m_animationState{ AnimationState::None },
 	m_gamePtr{ t_game }
 {
@@ -35,7 +36,15 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game * t_game) 
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money)
+void HUD::setFunctionPointers(std::function<void(Game*)> t_switchGameStateFunc, std::function<void(Game*)> t_purchaseSheepFunc, std::function<void(Game*)> t_pauseButtonFunc)
+{
+	m_switchGameStateFunc = t_switchGameStateFunc;
+	m_pauseButtonFunc = t_pauseButtonFunc;
+	m_purchaseSheepFunc = t_purchaseSheepFunc;
+}
+
+/////////////////////////////////////////////////////////////////
+void HUD::updateBuildMode(Cursor t_cursor, int t_money)
 {
 	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
@@ -88,14 +97,14 @@ void HUD::updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButt
 
 		if (m_sheepButton.update(t_cursor))
 		{
-			t_purchaseSheepFunc(m_gamePtr);
+			m_purchaseSheepFunc(m_gamePtr);
 			m_mazeEditorRef.unselectEditTool();
 			m_mazeEditorRef.purchaseSheep();
 		}
 
 		if (m_playButton.update(t_cursor))
 		{
-			t_playButtonFunc(m_gamePtr);
+			m_switchGameStateFunc(m_gamePtr);
 		}
 	}
 
@@ -106,7 +115,7 @@ void HUD::updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButt
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateSimText(Cursor t_cursor, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
+void HUD::updateSimText(Cursor t_cursor, int t_roundNumber, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Work out minutes and seconds and set the string
 	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
@@ -136,14 +145,18 @@ void HUD::updateSimText(Cursor t_cursor, std::function<void(Game*)> t_stopButton
 	{
 		if (m_stopButton.update(t_cursor))
 		{
-			t_stopButtonFunc(m_gamePtr);
+			m_switchGameStateFunc(m_gamePtr);
 		}
 
 		if (m_pauseButton.update(t_cursor))
 		{
-			t_pauseButtonFunc(m_gamePtr);
+			m_pauseButtonFunc(m_gamePtr);
 		}
 	}
+
+	m_roundNumber.setString("Round " + std::to_string(t_roundNumber));
+
+	animateRoundNumber();
 }
 
 /////////////////////////////////////////////////////////////////
@@ -269,6 +282,9 @@ void HUD::drawStats(sf::RenderWindow& t_window)
 
 	// Reset the view to what it was before this function call
 	t_window.setView(view);
+
+	// Draw the round number text
+	t_window.draw(m_roundNumber);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -472,6 +488,34 @@ void HUD::setupStatsMenu(sf::View const& t_windowView)
 	m_numAIText.setCharacterSize(20u);
 	m_moneyEarnedText.setCharacterSize(20u);
 	m_timeText.setCharacterSize(20u);
+
+	m_roundNumber.setFont(m_hudFont);
+	m_roundNumber.setFillColor(sf::Color::Black);
+}
+
+/////////////////////////////////////////////////////////////////
+void HUD::animateRoundNumber()
+{
+	if (m_animationClock.getElapsedTime().asSeconds() < m_SECONDS_TO_ANIMATE)
+	{
+		float animProgress{ 1.0f - m_animationClock.getElapsedTime().asSeconds() / m_SECONDS_TO_ANIMATE };
+
+		m_roundNumber.setPosition(-m_roundNumber.getGlobalBounds().width * animProgress, 5.0f);
+	}
+	else if (m_animationClock.getElapsedTime().asSeconds() < m_SECONDS_TO_DISPLAY_ROUND)
+	{
+		m_roundNumber.setPosition(10.0f, 5.0f);
+	}
+	else if (m_animationClock.getElapsedTime().asSeconds() - m_SECONDS_TO_DISPLAY_ROUND < m_SECONDS_TO_ANIMATE)
+	{
+		float animProgress{ (m_animationClock.getElapsedTime().asSeconds() - m_SECONDS_TO_DISPLAY_ROUND) / m_SECONDS_TO_ANIMATE };
+
+		m_roundNumber.setPosition(-m_roundNumber.getGlobalBounds().width * animProgress, 5.0f);
+	}
+	else
+	{
+		m_roundNumber.setPosition(-m_roundNumber.getGlobalBounds().width - 10.0f, 5.0f);
+	}
 }
 
 /////////////////////////////////////////////////////////////////

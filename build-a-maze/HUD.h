@@ -18,8 +18,10 @@ class HUD
 public:
 	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor, Game* t_game);
 
-	void updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money);
-	void updateSimText(Cursor t_cursor, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
+	void setFunctionPointers(std::function<void(Game*)> m_switchGameStateFunc, std::function<void(Game*)> t_purchaseSheepFunc, std::function<void(Game*)> t_pauseButtonFunc);
+
+	void updateBuildMode(Cursor t_cursor, int t_money);
+	void updateSimText(Cursor t_cursor, int t_roundNumber, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window);
 	void drawStats(sf::RenderWindow & t_window);
@@ -34,6 +36,8 @@ private:
 	void loadFiles();
 	void setupShopMenu(sf::View const& t_windowView);
 	void setupStatsMenu(sf::View const& t_windowView);
+
+	void animateRoundNumber();
 
 	enum class AnimationState
 	{
@@ -88,10 +92,20 @@ private:
 
 	sf::Clock m_animationClock;
 	const float m_SECONDS_TO_ANIMATE;
+	const float m_SECONDS_TO_DISPLAY_ROUND;
 
 	AnimationState m_animationState;
 
+	// Round number
+	sf::Text m_roundNumber;
+
+	// Game pointer, used for function pointers
 	Game* m_gamePtr;
+
+	// Function pointers
+	std::function<void(Game*)> m_switchGameStateFunc;
+	std::function<void(Game*)> m_purchaseSheepFunc;
+	std::function<void(Game*)> m_pauseButtonFunc;
 };
 
 #include "Game.h"

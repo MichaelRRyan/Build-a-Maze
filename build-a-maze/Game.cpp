@@ -161,14 +161,14 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	case GameState::BuildMode:
 		m_mazeEditor.update(m_cursor);
-		m_hud.updateBuildMode(m_cursor, &Game::switchGameState, &Game::purchaseSheep, m_currency);
+		m_hud.updateBuildMode(m_cursor, m_currency);
 		m_popup.update(m_cursor);
 		updateSheep();
 
 		break;
 	case GameState::Simulation:
 		updateSimulation(t_deltaTime);
-		m_hud.updateSimText(m_cursor, &Game::switchGameState, &Game::togglePause, m_mazeSolverPtrs.size(), m_noOfAI, m_timeToComplete, m_moneyEarned);
+		m_hud.updateSimText(m_cursor, m_roundNumber, m_mazeSolverPtrs.size(), m_noOfAI, m_timeToComplete, m_moneyEarned);
 
 		break;
 	case GameState::GameEnd:
@@ -287,6 +287,8 @@ void Game::setupObjects()
 	m_pauseText.setFillColor(sf::Color{ 0, 0, 0, 150 });
 	m_pauseText.setPosition(m_GUI_VIEW.getSize().x / 3.0f, m_GUI_VIEW.getSize().y / 2.5f);
 	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
+
+	m_hud.setFunctionPointers(&Game::switchGameState, &Game::purchaseSheep, &Game::togglePause);
 }
 
 /// <summary>
