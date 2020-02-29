@@ -55,14 +55,6 @@ void MazeEditor::update(Cursor const& t_cursor)
 
 						m_mazeRef[t_cursor.m_selectedTile.y][t_cursor.m_selectedTile.x].setType(m_selectedTileType);
 						m_moneyRef -= Global::getTilePrice(m_selectedTileType);
-
-						if (TileType::TreadmillEast == m_selectedTileType
-							|| TileType::TreadmillWest == m_selectedTileType
-							|| TileType::TreadmillNorth == m_selectedTileType
-							|| TileType::TreadmillSouth == m_selectedTileType)
-						{
-							m_mazeRef[t_cursor.m_selectedTile.y][t_cursor.m_selectedTile.x].setAnimating(true);
-						}
 					}
 					else if (selectedTile == TileType::Wall
 						&& (m_selectedTileType == TileType::TurretWest || m_selectedTileType == TileType::TurretEast))

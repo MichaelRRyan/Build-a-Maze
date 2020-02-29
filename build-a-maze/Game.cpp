@@ -309,6 +309,8 @@ void Game::resetSimulation()
 	m_moneyEarned = 0;
 	m_timeModifier = 1.0f;
 
+	m_solverAnimator.setTimeModifier(m_timeModifier);
+
 	generateNewSolvers();
 
 	m_solverAnimator.startAnimatingIn();
@@ -391,7 +393,6 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 
 		if (aliveAI < m_aliveAI)
 		{
-			std::cout << m_aliveAI - aliveAI << " AI Killed " << m_noOfAI << std::endl;
 			m_aliveAI = aliveAI;
 			m_moneyEarned += SOLVER_DEATH_PRICE;
 		}
@@ -558,6 +559,16 @@ void Game::handleClickEvents()
 						{
 							// Turn on animation
 							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
+						}
+					}
+					else if (selectedTile == TileType::Trapdoor)
+					{
+						if (m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getFrame() == 0)
+						{
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(true);
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setStartFrame(4);
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setMaxFrames(0);
+							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimFrameTime(0.6f);
 						}
 					}
 					else

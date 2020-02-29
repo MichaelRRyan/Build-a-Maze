@@ -415,8 +415,13 @@ void MazeSolver::handleTrapdoors()
 {
 	if (m_mazeRef[m_previousPos.y][m_previousPos.x] == TileType::Trapdoor)
 	{
-		if (m_mazeRef[m_previousPos.y][m_previousPos.x].getAnimating())
+		if (!m_mazeRef[m_previousPos.y][m_previousPos.x].getAnimating()
+			&& m_mazeRef[m_previousPos.y][m_previousPos.x].getFrame() == 4)
 		{
+			m_mazeRef[m_previousPos.y][m_previousPos.x].setAnimating(true);
+			m_mazeRef[m_previousPos.y][m_previousPos.x].setStartFrame(0);
+			m_mazeRef[m_previousPos.y][m_previousPos.x].setMaxFrames(7);
+			m_mazeRef[m_previousPos.y][m_previousPos.x].setAnimFrameTime(0.05f);
 			m_active = false;
 		}
 	}

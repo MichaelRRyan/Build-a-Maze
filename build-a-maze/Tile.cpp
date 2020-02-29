@@ -56,7 +56,9 @@ void Tile::setType(TileType t_type)
 	{
 		m_maxFrames = 3;
 		m_animFrameTime = 0.1f;
+		m_startFrame = 1;
 		m_loop = true;
+		m_animating = true;
 	}
 	else if (m_type == TileType::SteppingStones)
 	{
@@ -74,7 +76,9 @@ void Tile::setType(TileType t_type)
 	else if (m_type == TileType::Trapdoor)
 	{
 		m_maxFrames = 8;
-		m_animFrameTime = 0.1f;
+		m_animFrameTime = 0.05f;
+		m_startFrame = 4;
+		m_frame = 4;
 		m_loop = false;
 	}
 	else
@@ -121,4 +125,19 @@ void Tile::setAnimating(bool t_animating)
 bool Tile::getAnimating() const
 {
 	return m_animating;
+}
+
+void Tile::setAnimFrameTime(float t_frameTime)
+{
+	m_animFrameTime = t_frameTime;
+}
+
+void Tile::setStartFrame(int t_frame)
+{
+	m_startFrame = t_frame;
+}
+
+void Tile::setMaxFrames(int t_maxFrames)
+{
+	m_maxFrames = t_maxFrames;
 }

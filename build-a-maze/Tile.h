@@ -22,6 +22,12 @@ public:
 	void setAnimating(bool t_animating);
 	bool getAnimating() const;
 
+	void setAnimFrameTime(float t_frameTime);
+
+	void setStartFrame(int t_frame);
+
+	void setMaxFrames(int t_maxFrames);
+
 	// Operators
 	bool operator==(TileType t_rhs) const;
 	bool operator!=(TileType t_rhs) const;
