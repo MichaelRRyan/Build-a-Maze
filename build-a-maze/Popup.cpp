@@ -1,6 +1,6 @@
 #include "Popup.h"
 
-GUI::Popup::Popup(sf::Vector2f t_position, std::string t_message) :
+GUI::Popup::Popup(sf::Vector2f t_position, std::string t_message, std::string t_secondaryMessage) :
 	m_okButton(m_texture, { 65, 81, 100, 40 }, m_font, "OK", { t_position.x + 100.0f, t_position.y + 150.0f }),
 	m_active{ false }
 {
@@ -25,39 +25,8 @@ GUI::Popup::Popup(sf::Vector2f t_position, std::string t_message) :
 	m_backgroundShape.setOutlineColor(sf::Color{ 120, 112, 65 });
 	m_backgroundShape.setOutlineThickness(5.0f);
 
-	if (t_message != "")
-	{
-		std::string line;
-		sf::Text lineText("", m_font, 20u);
-		lineText.setPosition(t_position.x + 150.0f, t_position.y + 50.0f);
-		lineText.setFillColor(sf::Color::Black);
-
-		for (int i = 0; i < t_message.length(); i++)
-		{
-			if (t_message.at(i) == '\n')
-			{
-				lineText.setString(line);
-				lineText.setOrigin(lineText.getGlobalBounds().width / 2.0f, 0.0f);
-
-				m_messageText.push_back(lineText);
-
-				line.clear();
-				lineText.move(0.0f, 25.0f);
-			}
-			else
-			{
-				line += t_message.at(i);
-			}
-		}
-
-		if (line != "")
-		{
-			lineText.setString(line);
-			lineText.setOrigin(lineText.getGlobalBounds().width / 2.0f, 0.0f);
-
-			m_messageText.push_back(lineText);
-		}
-	}
+	setupText(m_messageText, t_message, t_position, sf::Color::Black);
+	setupText(m_secondaryMessageText, t_secondaryMessage, { t_position.x, m_messageText.back().getPosition().y + m_messageText.back().getGlobalBounds().height }, sf::Color{ 100, 92, 45 });
 }
 
 void GUI::Popup::update(Cursor const& t_cursor)
@@ -74,6 +43,11 @@ void GUI::Popup::update(Cursor const& t_cursor)
 void GUI::Popup::setActive(bool t_active)
 {
 	m_active = t_active;
+}
+
+const bool GUI::Popup::isActive() const
+{
+	return m_active;
 }
 
 void GUI::Popup::draw(sf::RenderWindow& t_window)
@@ -100,6 +74,48 @@ void GUI::Popup::draw(sf::RenderWindow& t_window)
 		for (sf::Text const& text : m_messageText)
 		{
 			t_window.draw(text);
+		}
+
+		for (sf::Text const& text : m_secondaryMessageText)
+		{
+			t_window.draw(text);
+		}
+	}
+}
+
+void GUI::Popup::setupText(std::vector<sf::Text>& t_text, std::string t_string, sf::Vector2f t_position, sf::Color t_color)
+{
+	if (t_string != "")
+	{
+		std::string line;
+		sf::Text lineText("", m_font, 20u);
+		lineText.setPosition(t_position.x + 150.0f, t_position.y + 10.0f);
+		lineText.setFillColor(t_color);
+
+		for (int i = 0; i < t_string.length(); i++)
+		{
+			if (t_string.at(i) == '\n')
+			{
+				lineText.setString(line);
+				lineText.setOrigin(lineText.getGlobalBounds().width / 2.0f, 0.0f);
+
+				t_text.push_back(lineText);
+
+				line.clear();
+				lineText.move(0.0f, 25.0f);
+			}
+			else
+			{
+				line += t_string.at(i);
+			}
+		}
+
+		if (line != "")
+		{
+			lineText.setString(line);
+			lineText.setOrigin(lineText.getGlobalBounds().width / 2.0f, 0.0f);
+
+			t_text.push_back(lineText);
 		}
 	}
 }

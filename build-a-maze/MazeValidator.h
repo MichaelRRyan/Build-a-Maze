@@ -16,7 +16,7 @@
 class MazeValidator
 {
 public:
-	bool isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
+	bool isMazeBigEnough(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze);
 
 	std::vector<sf::Vector2i> const & getAccessibleTiles() const;
 

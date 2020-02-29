@@ -105,6 +105,8 @@
 #include "MazeValidator.h"
 #include "MazeGenerator.h"
 
+#include "Globals.h"
+
 int main()
 {
 	srand(static_cast<unsigned>(time(nullptr)));

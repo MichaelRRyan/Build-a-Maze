@@ -128,6 +128,7 @@
     <ClCompile Include="EndGameUI.cpp" />
     <ClCompile Include="Farmer.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Globals.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="BasicSolver.cpp" />

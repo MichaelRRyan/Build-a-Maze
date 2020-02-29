@@ -1,6 +1,6 @@
 #include "MazeValidator.h"
 
-bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze)
+bool MazeValidator::isMazeBigEnough(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze)
 {
 #ifdef MAZE_VALIDATOR_DEBUG
 	sf::RenderWindow window{ sf::VideoMode{ WINDOW_WIDTH, WINDOW_HEIGHT, 32u }, "Build-a-Maze!" };
@@ -25,7 +25,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 
 	// Set complete to false and start looping
 	bool complete = false;
-	bool solvable = false;
+	bool mazeIsBigEnough = false;
 
 	while (!complete) {
 
@@ -57,6 +57,11 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 			tracedTiles[row][col] = true;
 
 			m_accessibleTiles.push_back({ col, row });
+
+			if (m_accessibleTiles.size() > 10)
+			{
+				mazeIsBigEnough = true;
+			}
 		}
 
 		// Dead end is true until a path has been found
@@ -64,13 +69,6 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 
 		for (int i = 0; i < 4; i++)
 		{
-			// Check for exit
-			if (row == MAZE_SIZE - 2 && col == MAZE_SIZE - 2)
-			{
-				// Maze is solvable
-				solvable = true;
-			}
-
 			switch (i) {
 			case 0: // Up
 				if (row - 1 >= 0 && t_maze[row - 1][col] != TileType::Wall
@@ -163,7 +161,7 @@ bool MazeValidator::isMazeSolvable(std::array<std::array<Tile, MAZE_SIZE>, MAZE_
 #endif // MAZE_VALIDATOR_DEBUG
 	}
 
-	return solvable;
+	return mazeIsBigEnough;
 }
 
 std::vector<sf::Vector2i> const& MazeValidator::getAccessibleTiles() const

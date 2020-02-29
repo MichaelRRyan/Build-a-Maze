@@ -17,7 +17,7 @@ Game::Game() :
 	m_menuScreen{ m_GUI_VIEW },
 	m_hud{ m_GUI_VIEW, m_mazeEditor, this },
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs, m_sheep },
-	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
+	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "There's not enough\nspace in the maze.", "Try clear more tiles\nat the entrance\nand try again" },
 	m_currency{ 1000 }, // Set the player's currency to 400
 	m_mazeEditor{ m_mazeBlocks, m_sheep, m_currency },
 	m_animatingHUD{ false },
@@ -160,9 +160,16 @@ void Game::update(sf::Time t_deltaTime)
 	case GameState::SettingsScreen:
 		break;
 	case GameState::BuildMode:
-		m_mazeEditor.update(m_cursor);
-		m_hud.updateBuildMode(m_cursor, m_currency);
-		m_popup.update(m_cursor);
+		if (!m_popup.isActive())
+		{
+			m_mazeEditor.update(m_cursor);
+			m_hud.updateBuildMode(m_cursor, m_currency);
+		}
+		else
+		{
+			m_popup.update(m_cursor);
+		}
+
 		updateSheep();
 
 		break;
@@ -321,7 +328,7 @@ void Game::generateNewSolvers()
 	// Add a random selection of AI to the maze
 	for (int i = 0; i < numOfSolvers; i++)
 	{
-		switch (rand() % 4)
+		switch (Global::random({ 0, 0, 0, 1, 1, 2, 2, 3 }))
 		{
 		case 0:
 			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
@@ -459,7 +466,7 @@ void Game::switchGameState()
 		{
 			m_simDetailsDisplay = false;
 		}
-		else if (m_mazeValidator.isMazeSolvable(m_mazeBlocks))
+		else if (m_mazeValidator.isMazeBigEnough(m_mazeBlocks))
 		{
 			m_gamestate = GameState::Simulation;
 			m_hud.animateInStats();
@@ -602,7 +609,7 @@ void Game::animateMaze()
 void Game::placeSheep()
 {
 	// Put the maze through the validator to get a stack of all accessible tiles
-	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
+	m_mazeValidator.isMazeBigEnough(m_mazeBlocks);
 	std::vector<sf::Vector2i> availableTiles{ m_mazeValidator.getAccessibleTiles() }; // Get all the accessible tiles in the maze
 
 	// Setup sheep
@@ -639,7 +646,7 @@ void Game::placeSheep()
 void Game::placeSheep(Sheep* t_sheep)
 {
 	// Put the maze through the validator to get a stack of all accessible tiles
-	m_mazeValidator.isMazeSolvable(m_mazeBlocks);
+	m_mazeValidator.isMazeBigEnough(m_mazeBlocks);
 	std::vector<sf::Vector2i> availableTiles{ m_mazeValidator.getAccessibleTiles() }; // Get all the accessible tiles in the maze
 
 	sf::Vector2i sheepPosition{ availableTiles.at(rand() % availableTiles.size()) }; // Get a random position for the sheep

@@ -11,15 +11,19 @@ namespace GUI
 	class Popup
 	{
 	public:
-		Popup(sf::Vector2f t_position, std::string t_message);
+		Popup(sf::Vector2f t_position, std::string t_message, std::string t_secondaryMessage);
 
 		void update(Cursor const& t_cursor);
 
 		void setActive(bool t_active);
 
+		const bool isActive() const;
+
 		void draw(sf::RenderWindow& t_window);
 
 	private:
+
+		void setupText(std::vector<sf::Text>& t_text, std::string t_string, sf::Vector2f t_position, sf::Color t_color);
 
 		bool m_active;
 		sf::Font m_font;
@@ -30,6 +34,7 @@ namespace GUI
 		Button m_okButton;
 
 		std::vector<sf::Text> m_messageText;
+		std::vector<sf::Text> m_secondaryMessageText;
 	};
 }
 
