@@ -16,10 +16,10 @@ class Game;
 class HUD
 {
 public:
-	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor);
+	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor, Game* t_game);
 
-	void updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money);
-	void updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
+	void updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money);
+	void updateSimText(Cursor t_cursor, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
 
 	void drawShop(sf::RenderWindow & t_window);
 	void drawStats(sf::RenderWindow & t_window);
@@ -90,6 +90,8 @@ private:
 	const float m_SECONDS_TO_ANIMATE;
 
 	AnimationState m_animationState;
+
+	Game* m_gamePtr;
 };
 
 #include "Game.h"

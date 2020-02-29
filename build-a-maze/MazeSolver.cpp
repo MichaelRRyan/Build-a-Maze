@@ -6,7 +6,17 @@
 ///////////////////////////////////////////////////////////////////////////
 MazeSolver::MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_maze, std::vector<Sheep*>& t_sheepRef) :
 	m_mazeRef{ t_maze },
-	m_sheepRef{ t_sheepRef }
+	m_sheepRef{ t_sheepRef },
+	m_timeModifier{ 1.0f },
+	m_previousMoveDir{ Direction::None },
+	m_moveDir{ Direction::None },
+	m_moveTimer{ 0 },
+	m_movementSpeed{ DEFAULT_MOVE_SPEED },
+	m_hasFollower{ false },
+	m_characterDirection{ 0 },
+	m_animatingIn{ false },
+	m_animatingOut{ false },
+	m_active{ false }
 {
 }
 
@@ -75,7 +85,7 @@ void MazeSolver::setPreviousPos(int t_row, int t_col)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void MazeSolver::setMovementSpeed(float t_speed)
+void MazeSolver::setMovementSpeed(int t_speed)
 {
 	m_movementSpeed = t_speed;
 

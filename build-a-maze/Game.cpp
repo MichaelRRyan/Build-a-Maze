@@ -15,14 +15,15 @@ Game::Game() :
 	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.85f, static_cast<float>(WINDOW_HEIGHT) * 0.85f} },
 	//m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_menuScreen{ m_GUI_VIEW },
-	m_hud{ m_GUI_VIEW, m_mazeEditor },
+	m_hud{ m_GUI_VIEW, m_mazeEditor, this },
 	m_renderer{ m_window, m_mazeView, m_mazeBlocks, m_mazeSolverPtrs, m_sheep },
 	m_popup{ {m_GUI_VIEW.getSize().x / 2.0f - 150.0f, m_GUI_VIEW.getSize().y / 2.0f - 100.0f, }, "The maze is unsolvable.\nEdit it and try again." },
 	m_currency{ 1000 }, // Set the player's currency to 400
 	m_mazeEditor{ m_mazeBlocks, m_currency },
 	m_animatingHUD{ false },
 	m_endGameUI{ m_GUI_VIEW },
-	m_solverAnimator{ m_window, m_mazeSolverPtrs }
+	m_solverAnimator{ m_window, m_mazeSolverPtrs },
+	m_STARTING_SOLVERS{ 3 }
 {
 	m_window.setVerticalSyncEnabled(true);
 
@@ -160,14 +161,14 @@ void Game::update(sf::Time t_deltaTime)
 		break;
 	case GameState::BuildMode:
 		m_mazeEditor.update(m_cursor);
-		m_hud.updateBuildMode(m_cursor, this, &Game::switchGameState, &Game::purchaseSheep, m_currency);
+		m_hud.updateBuildMode(m_cursor, &Game::switchGameState, &Game::purchaseSheep, m_currency);
 		m_popup.update(m_cursor);
 		updateSheep();
 
 		break;
 	case GameState::Simulation:
 		updateSimulation(t_deltaTime);
-		m_hud.updateSimText(m_cursor, this, &Game::switchGameState, &Game::togglePause, m_noOfAI, m_timeToComplete, m_moneyEarned);
+		m_hud.updateSimText(m_cursor, &Game::switchGameState, &Game::togglePause, m_mazeSolverPtrs.size(), m_noOfAI, m_timeToComplete, m_moneyEarned);
 
 		break;
 	case GameState::GameEnd:
@@ -249,32 +250,7 @@ void Game::setupGame()
 	m_currency = 1000;
 	m_simDetailsDisplay = false;
 	m_gamePaused = false;
-
-	// Delete and clear any previous AI
-	for (MazeSolver* solver : m_mazeSolverPtrs)
-	{
-		delete solver;
-	}
-	m_mazeSolverPtrs.clear();
-
-	// Add a random selection of AI to the maze
-	for (int i = 0; i < SOLVERS_MAX ; i++)
-	{
-		switch (rand() % 3)
-		{
-		case 0:
-			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
-			break;
-
-		case 1:
-			m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks, m_sheep });
-			break;
-
-		case 2:
-			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks, m_sheep });
-			break;
-		}
-	}
+	m_roundNumber = 1;
 
 	// Delete all sheep and clear the vector
 	for (Sheep* sheep : m_sheep)
@@ -324,13 +300,40 @@ void Game::resetSimulation()
 	m_moneyEarned = 0;
 	m_timeModifier = 1.0f;
 
-	// Reset all AI's positions to the start of the maze
-	for (MazeSolver* solver : m_mazeSolverPtrs)
-	{
-		solver->reset(0);
-	}
+	generateNewSolvers();
 
 	m_solverAnimator.startAnimatingIn();
+}
+
+void Game::generateNewSolvers()
+{
+	// Delete and clear any previous AI
+	for (MazeSolver* solver : m_mazeSolverPtrs)
+	{
+		delete solver;
+	}
+	m_mazeSolverPtrs.clear();
+
+	int numOfSolvers = m_STARTING_SOLVERS * m_roundNumber;
+
+	// Add a random selection of AI to the maze
+	for (int i = 0; i < numOfSolvers; i++)
+	{
+		switch (rand() % 3)
+		{
+		case 0:
+			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
+			break;
+
+		case 1:
+			m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks, m_sheep });
+			break;
+
+		case 2:
+			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks, m_sheep });
+			break;
+		}
+	}
 }
 
 /// <summary>
@@ -343,7 +346,7 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 	{
 		// Reset AI count
 		int lastMax = m_noOfAI; // TEMP
-		int i = SOLVERS_MAX; // TEMP
+		int i = m_mazeSolverPtrs.size(); // TEMP
 		m_noOfAI = 0;
 
 		// Loop through and update all AI. Count those that are still active
@@ -379,6 +382,7 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 			m_currency += m_moneyEarned;
 			m_gamestate = GameState::BuildMode;
 			m_simDetailsDisplay = true;
+			m_roundNumber++;
 		}
 
 		// Update the money earned from a sim each second
@@ -548,7 +552,7 @@ void Game::endGame()
 {
 	m_gamestate = GameState::GameEnd;
 	m_animationClock.restart();
-	m_endGameUI.setAnimating();
+	m_endGameUI.setAnimating(m_roundNumber - 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////

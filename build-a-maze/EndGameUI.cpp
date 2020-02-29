@@ -16,8 +16,13 @@ EndGameUI::EndGameUI(sf::View const& t_guiView) :
 	m_message.setCharacterSize(30u);
 	m_message.setFont(m_font);
 	m_message.setFillColor(sf::Color{ 255, 255, 255 });
-	m_message.setPosition(t_guiView.getSize().x / 2.0f, t_guiView.getSize().y / 2.5f);
+	m_message.setPosition(t_guiView.getSize().x / 2.0f, t_guiView.getSize().y / 2.8f);
 	m_message.setOrigin(m_message.getGlobalBounds().width / 2, m_message.getGlobalBounds().height / 2);
+
+	m_roundNumberText.setCharacterSize(22u);
+	m_roundNumberText.setFont(m_font);
+	m_roundNumberText.setFillColor(sf::Color{ 155, 155, 155 });
+	m_roundNumberText.setPosition(t_guiView.getSize().x / 2.0f, t_guiView.getSize().y / 2.2f);
 
 	// Load the GUI textures
 	if (!m_buttonTexture.loadFromFile("ASSETS/IMAGES/GUI.png"))
@@ -37,6 +42,7 @@ void EndGameUI::update(Cursor const& t_cursor, Game* t_game, std::function<void(
 		m_animating = false;
 		m_background.setFillColor({ 0, 0, 0, 255 });
 		m_message.setFillColor({ 255, 255, 255 });
+		m_roundNumberText.setFillColor({ 155, 155, 155 });
 		m_restartButton.setOpacity(255u);
 		m_menuButton.setOpacity(255u);
 	}
@@ -46,6 +52,7 @@ void EndGameUI::update(Cursor const& t_cursor, Game* t_game, std::function<void(
 
 		m_background.setFillColor({ 0, 0, 0, static_cast<sf::Uint8>(255.0f * animProgress) });
 		m_message.setFillColor({ 255, 255, 255, static_cast<sf::Uint8>(255.0f * animProgress) });
+		m_roundNumberText.setFillColor({ 155, 155, 155, static_cast<sf::Uint8>(255.0f * animProgress) });
 		m_restartButton.setOpacity(static_cast<sf::Uint8>(255.0f * animProgress));
 		m_menuButton.setOpacity(static_cast<sf::Uint8>(255.0f * animProgress));
 	}
@@ -66,6 +73,7 @@ void EndGameUI::draw(sf::RenderWindow & t_window) const
 {
 	t_window.draw(m_background);
 	t_window.draw(m_message);
+	t_window.draw(m_roundNumberText);
 
 	t_window.draw(m_restartButton);
 	t_window.draw(m_menuButton);
@@ -76,7 +84,7 @@ const bool EndGameUI::isAnimating() const
 	return m_animating;
 }
 
-void EndGameUI::setAnimating()
+void EndGameUI::setAnimating(int t_roundNumber)
 {
 	m_animating = true;
 	m_animationClock.restart();
@@ -84,4 +92,8 @@ void EndGameUI::setAnimating()
 	m_message.setFillColor({ 255, 255, 255, 0 });
 	m_restartButton.setOpacity(0u);
 	m_menuButton.setOpacity(0u);
+
+	m_roundNumberText.setString("You withstood " + std::to_string(t_roundNumber) + " Rounds");
+	m_roundNumberText.setOrigin(m_roundNumberText.getGlobalBounds().width / 2, m_roundNumberText.getGlobalBounds().height / 2);
+	m_roundNumberText.setFillColor({ 155, 155, 155, 0 });
 }

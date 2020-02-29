@@ -37,7 +37,7 @@ public:
 	void setActive(bool t_active);
 	void setPos(int t_row, int t_col);
 	void setPreviousPos(int t_row, int t_col);
-	void setMovementSpeed(float t_speed);
+	void setMovementSpeed(int t_speed);
 	void setTimeModifier(float t_mod); // Set the time modifier for the movement speed
 	void setTimeModifier(float t_mod, int m_movementSpeed);
 	void setMovementDirection(Direction t_direction);

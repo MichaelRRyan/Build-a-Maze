@@ -18,12 +18,13 @@ public:
 	void draw(sf::RenderWindow & t_window) const;
 
 	const bool isAnimating() const;
-	void setAnimating();
+	void setAnimating(int t_roundNumber);
 
 private:
 
 	sf::Font m_font;
 	sf::Text m_message;
+	sf::Text m_roundNumberText;
 
 	sf::RectangleShape m_background;
 

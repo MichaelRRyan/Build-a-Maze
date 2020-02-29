@@ -53,6 +53,7 @@ private:
 	void setupGame();
 	void setupObjects();
 	void resetSimulation();
+	void generateNewSolvers();
 	void updateSimulation(sf::Time t_deltaTime);
 	void processTimeModifierEvents(sf::Event t_event);
 	void switchGameState();
@@ -82,18 +83,28 @@ private:
 	const sf::View m_GUI_VIEW;
 	sf::View m_mazeView;
 
+	sf::Clock m_animationClock;
+
 	// Bools
 	bool m_exitGame;
 	bool m_simDetailsDisplay;
 	bool m_gamePaused;
+	bool m_animatingHUD;
 
 	// Numeric variables
+	const float m_BUILD_MODE_OFFSET;
+	const float m_SIM_MODE_OFFSET;
+
 	float m_timeModifier;
 	float m_prevTimeToComplete;
 	float m_timeToComplete;
 	int m_currency;
 	int m_moneyEarned;
 	int m_noOfAI;
+
+	// Round variables
+	const int m_STARTING_SOLVERS;
+	int m_roundNumber;
 
 	// Maze array
 	std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> m_mazeBlocks;
@@ -105,9 +116,10 @@ private:
 	sf::Font m_mainFont;
 	sf::Text m_pauseText;
 
-	// Objects
+	// Game Objects
 	std::vector<MazeSolver *> m_mazeSolverPtrs;
 	std::vector<Sheep *> m_sheep;
+	std::array<Paintball, 30> m_paintballs;
 
 	Cursor m_cursor;
 
@@ -120,20 +132,10 @@ private:
 	EndGameUI m_endGameUI;
 	GUI::Popup m_popup;
 
+	// Functional Objects
 	Renderer m_renderer;
-
-	std::array<Paintball, 30> m_paintballs;
-
 	MazeEditor m_mazeEditor;
 	MazeValidator m_mazeValidator;
-
-	sf::Clock m_animationClock;
-
-	const float m_BUILD_MODE_OFFSET;
-	const float m_SIM_MODE_OFFSET;
-
-	bool m_animatingHUD;
-
 	SolverAnimator m_solverAnimator;
 };
 

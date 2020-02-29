@@ -1,7 +1,7 @@
 #include "HUD.h"
 
 /////////////////////////////////////////////////////////////////
-HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
+HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game * t_game) :
 	m_SHOP_ITEM_RECT{ 0, 80, 48, 48 },
 	m_mainColor{ 247, 230, 134 },
 	m_secondaryColor{ 120, 112, 65 },
@@ -26,7 +26,8 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 	m_sheepButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {112, 64, 16, 17} },
 	m_mazeEditorRef{ t_mazeEditor },
 	m_SECONDS_TO_ANIMATE{ 0.2f },
-	m_animationState{ AnimationState::None }
+	m_animationState{ AnimationState::None },
+	m_gamePtr{ t_game }
 {
 	loadFiles();
 	setupShopMenu(t_windowView);
@@ -34,7 +35,7 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor) :
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money)
+void HUD::updateBuildMode(Cursor t_cursor, std::function<void(Game*)> t_playButtonFunc, std::function<void(Game*)> t_purchaseSheepFunc, int t_money)
 {
 	m_moneyText.setString("BALANCE: $" + std::to_string(t_money));
 
@@ -87,12 +88,12 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 
 		if (m_sheepButton.update(t_cursor))
 		{
-			t_purchaseSheepFunc(t_game);
+			t_purchaseSheepFunc(m_gamePtr);
 		}
 
 		if (m_playButton.update(t_cursor))
 		{
-			t_playButtonFunc(t_game);
+			t_playButtonFunc(m_gamePtr);
 		}
 	}
 
@@ -103,7 +104,7 @@ void HUD::updateBuildMode(Cursor t_cursor, Game* t_game, std::function<void(Game
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
+void HUD::updateSimText(Cursor t_cursor, std::function<void(Game*)> t_stopButtonFunc, std::function<void(Game*)> t_pauseButtonFunc, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned)
 {
 	// Work out minutes and seconds and set the string
 	int seconds = static_cast<int>(floor(t_timeToComplete)) % 60;
@@ -118,7 +119,7 @@ void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)
 		m_timeText.setString(std::to_string(minutes) + ":" + std::to_string(seconds));
 	}
 
-	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(SOLVERS_MAX));
+	m_numAIText.setString(std::to_string(t_noOfAI) + " / " + std::to_string(t_maxAI));
 
 	m_moneyEarnedText.setString(std::to_string(t_moneyEarned));
 
@@ -133,12 +134,12 @@ void HUD::updateSimText(Cursor t_cursor, Game* t_game, std::function<void(Game*)
 	{
 		if (m_stopButton.update(t_cursor))
 		{
-			t_stopButtonFunc(t_game);
+			t_stopButtonFunc(m_gamePtr);
 		}
 
 		if (m_pauseButton.update(t_cursor))
 		{
-			t_pauseButtonFunc(t_game);
+			t_pauseButtonFunc(m_gamePtr);
 		}
 	}
 }

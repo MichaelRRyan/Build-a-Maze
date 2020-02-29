@@ -72,9 +72,6 @@
     <ClCompile Include="Cursor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Popup.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Paintball.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -93,11 +90,14 @@
     <ClCompile Include="Sheep.cpp">
       <Filter>Source Files\Solvers</Filter>
     </ClCompile>
-    <ClCompile Include="EndGameUI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SolverAnimator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EndGameUI.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Popup.cpp">
+      <Filter>Source Files\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -140,9 +140,6 @@
     <ClInclude Include="Tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Popup.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Paintball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -161,11 +158,14 @@
     <ClInclude Include="Sheep.h">
       <Filter>Header Files\Solvers</Filter>
     </ClInclude>
-    <ClInclude Include="EndGameUI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SolverAnimator.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EndGameUI.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Popup.h">
+      <Filter>Header Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

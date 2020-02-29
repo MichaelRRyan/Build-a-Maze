@@ -11,8 +11,6 @@ const float TILE_SIZE{ 32.0f };
 const sf::Vector2i MAZE_EXIT{ 0, 1 };
 const sf::Vector2i GAME_EXIT{ -10, 8 };
 
-const int SOLVERS_MAX{ 20 };
-
 const unsigned WINDOW_WIDTH{ 1280u };
 const unsigned WINDOW_HEIGHT{ 720u };
 
