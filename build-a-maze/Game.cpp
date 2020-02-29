@@ -323,28 +323,38 @@ void Game::generateNewSolvers()
 	}
 	m_mazeSolverPtrs.clear();
 
+	int inaccessibleSheep = countInaccessibleSheep();
+
 	int numOfSolvers = m_STARTING_SOLVERS * m_roundNumber;
 
 	// Add a random selection of AI to the maze
 	for (int i = 0; i < numOfSolvers; i++)
 	{
-		switch (Global::random({ 0, 0, 0, 1, 1, 2, 2, 3 }))
+		if (inaccessibleSheep > 0)
 		{
-		case 0:
-			m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
-			break;
-
-		case 1:
-			m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks, m_sheep });
-			break;
-
-		case 2:
-			m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks, m_sheep });
-			break;
-
-		case 3:
 			m_mazeSolverPtrs.push_back(new Farmer{ m_mazeBlocks, m_sheep });
-			break;
+			inaccessibleSheep--;
+		}
+		else
+		{
+			switch (Global::random({ 0, 0, 0, 1, 1, 2, 2, 3 }))
+			{
+			case 0:
+				m_mazeSolverPtrs.push_back(new BasicSolver{ m_mazeBlocks, m_sheep });
+				break;
+
+			case 1:
+				m_mazeSolverPtrs.push_back(new Mathematician{ m_mazeBlocks, m_sheep });
+				break;
+
+			case 2:
+				m_mazeSolverPtrs.push_back(new Cartographer{ m_mazeBlocks, m_sheep });
+				break;
+
+			case 3:
+				m_mazeSolverPtrs.push_back(new Farmer{ m_mazeBlocks, m_sheep });
+				break;
+			}
 		}
 	}
 }
@@ -379,15 +389,29 @@ void Game::updateSimulation(sf::Time t_deltaTime)
 			}
 		}
 
+#ifdef _DEBUG
 		if (i < lastMax) // TEMP
 		{
 			std::cout << lastMax - i << " AI Killed " << m_noOfAI << std::endl;
 		}
+#endif // _DEBUG
 
 		// If there are AI in the maze count the time
 		if (m_noOfAI > 0)
 		{
 			m_timeToComplete += t_deltaTime.asSeconds() / m_timeModifier;
+			m_secondsSinceSheepCheck += t_deltaTime.asSeconds() / m_timeModifier;
+
+			if (m_secondsSinceSheepCheck > 30.0f)
+			{
+				m_secondsSinceSheepCheck = 0.0f;
+
+				if (countInaccessibleSheep() > 0)
+				{
+					m_mazeSolverPtrs.push_back(new Farmer(m_mazeBlocks, m_sheep));
+					m_solverAnimator.animateIn(m_mazeSolverPtrs.back(), m_timeModifier);
+				}
+			}
 		}
 		// Else add the money earned to currency and switch modes
 		else
@@ -701,6 +725,30 @@ void Game::purchaseSheep()
 
 		placeSheep(m_sheep.at(m_sheep.size() - 1));
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////
+int Game::countInaccessibleSheep()
+{
+	m_mazeValidator.isMazeBigEnough(m_mazeBlocks);
+	std::vector<sf::Vector2i> accessibleTiles = m_mazeValidator.getAccessibleTiles();
+	
+	int inaccessibleSheep = m_sheep.size();
+
+	for (sf::Vector2i& vector : accessibleTiles)
+	{
+		// Loop sheep
+		for (Sheep* sheep : m_sheep)
+		{
+			// Check if the sheep's position is equal to the tile, the sheep is accessible
+			if (vector == sheep->getPos())
+			{
+				inaccessibleSheep--;
+			}
+		}
+	}
+
+	return inaccessibleSheep;
 }
 
 ///////////////////////////////////////////////////////////////////////////

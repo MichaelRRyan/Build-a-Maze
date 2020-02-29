@@ -15,6 +15,7 @@ public:
 	void draw();
 
 	void startAnimatingIn();
+	void animateIn(MazeSolver * t_solver, float t_modifier);
 	void startAnimatingOut();
 	const bool isAnimating() const;
 

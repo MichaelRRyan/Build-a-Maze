@@ -58,6 +58,18 @@ void SolverAnimator::startAnimatingIn()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+void SolverAnimator::animateIn(MazeSolver* t_solver, float t_modifier)
+{
+	m_animating = true;
+
+	t_solver->setTimeModifier(t_modifier, 20);
+	t_solver->setPos(GAME_EXIT.y, GAME_EXIT.x);
+	t_solver->setAnimatingIn(true);
+	t_solver->setMovementDirection(Direction::East);
+	t_solver->animate();
+}
+
+///////////////////////////////////////////////////////////////////////////
 void SolverAnimator::startAnimatingOut()
 {
 	m_animating = true;

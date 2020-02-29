@@ -53,9 +53,11 @@ private:
 	// Game functions
 	void setupGame();
 	void setupObjects();
+
 	void resetSimulation();
 	void generateNewSolvers();
 	void updateSimulation(sf::Time t_deltaTime);
+
 	void processTimeModifierEvents(sf::Event t_event);
 	void switchGameState();
 	void handleClickEvents();
@@ -70,6 +72,7 @@ private:
 	void resetSheep();
 	void updateSheep();
 	void purchaseSheep();
+	int countInaccessibleSheep();
 
 	void drawSimulation();
 
@@ -102,6 +105,8 @@ private:
 	int m_currency;
 	int m_moneyEarned;
 	int m_noOfAI;
+
+	float m_secondsSinceSheepCheck;
 
 	// Round variables
 	const int m_STARTING_SOLVERS;
