@@ -51,10 +51,25 @@ void MazeEditor::update(Cursor const& t_cursor)
 						&& m_selectedTileType != TileType::TurretWest
 						&& m_selectedTileType != TileType::TurretEast)
 					{
-						addAction(m_selectedTileType, TileType::None, t_cursor.m_selectedTile, Global::getTilePrice(m_selectedTileType));
+						// Check if the tile is blocked by a sheep before placing
+						bool blockedBySheep = false;
 
-						m_mazeRef[t_cursor.m_selectedTile.y][t_cursor.m_selectedTile.x].setType(m_selectedTileType);
-						m_moneyRef -= Global::getTilePrice(m_selectedTileType);
+						for (Sheep* sheep : m_sheepRef)
+						{
+							if (sheep->getPos() == t_cursor.m_selectedTile)
+							{
+								blockedBySheep = true;
+								break;
+							}
+						}
+
+						if (!blockedBySheep)
+						{
+							addAction(m_selectedTileType, TileType::None, t_cursor.m_selectedTile, Global::getTilePrice(m_selectedTileType));
+
+							m_mazeRef[t_cursor.m_selectedTile.y][t_cursor.m_selectedTile.x].setType(m_selectedTileType);
+							m_moneyRef -= Global::getTilePrice(m_selectedTileType);
+						}
 					}
 					else if (selectedTile == TileType::Wall
 						&& (m_selectedTileType == TileType::TurretWest || m_selectedTileType == TileType::TurretEast))

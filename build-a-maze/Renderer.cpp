@@ -253,7 +253,7 @@ void Renderer::drawMazeHighlights()
 				}
 			}
 			if (m_mazeRef[row + 1][col] == TileType::TurretWest
-				|| m_mazeRef[row + 1][col] == TileType::TurretWest)
+				|| m_mazeRef[row + 1][col] == TileType::TurretEast)
 			{
 				if (!m_mazeRef[row + 1][col].getAnimating())
 				{

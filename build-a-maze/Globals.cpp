@@ -94,16 +94,16 @@ int Global::getTilePrice(TileType t_tileType)
 		return 20;
 		break;
 	case TileType::SteppingStones:
-		return 80;
+		return 600;
 		break;
 	case TileType::TurretWest:
-		return 200;
+		return 300;
 		break;
 	case TileType::TurretEast:
-		return 200;
+		return 300;
 		break;
 	case TileType::Trapdoor:
-		return 100;
+		return 200;
 		break;
 	case TileType::Wall:
 		return 20;

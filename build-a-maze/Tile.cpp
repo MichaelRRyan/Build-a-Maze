@@ -55,7 +55,7 @@ void Tile::setType(TileType t_type)
 		|| m_type == TileType::TreadmillSouth)
 	{
 		m_maxFrames = 3;
-		m_animFrameTime = 0.1f;
+		m_animFrameTime = 0.06f;
 		m_startFrame = 1;
 		m_loop = true;
 		m_animating = true;
