@@ -299,7 +299,7 @@ void Game::setupObjects()
 	m_pauseText.setPosition(m_GUI_VIEW.getSize().x / 3.0f, m_GUI_VIEW.getSize().y / 2.5f);
 	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 
-	m_hud.setFunctionPointers(&Game::switchGameState, &Game::purchaseSheep, &Game::togglePause);
+	m_hud.setFunctionPointers(&Game::switchGameState, &Game::purchaseSheep, &Game::togglePause, &Game::slowDownTime, &Game::speedUpTime);
 
 	// Setup audio
 	if (!m_turretSoundBuffer.loadFromFile("ASSETS\\AUDIO\\TurretFire.wav"))
@@ -467,35 +467,54 @@ void Game::processTimeModifierEvents(sf::Event t_event)
 	{
 		if (sf::Keyboard::Num1 == t_event.key.code)
 		{
-			if (m_timeModifier > 0.25)
-			{
-				m_timeModifier *= 0.5f;
-			}
+			speedUpTime();
 		}
 		else if (sf::Keyboard::Num2 == t_event.key.code)
 		{
 			m_timeModifier = 1;
+
+			applyTimeModifier();
 		}
 		else if (sf::Keyboard::Num3 == t_event.key.code)
 		{
-			if (m_timeModifier < 4)
-			{
-				m_timeModifier *= 2.0f;
-			}
+			slowDownTime();
 		}
-
-		for (MazeSolver* solver : m_mazeSolverPtrs)
-		{
-			solver->setTimeModifier(m_timeModifier);
-		}
-
-		for (Sheep* sheep : m_sheep)
-		{
-			sheep->setTimeModifier(m_timeModifier);
-		}
-
-		m_solverAnimator.setTimeModifier(m_timeModifier);
 	}
+}
+
+void Game::speedUpTime()
+{
+	if (m_timeModifier > 0.25)
+	{
+		m_timeModifier *= 0.5f;
+	}
+
+	applyTimeModifier();
+}
+
+void Game::slowDownTime()
+{
+	if (m_timeModifier < 4)
+	{
+		m_timeModifier *= 2.0f;
+	}
+
+	applyTimeModifier();
+}
+
+void Game::applyTimeModifier()
+{
+	for (MazeSolver* solver : m_mazeSolverPtrs)
+	{
+		solver->setTimeModifier(m_timeModifier);
+	}
+
+	for (Sheep* sheep : m_sheep)
+	{
+		sheep->setTimeModifier(m_timeModifier);
+	}
+
+	m_solverAnimator.setTimeModifier(m_timeModifier);
 }
 
 ///////////////////////////////////////////////////////////////////////////

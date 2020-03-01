@@ -61,6 +61,10 @@ private:
 	void updateSimulation(sf::Time t_deltaTime);
 
 	void processTimeModifierEvents(sf::Event t_event);
+	void speedUpTime();
+	void slowDownTime();
+	void applyTimeModifier();
+
 	void switchGameState();
 	void handleClickEvents();
 	void togglePause();

@@ -25,6 +25,8 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game* t_game) :
 	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
 	m_sheepButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {112, 64, 16, 17} },
 	m_rotateButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {64, 16, 16, 16} },
+	m_fastButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {96, 16, 16, 16} },
+	m_slowButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {80, 16, 16, 16} },
 	m_mazeEditorRef{ t_mazeEditor },
 	m_SECONDS_TO_ANIMATE{ 0.2f },
 	m_SECONDS_TO_DISPLAY_ROUND{ 2.0f },
@@ -37,11 +39,14 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game* t_game) :
 }
 
 /////////////////////////////////////////////////////////////////
-void HUD::setFunctionPointers(std::function<void(Game*)> t_switchGameStateFunc, std::function<void(Game*)> t_purchaseSheepFunc, std::function<void(Game*)> t_pauseButtonFunc)
+void HUD::setFunctionPointers(std::function<void(Game*)> t_switchGameStateFunc, std::function<void(Game*)> t_purchaseSheepFunc, std::function<void(Game*)> t_pauseButtonFunc,
+	std::function<void(Game*)> t_slowDownTimeFunc, std::function<void(Game*)> t_speedUpTimeFunc)
 {
 	m_switchGameStateFunc = t_switchGameStateFunc;
 	m_pauseButtonFunc = t_pauseButtonFunc;
 	m_purchaseSheepFunc = t_purchaseSheepFunc;
+	m_speedUpTimeFunc = t_speedUpTimeFunc;
+	m_slowDownTimeFunc = t_slowDownTimeFunc;
 }
 
 /////////////////////////////////////////////////////////////////
@@ -157,6 +162,16 @@ void HUD::updateSimText(Cursor t_cursor, int t_roundNumber, int t_maxAI, int t_n
 		if (m_pauseButton.update(t_cursor))
 		{
 			m_pauseButtonFunc(m_gamePtr);
+		}
+
+		if (m_slowButton.update(t_cursor))
+		{
+			m_slowDownTimeFunc(m_gamePtr);
+		}
+
+		if (m_fastButton.update(t_cursor))
+		{
+			m_speedUpTimeFunc(m_gamePtr);
 		}
 	}
 
@@ -298,6 +313,9 @@ void HUD::drawStats(sf::RenderWindow& t_window)
 
 	//t_window.draw(m_stopButton);
 	t_window.draw(m_pauseButton);
+
+	t_window.draw(m_slowButton);
+	t_window.draw(m_fastButton);
 
 	// Reset the view to what it was before this function call
 	t_window.setView(view);
@@ -542,6 +560,12 @@ void HUD::setupStatsMenu(sf::View const& t_windowView)
 
 	m_roundNumber.setFont(m_hudFont);
 	m_roundNumber.setFillColor(sf::Color::Black);
+
+	m_slowButton.setup();
+	m_fastButton.setup();
+
+	m_slowButton.setPosition({ m_statsBackground.getPosition().x + m_statsBackground.getSize().x / 2.0f - m_slowButton.getSize().x, m_statsBackground.getSize().y / 1.5f });
+	m_fastButton.setPosition({ m_statsBackground.getPosition().x + m_statsBackground.getSize().x / 2.0f, m_statsBackground.getSize().y / 1.5f });
 }
 
 /////////////////////////////////////////////////////////////////

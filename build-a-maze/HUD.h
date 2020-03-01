@@ -18,7 +18,8 @@ class HUD
 public:
 	HUD(sf::View const& t_windowView, MazeEditor & t_mazeEditor, Game* t_game);
 
-	void setFunctionPointers(std::function<void(Game*)> m_switchGameStateFunc, std::function<void(Game*)> t_purchaseSheepFunc, std::function<void(Game*)> t_pauseButtonFunc);
+	void setFunctionPointers(std::function<void(Game*)> t_switchGameStateFunc, std::function<void(Game*)> t_purchaseSheepFunc, std::function<void(Game*)> t_pauseButtonFunc,
+							std::function<void(Game*)> t_slowDownTimeFunc, std::function<void(Game*)> t_speedUpTimeFunc);
 
 	void updateBuildMode(Cursor t_cursor, int t_money);
 	void updateSimText(Cursor t_cursor, int t_roundNumber, int t_maxAI, int t_noOfAI, float t_timeToComplete, int t_moneyEarned);
@@ -71,6 +72,9 @@ private:
 	GUI::Button m_stopButton;
 	GUI::Button m_pauseButton;
 
+	// Time control buttons
+	GUI::Button m_fastButton;
+	GUI::Button m_slowButton;
 
 	GUI::Button m_rotateButton;
 	sf::RoundedRectangleShape m_rotateButtonBackground;
@@ -112,6 +116,9 @@ private:
 	std::function<void(Game*)> m_switchGameStateFunc;
 	std::function<void(Game*)> m_purchaseSheepFunc;
 	std::function<void(Game*)> m_pauseButtonFunc;
+
+	std::function<void(Game*)> m_speedUpTimeFunc;
+	std::function<void(Game*)> m_slowDownTimeFunc;
 };
 
 #include "Game.h"
