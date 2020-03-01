@@ -90,13 +90,12 @@ void MazeSolver::setPreviousPos(int t_row, int t_col)
 ///////////////////////////////////////////////////////////////////////////
 void MazeSolver::setMovementSpeed(int t_speed)
 {
-	m_movementSpeed = t_speed;
+	// Set the movement timer in relation to the new movement speed
+	float movePercent = 1.0f * m_moveTimer / m_movementSpeed; // Get the percentage of the movement to completion
+	m_moveTimer = static_cast<int>(movePercent * t_speed); // Set the new movement time in relation to the new speed
 
-	// If the movement timer is greater than the movement speed, set it to the movement speed
-	if (m_moveTimer > m_movementSpeed)
-	{
-		m_moveTimer = m_movementSpeed;
-	}
+	// Set the new movement speed
+	m_movementSpeed = t_speed;
 }
 
 ///////////////////////////////////////////////////////////////////////////

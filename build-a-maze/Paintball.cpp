@@ -67,7 +67,7 @@ void Paintball::update(std::vector<MazeSolver*> t_solvers)
 
 		for (MazeSolver * solver : t_solvers)
 		{
-			if (solver->getActive())
+			if (solver->getActive() && !solver->isAnimatingIn() && !solver->isAnimatingOut())
 			{
 				if (solver->getSprite().getGlobalBounds().intersects(m_sprite.getGlobalBounds()))
 				{

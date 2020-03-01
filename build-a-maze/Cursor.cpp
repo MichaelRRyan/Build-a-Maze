@@ -1,7 +1,11 @@
 #include "Cursor.h"
 
 Cursor::Cursor() :
-	m_controllerSensitivity{ 0.25f }
+	m_controllerSensitivity{ 0.25f },
+	m_clicked{ false },
+	m_clickDown{ false },
+	m_cancelClicked{ false },
+	m_cancelDown{ false }
 {
 	if (!m_texture.loadFromFile("ASSETS/IMAGES/Cursors.png"))
 	{
