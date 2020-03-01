@@ -24,6 +24,7 @@ private:
 
 	static constexpr float s_SPEED{ 3.0f };
 
+	float m_startHeight;
 	sf::Texture m_texture;
 	sf::Sprite m_sprite;
 	sf::Vector2f m_velocity;

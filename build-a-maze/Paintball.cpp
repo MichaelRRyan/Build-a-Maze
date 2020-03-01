@@ -20,6 +20,7 @@ void Paintball::fire(sf::Vector2f t_position, Direction t_direction, sf::Color t
 
 	m_sprite.setPosition(t_position);
 	m_sprite.setColor(t_color);
+	m_startHeight = t_position.y;
 
 	switch (t_direction)
 	{
@@ -41,7 +42,13 @@ void Paintball::update(std::vector<MazeSolver*> t_solvers)
 {
 	if (m_active)
 	{
+		m_velocity.y += 0.02f;
 		m_sprite.move(m_velocity);
+
+		if (m_sprite.getPosition().y > m_startHeight + 16.0f)
+		{
+			m_active = false;
+		}
 
 		// Check horisontal maze bounds
 		if (m_sprite.getPosition().x + 4.0f < 0.0f || m_sprite.getPosition().x - 4.0f > static_cast<float>(MAZE_SIZE)* TILE_SIZE)
