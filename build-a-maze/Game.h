@@ -135,6 +135,7 @@ private:
 
 	// Enum variables
 	GameState m_gamestate;
+	GameState m_previousState;
 
 	// UI Objects
 	MenuScreen m_menuScreen;

@@ -95,7 +95,7 @@ void Cartographer::update()
 			else
 			{
 				// Random chance to make a hmm sound when blocked
-				if (rand() % 10 == 0)
+				if (rand() % 20 == 0)
 				{
 					playHmmSound();
 				}

@@ -22,8 +22,9 @@ HUD::HUD(sf::View const& t_windowView, MazeEditor& t_mazeEditor, Game* t_game) :
 	} },
 	m_playButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 96, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 3.3f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
 	m_stopButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 112, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f + 4.0f }),
-	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 36.0f }),
+	m_pauseButton(m_guiTextures, m_tileTextures, { 0,147,32,32 }, { 128, 0, 16, 16 }, { t_windowView.getSize().x - (t_windowView.getSize().x / 4.6f) - 20.0f, t_windowView.getSize().y / 2.0f - 16.0f }),
 	m_sheepButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {112, 64, 16, 17} },
+	m_rotateButton{ m_guiTextures, m_tileTextures, m_SHOP_ITEM_RECT, {64, 16, 16, 16} },
 	m_mazeEditorRef{ t_mazeEditor },
 	m_SECONDS_TO_ANIMATE{ 0.2f },
 	m_SECONDS_TO_DISPLAY_ROUND{ 2.0f },
@@ -112,6 +113,11 @@ void HUD::updateBuildMode(Cursor t_cursor, int t_money)
 	{
 		m_mazeEditorRef.unselectEditTool();
 	}
+
+	if (m_rotateButton.update(t_cursor))
+	{
+		m_mazeEditorRef.rotateTile();
+	}
 }
 
 /////////////////////////////////////////////////////////////////
@@ -143,10 +149,10 @@ void HUD::updateSimText(Cursor t_cursor, int t_roundNumber, int t_maxAI, int t_n
 	}
 	else // Button functionality should not work when animating
 	{
-		if (m_stopButton.update(t_cursor))
+		/*if (m_stopButton.update(t_cursor))
 		{
 			m_switchGameStateFunc(m_gamePtr);
-		}
+		}*/
 
 		if (m_pauseButton.update(t_cursor))
 		{
@@ -223,6 +229,19 @@ void HUD::drawShop(sf::RenderWindow& t_window)
 
 	// Reset the view to what it was before this function call
 	t_window.setView(view);
+
+	if (m_mazeEditorRef.getSelectedTileType() == TileType::TreadmillEast
+		|| m_mazeEditorRef.getSelectedTileType() == TileType::TreadmillWest
+		|| m_mazeEditorRef.getSelectedTileType() == TileType::TreadmillNorth
+		|| m_mazeEditorRef.getSelectedTileType() == TileType::TreadmillSouth
+		|| m_mazeEditorRef.getSelectedTileType() == TileType::TurretWest
+		|| m_mazeEditorRef.getSelectedTileType() == TileType::TurretEast)
+	{
+		t_window.draw(m_rotateButtonBackground);
+		t_window.draw(m_rotateButton);
+		t_window.draw(m_rotateButtonText);
+		t_window.draw(m_rotateShortcutText);
+	}
 }
 
 /////////////////////////////////////////////////////////////////
@@ -277,7 +296,7 @@ void HUD::drawStats(sf::RenderWindow& t_window)
 		t_window.draw(m_iconSprite);
 	}
 
-	t_window.draw(m_stopButton);
+	//t_window.draw(m_stopButton);
 	t_window.draw(m_pauseButton);
 
 	// Reset the view to what it was before this function call
@@ -452,10 +471,42 @@ void HUD::setupShopMenu(sf::View const& t_windowView)
 	m_shopDividers[0].setPosition(shopCentre, m_sheepButton.getPosition().y + 68.0f);
 	m_shopDividers[1].setPosition(shopCentre, m_VERTICAL_BUTTON_OFFSETS[0] + m_shopItems.at(0).getSize().y + 42.0f);
 
+	m_rotateButton.setup();
+
+	// Setup the rotate button
+	m_rotateButton.setPosition({ (t_windowView.getSize().x - m_shopBackground.getSize().x) / 2.0f - m_rotateButton.getSize().x / 2.0f, t_windowView.getSize().y - 64.0f });
+
+	m_rotateButtonBackground.setPosition({ (t_windowView.getSize().x - m_shopBackground.getSize().x) / 2.0f, t_windowView.getSize().y - 32.0f });
+	m_rotateButtonBackground.setSize({ 120.0f, 100.0f });
+	m_rotateButtonBackground.setFillColor(m_mainColor);
+	m_rotateButtonBackground.setOrigin(m_rotateButtonBackground.getGlobalBounds().width / 2.0f, m_rotateButtonBackground.getGlobalBounds().height / 2.0f);
+	m_rotateButtonBackground.setOutlineThickness(5.0f);
+	m_rotateButtonBackground.setOutlineColor(m_secondaryColor);
+	m_rotateButtonBackground.setCornerRadius(15.0f);
+
+	m_rotateButtonText.setFont(m_hudFont);
+	m_rotateShortcutText.setFont(m_hudFont);
+
+	m_rotateButtonText.setCharacterSize(12.0f);
+	m_rotateShortcutText.setCharacterSize(12.0f);
+
+	m_rotateButtonText.setString("Rotate Tile");
+	m_rotateShortcutText.setString("Shortcut: 'R'");
+
+	m_rotateButtonText.setFillColor(sf::Color::Black);
+	m_rotateShortcutText.setFillColor(m_secondaryTextColor);
+
+	m_rotateButtonText.setPosition({ (t_windowView.getSize().x - m_shopBackground.getSize().x) / 2.0f, t_windowView.getSize().y - 74.0f });
+	m_rotateShortcutText.setPosition({ (t_windowView.getSize().x - m_shopBackground.getSize().x) / 2.0f, t_windowView.getSize().y - 10.0f });
+
+	m_rotateButtonText.setOrigin(m_rotateButtonText.getGlobalBounds().width / 2.0f, m_rotateButtonText.getGlobalBounds().height / 2.0f);
+	m_rotateShortcutText.setOrigin(m_rotateShortcutText.getGlobalBounds().width / 2.0f, m_rotateShortcutText.getGlobalBounds().height / 2.0f);
+
 	// Setup the three game buttons
 	m_playButton.setup();
 	m_stopButton.setup();
 	m_pauseButton.setup();
+	
 }
 
 /////////////////////////////////////////////////////////////////

@@ -140,13 +140,13 @@ void MazeSolver::playFootstep()
 	if (m_leftStep)
 	{
 		m_stepLeft.stop();
-		m_stepLeft.setPitch(1.0f - (rand() % 10 - 5) / 50);
+		m_stepLeft.setPitch(1.0f - (rand() % 10 - 5) / 30);
 		m_stepLeft.play();
 	}
 	else
 	{
 		m_stepRight.stop();
-		m_stepRight.setPitch(1.0f - (rand() % 10 - 5) / 50);
+		m_stepRight.setPitch(1.0f - (rand() % 10 - 5) / 30);
 		m_stepRight.play();
 	}
 

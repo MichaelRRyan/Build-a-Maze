@@ -94,29 +94,7 @@ void MazeEditor::handleKeyPresses(sf::Event t_event)
 	// If the R key is pressed
 	if (sf::Keyboard::R == t_event.key.code)
 	{
-		switch (m_selectedTileType)
-		{
-		case TileType::None: // Do nothing if no tile selected
-			break;
-		case TileType::TreadmillWest:
-			m_selectedTileType = TileType::TreadmillNorth;
-			break;
-		case TileType::TreadmillEast:
-			m_selectedTileType = TileType::TreadmillSouth;
-			break;
-		case TileType::TreadmillNorth:
-			m_selectedTileType = TileType::TreadmillEast;
-			break;
-		case TileType::TreadmillSouth:
-			m_selectedTileType = TileType::TreadmillWest;
-			break;
-		case TileType::TurretWest:
-			m_selectedTileType = TileType::TurretEast;
-			break;
-		case TileType::TurretEast:
-			m_selectedTileType = TileType::TurretWest;
-			break;
-		}
+		rotateTile();
 	}
 }
 
@@ -271,6 +249,34 @@ void MazeEditor::purchaseSheep()
 
 	// Keep the current action index up-to-date
 	m_currentActionIndex = m_actions.size();
+}
+
+/////////////////////////////////////////////////////////////////
+void MazeEditor::rotateTile()
+{
+	switch (m_selectedTileType)
+	{
+	case TileType::None: // Do nothing if no tile selected
+		break;
+	case TileType::TreadmillWest:
+		m_selectedTileType = TileType::TreadmillNorth;
+		break;
+	case TileType::TreadmillEast:
+		m_selectedTileType = TileType::TreadmillSouth;
+		break;
+	case TileType::TreadmillNorth:
+		m_selectedTileType = TileType::TreadmillEast;
+		break;
+	case TileType::TreadmillSouth:
+		m_selectedTileType = TileType::TreadmillWest;
+		break;
+	case TileType::TurretWest:
+		m_selectedTileType = TileType::TurretEast;
+		break;
+	case TileType::TurretEast:
+		m_selectedTileType = TileType::TurretWest;
+		break;
+	}
 }
 
 /////////////////////////////////////////////////////////////////

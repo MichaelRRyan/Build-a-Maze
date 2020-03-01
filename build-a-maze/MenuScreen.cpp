@@ -23,11 +23,18 @@ MenuScreen::MenuScreen(sf::View const& t_windowView) :
 	m_titleText.setOrigin(m_titleText.getGlobalBounds().width / 2, 0.0f);
 }
 
-void MenuScreen::update(Cursor t_cursor, GameState& t_gameState, bool& t_exitGame, Game* t_game, std::function<void(Game*)> t_restartFunc)
+void MenuScreen::update(Cursor t_cursor, GameState& t_gameState, GameState t_previousGameState, bool& t_exitGame, Game* t_game, std::function<void(Game*)> t_restartFunc)
 {
 	if (m_playButton.update(t_cursor))
 	{
-		t_gameState = GameState::BuildMode;
+		if (t_previousGameState == GameState::Simulation)
+		{
+			t_gameState = GameState::Simulation;
+		}
+		else
+		{
+			t_gameState = GameState::BuildMode;
+		}
 
 		if (!m_gameStarted)
 		{

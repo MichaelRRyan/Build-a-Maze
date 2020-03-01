@@ -42,6 +42,8 @@ public:
 
 	void purchaseSheep();
 
+	void rotateTile();
+
 private:
 
 	struct Action

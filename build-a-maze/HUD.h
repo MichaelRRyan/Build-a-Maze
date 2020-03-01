@@ -71,6 +71,12 @@ private:
 	GUI::Button m_stopButton;
 	GUI::Button m_pauseButton;
 
+
+	GUI::Button m_rotateButton;
+	sf::RoundedRectangleShape m_rotateButtonBackground;
+	sf::Text m_rotateButtonText;
+	sf::Text m_rotateShortcutText;
+
 	GUI::Button m_sheepButton;
 	sf::Text m_sheepText;
 	sf::Text m_sheepPrice;

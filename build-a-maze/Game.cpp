@@ -10,6 +10,7 @@ Game::Game() :
 	m_SIM_MODE_OFFSET{ 320.0f },
 	m_exitGame{ false },
 	m_gamestate{ GameState::TitleScreen }, // Set the start game state to 'Title screen'
+	m_previousState{ GameState::None },
 	m_timeModifier{ 1.0f },
 	m_GUI_VIEW{ { (static_cast<float>(WINDOW_WIDTH) * 0.75f) / 2.0f, (static_cast<float>(WINDOW_HEIGHT) * 0.75f) / 2.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.75f, static_cast<float>(WINDOW_HEIGHT) * 0.75f} },
 	m_mazeView{ { 420.0f, 240.0f }, { static_cast<float>(WINDOW_WIDTH) * 0.85f, static_cast<float>(WINDOW_HEIGHT) * 0.85f} },
@@ -106,6 +107,7 @@ void Game::processKeyboardEvents(sf::Event t_event)
 			if (m_mazeEditor.getConstructionMode() == ConstructionMode::None)
 			{
 				m_gamestate = GameState::TitleScreen;
+				m_previousState = GameState::BuildMode;
 			}
 		}
 
@@ -131,7 +133,9 @@ void Game::processKeyboardEvents(sf::Event t_event)
 
 		if (sf::Keyboard::Escape == t_event.key.code)
 		{
-			switchGameState();
+			//switchGameState();
+			m_gamestate = GameState::TitleScreen;
+			m_previousState = GameState::Simulation;
 		}
 
 		processTimeModifierEvents(t_event);
@@ -155,7 +159,7 @@ void Game::update(sf::Time t_deltaTime)
 	switch (m_gamestate)
 	{
 	case GameState::TitleScreen:
-		m_menuScreen.update(m_cursor, m_gamestate, m_exitGame, this, &Game::restartGame);
+		m_menuScreen.update(m_cursor, m_gamestate, m_previousState, m_exitGame, this, &Game::restartGame);
 		break;
 	case GameState::SettingsScreen:
 		break;
@@ -614,6 +618,7 @@ void Game::togglePause()
 void Game::endGame()
 {
 	m_gamestate = GameState::GameEnd;
+	m_previousState = GameState::None;
 	m_animationClock.restart();
 	m_endGameUI.setAnimating(m_roundNumber - 1);
 }
