@@ -2,6 +2,7 @@
 #define GUI_BUTTON_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Cursor.h"
 
 namespace GUI
@@ -37,11 +38,15 @@ namespace GUI
 		const sf::Vector2f getSize() const;
 
 	private:
+
+		void loadAudioFiles();
+
 		void animate();
 
 		virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 		static constexpr float s_IMAGE_OVERLAY_SCALE{ 1.5f };
+
 
 		sf::Sprite m_sprite;
 		sf::Sprite m_image;
@@ -50,6 +55,13 @@ namespace GUI
 		bool m_imageButton; // True if the button is an image button
 		float m_rotDirection; // Direction multiplier the button rotates by when hovered over
 		bool m_hovered; // Whether the button is hovered or not
+
+		// Audio
+		sf::SoundBuffer m_hoverSoundBuffer;
+		sf::Sound m_hoverSound;
+
+		sf::SoundBuffer m_clickSoundBuffer;
+		sf::Sound m_clickSound;
 	};
 }
 

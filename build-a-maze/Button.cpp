@@ -21,6 +21,8 @@ namespace GUI
 			m_rotDirection = 1;
 		else
 			m_rotDirection = -1;
+
+		loadAudioFiles();
 	}
 
 	////////////////////////////////////////////////////////////
@@ -39,6 +41,8 @@ namespace GUI
 		m_image.setTexture(t_imageTexture);
 		m_image.setTextureRect(t_imageRect);
 		m_image.setPosition(t_position.x + m_sprite.getGlobalBounds().width / 2.0f, t_position.y + m_sprite.getGlobalBounds().height / 2.0f);
+
+		loadAudioFiles();
 	}
 
 	////////////////////////////////////////////////////////////
@@ -59,7 +63,7 @@ namespace GUI
 
 		if (!m_locked)
 		{
-			m_hovered = false;
+			bool hovered = false;
 
 			float scale = m_sprite.getScale().x;
 			m_sprite.setScale(1.0f, 1.0f);
@@ -75,15 +79,23 @@ namespace GUI
 				if (t_cursor.m_viewPosition.y > m_sprite.getPosition().y - m_sprite.getGlobalBounds().height / 2.0f
 					&& t_cursor.m_viewPosition.y < m_sprite.getPosition().y + m_sprite.getGlobalBounds().height / 2.0f)
 				{
-					m_hovered = true;
+					hovered = true;
+
+					if (!m_hovered)
+					{
+						m_hoverSound.play();
+					}
 				}
 			}
 
 			m_sprite.setScale(scale, scale);
 			m_sprite.setRotation(angle);
 
+			m_hovered = hovered;
+
 			if (m_hovered && t_cursor.m_clicked)
 			{
+				m_clickSound.play();
 				return true;
 			}
 		}
@@ -161,6 +173,24 @@ namespace GUI
 	const sf::Vector2f Button::getSize() const
 	{
 		return { m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height };
+	}
+
+	////////////////////////////////////////////////////////////
+	void Button::loadAudioFiles()
+	{
+		if (!m_hoverSoundBuffer.loadFromFile("ASSETS\\AUDIO\\ButtonHover.wav"))
+		{
+			std::cout << "Error loading button hover sound. Asset file may be missing." << std::endl;
+		}
+
+		m_hoverSound.setBuffer(m_hoverSoundBuffer);
+
+		if (!m_clickSoundBuffer.loadFromFile("ASSETS\\AUDIO\\ButtonClick.wav"))
+		{
+			std::cout << "Error loading button click sound. Asset file may be missing." << std::endl;
+		}
+
+		m_clickSound.setBuffer(m_clickSoundBuffer);
 	}
 
 	////////////////////////////////////////////////////////////
