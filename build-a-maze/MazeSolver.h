@@ -21,6 +21,7 @@ public:
 	virtual bool isBlocked(sf::Vector2i t_mazePos) const; // Check if a tile is a wall
 	virtual void reset(int t_moveDelay);
 	virtual void draw(sf::RenderWindow& t_window) const;
+	virtual void animate();
 
 	// Getters
 	const sf::Vector2i getPreviousPos() const; // Return the previous row and col position of the solver
@@ -42,11 +43,15 @@ public:
 	void setTimeModifier(float t_mod, int m_movementSpeed);
 	void setMovementDirection(Direction t_direction);
 
+	void die();
+	void playHmmSound();
+	void playFootstep();
+	void playTriumphSound();
+
 	void resetMoveTimer();
 	void decrementMoveTimer();
 
 	void checkForExit(); // Check if the exit of the maze is within sight, set direction towards it
-	virtual void animate();
 	void setTextureDirection(); // Set the correct texture for the direction the enemy is facing
 
 	const int getMovementSpeed() const;
@@ -54,6 +59,8 @@ public:
 	virtual void hasFollower(bool t_hasFollower);
 
 protected:
+
+	void loadAudioFiles();
 
 	void handleTreadmills();
 	void handleSteppingStones();
@@ -90,6 +97,30 @@ protected:
 	bool m_hasFollower; // Whether or not a sheep is following the solver
 	bool m_animatingIn; // Whether or not the solver is animating into the maze
 	bool m_animatingOut; // Whether or not the solver is animating out of the maze
+
+	// Audio
+	sf::SoundBuffer m_deathSoundBuffer;
+	sf::Sound m_deathSound;
+
+	sf::SoundBuffer m_hmmSoundBuffer;
+	sf::Sound m_hmmSound;
+
+	// Footsteps
+	sf::SoundBuffer m_stepLeftBuffer;
+	sf::Sound m_stepLeft;
+
+	sf::SoundBuffer m_stepRightBuffer;
+	sf::Sound m_stepRight;
+
+	bool m_leftStep; // Bool for footstep audio
+
+	// Triump
+	sf::SoundBuffer m_triumphSoundBuffer;
+	sf::Sound m_triumphSound;
+
+	// TEMP move to different class if possible
+	sf::SoundBuffer m_trapdoorCloseBuffer;
+	sf::Sound m_trapdoorClose;
 };
 
 #endif // !MAZE_SOLVER_H

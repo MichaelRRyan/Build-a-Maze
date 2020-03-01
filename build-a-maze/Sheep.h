@@ -6,6 +6,9 @@
 /// @Date 27/02/2020
 /// </summary>
 
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <iostream>
 #include <array>
 #include "Globals.h"
 #include "Tile.h"
@@ -73,6 +76,9 @@ private:
 	State m_state;
 
 	MazeSolver * m_followee;
+
+	sf::SoundBuffer m_bahBuffer;
+	sf::Sound m_bahSound;
 };
 
 #include "MazeSolver.h"

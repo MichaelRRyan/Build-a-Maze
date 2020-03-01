@@ -29,7 +29,7 @@ void Cursor::update(sf::RenderWindow const& t_window, std::array<std::array<Tile
 	}
 	else if (GameState::Simulation == t_gameState
 		&& m_selectedTile.x > 0 && m_selectedTile.x < MAZE_SIZE - 1
-		&& m_selectedTile.y > 0 && m_selectedTile.y < MAZE_SIZE - 1
+		&& m_selectedTile.y >= 0 && m_selectedTile.y < MAZE_SIZE - 1
 		&& ((m_maze[m_selectedTile.y][m_selectedTile.x].getType() >= TileType::TreadmillWest
 			&& m_maze[m_selectedTile.y][m_selectedTile.x].getType() <= TileType::TreadmillSouth)
 			|| m_maze[m_selectedTile.y + 1][m_selectedTile.x].getType() == TileType::TurretWest

@@ -94,9 +94,16 @@ void Cartographer::update()
 			}
 			else
 			{
+				// Random chance to make a hmm sound when blocked
+				if (rand() % 10 == 0)
+				{
+					playHmmSound();
+				}
+
 				findNewDirection();
 
 				desiredPosition = m_pos + Global::getDirectionVector(m_moveDir);
+
 				// Move if not blocked by a wall and not a dead end, else change direction
 				if (!isBlocked(desiredPosition))
 				{

@@ -29,6 +29,10 @@ private:
 	sf::Sprite m_sprite;
 	sf::Vector2f m_velocity;
 	bool m_active;
+
+	// Audio
+	sf::SoundBuffer m_bulletThudBuffer;
+	sf::Sound m_bulletThud;
 };
 
 #endif // !PAINTBALL_H

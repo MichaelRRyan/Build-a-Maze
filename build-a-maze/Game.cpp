@@ -296,6 +296,24 @@ void Game::setupObjects()
 	m_pauseText.setOrigin(m_pauseText.getGlobalBounds().width / 2, m_pauseText.getGlobalBounds().height / 2);
 
 	m_hud.setFunctionPointers(&Game::switchGameState, &Game::purchaseSheep, &Game::togglePause);
+
+	// Setup audio
+	if (!m_turretSoundBuffer.loadFromFile("ASSETS\\AUDIO\\TurretFire.wav"))
+	{
+		std::cout << "Error loading turret sound. Asset file may be missing" << std::endl;
+	}
+
+	m_turretSound.setBuffer(m_turretSoundBuffer);
+	m_turretSound.setVolume(50.0f);
+
+	if (!m_backgroundMusic.openFromFile("ASSETS\\AUDIO\\BackgroundMusic.ogg"))
+	{
+		std::cout << "Error loading background music. Asset file may be missing" << std::endl;
+	}
+
+	m_backgroundMusic.play();
+	m_backgroundMusic.setLoop(true);
+	m_backgroundMusic.setVolume(5.0f);
 }
 
 /// <summary>
@@ -517,7 +535,7 @@ void Game::handleClickEvents()
 		{
 			// Make sure the player doesn't remove the outer boundary
 			if (m_cursor.m_selectedTile.x > 0 && m_cursor.m_selectedTile.x < MAZE_SIZE - 1
-				&& m_cursor.m_selectedTile.y > 0 && m_cursor.m_selectedTile.y < MAZE_SIZE - 1)
+				&& m_cursor.m_selectedTile.y >= 0 && m_cursor.m_selectedTile.y < MAZE_SIZE - 1)
 			{
 				TileType selectedTile = m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getType();
 
@@ -528,6 +546,7 @@ void Game::handleClickEvents()
 					{
 						// Turn on animation
 						m_mazeBlocks[m_cursor.m_selectedTile.y + 1][m_cursor.m_selectedTile.x].setAnimating(true);
+						m_turretSound.play();
 
 						// Loop all the paintballs
 						for (Paintball& paintball : m_paintballs)
@@ -571,7 +590,10 @@ void Game::handleClickEvents()
 							m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimFrameTime(0.6f);
 						}
 					}
-					else
+					else if (selectedTile == TileType::TreadmillEast
+						|| selectedTile == TileType::TreadmillNorth
+						|| selectedTile == TileType::TreadmillSouth
+						|| selectedTile == TileType::TreadmillWest)
 					{
 						// Toggle animation
 						m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].setAnimating(!m_mazeBlocks[m_cursor.m_selectedTile.y][m_cursor.m_selectedTile.x].getAnimating());

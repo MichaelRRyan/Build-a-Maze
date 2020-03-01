@@ -6,6 +6,7 @@
 //#define PLACE_SHEEP_DEBUG
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <array>
 #include <vector>
 #include <iostream>
@@ -146,6 +147,12 @@ private:
 	MazeEditor m_mazeEditor;
 	MazeValidator m_mazeValidator;
 	SolverAnimator m_solverAnimator;
+
+	// Audio
+	sf::SoundBuffer m_turretSoundBuffer;
+	sf::Sound m_turretSound;
+
+	sf::Music m_backgroundMusic;
 };
 
 #endif // !GAME

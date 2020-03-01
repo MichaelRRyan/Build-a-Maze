@@ -123,6 +123,12 @@ void Farmer::animate()
 	{
 		sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (16 * frameNum), m_characterNumber.y + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
 
+		// Play footstep if just changed to middle frame
+		if (frame.left == 16 && m_body.getTextureRect().left != 16)
+		{
+			playFootstep();
+		}
+
 		m_body.setTextureRect(frame);
 	}
 }

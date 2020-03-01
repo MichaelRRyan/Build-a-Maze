@@ -88,6 +88,12 @@ void BasicSolver::update()
 			}
 			else
 			{
+				// Random chance to make a hmm sound when blocked
+				if (rand() % 10 == 0)
+				{
+					playHmmSound();
+				}
+
 				findNewDirection();
 			}
 		}

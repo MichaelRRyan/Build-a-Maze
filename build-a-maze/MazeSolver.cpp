@@ -19,6 +19,8 @@ MazeSolver::MazeSolver(std::array<std::array<Tile, MAZE_SIZE>, MAZE_SIZE> & t_ma
 	m_active{ false }
 {
 	m_body.setScale(2.0f, 2.0f);
+
+	loadAudioFiles();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,45 @@ void MazeSolver::setMovementDirection(Direction t_direction)
 	m_moveDir = t_direction;
 
 	setTextureDirection();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::die()
+{
+	m_active = false;
+	m_deathSound.play();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::playHmmSound()
+{
+	m_hmmSound.setPitch(1.0f - (rand() % 10 - 5) / 30.0f);
+	m_hmmSound.play();
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::playFootstep()
+{
+	if (m_leftStep)
+	{
+		m_stepLeft.stop();
+		m_stepLeft.setPitch(1.0f - (rand() % 10 - 5) / 50);
+		m_stepLeft.play();
+	}
+	else
+	{
+		m_stepRight.stop();
+		m_stepRight.setPitch(1.0f - (rand() % 10 - 5) / 50);
+		m_stepRight.play();
+	}
+
+	m_leftStep = !m_leftStep;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::playTriumphSound()
+{
+	m_triumphSound.play();
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -297,6 +338,12 @@ void MazeSolver::animate()
 	int frameNum = static_cast<int>((1.0 * m_moveTimer / m_movementSpeed) * 3);
 	sf::IntRect frame = sf::IntRect{ m_characterNumber.x + (16 * frameNum), m_characterNumber.y + m_characterDirection * 32, 16, 32 }; // Character height = 64, character width = 32
 
+	// Play footstep if just changed to middle frame
+	if (frame.left == 16 && m_body.getTextureRect().left != 16)
+	{
+		playFootstep();
+	}
+
 	m_body.setTextureRect(frame);
 }
 
@@ -336,6 +383,53 @@ const int MazeSolver::getMovementSpeed() const
 void MazeSolver::hasFollower(bool t_hasFollower)
 {
 	m_hasFollower = t_hasFollower;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void MazeSolver::loadAudioFiles()
+{
+	if (!m_deathSoundBuffer.loadFromFile("ASSETS\\AUDIO\\AhhSound.wav"))
+	{
+		std::cout << "Error loading solver \"Ahh\" sound. Asset file may be missing." << std::endl;
+	}
+	
+	m_deathSound.setBuffer(m_deathSoundBuffer);
+
+	if (!m_hmmSoundBuffer.loadFromFile("ASSETS\\AUDIO\\HmmSound.wav"))
+	{
+		std::cout << "Error loading solver \"Hmm\" sound. Asset file may be missing." << std::endl;
+	}
+	
+	m_hmmSound.setBuffer(m_hmmSoundBuffer);
+
+	if (!m_trapdoorCloseBuffer.loadFromFile("ASSETS\\AUDIO\\TrapdoorClose.wav"))
+	{
+		std::cout << "Error loading trapdoor sound. Asset file may be missing." << std::endl;
+	}
+	
+	m_trapdoorClose.setBuffer(m_trapdoorCloseBuffer);
+
+	// Foot steps
+	if (!m_stepLeftBuffer.loadFromFile("ASSETS\\AUDIO\\StepLeft.wav"))
+	{
+		std::cout << "Error loading solver footstep sound. Asset file may be missing." << std::endl;
+	}
+
+	m_stepLeft.setBuffer(m_stepLeftBuffer);
+
+	if (!m_stepRightBuffer.loadFromFile("ASSETS\\AUDIO\\StepRight.wav"))
+	{
+		std::cout << "Error loading solver footstep sound. Asset file may be missing." << std::endl;
+	}
+
+	m_stepRight.setBuffer(m_stepRightBuffer);
+
+	if (!m_triumphSoundBuffer.loadFromFile("ASSETS\\AUDIO\\Triumph.wav"))
+	{
+		std::cout << "Error loading solver triumph sound. Asset file may be missing." << std::endl;
+	}
+
+	m_triumphSound.setBuffer(m_triumphSoundBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -405,7 +499,7 @@ void MazeSolver::handleSteppingStones()
 
 		if (rand() % 5 == 0)
 		{
-			m_active = false;
+			die();
 		}
 	}
 }
@@ -422,7 +516,9 @@ void MazeSolver::handleTrapdoors()
 			m_mazeRef[m_previousPos.y][m_previousPos.x].setStartFrame(0);
 			m_mazeRef[m_previousPos.y][m_previousPos.x].setMaxFrames(7);
 			m_mazeRef[m_previousPos.y][m_previousPos.x].setAnimFrameTime(0.05f);
-			m_active = false;
+			
+			die();
+			m_trapdoorClose.play();
 		}
 	}
 }

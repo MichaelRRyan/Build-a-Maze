@@ -12,6 +12,13 @@ Paintball::Paintball() :
 	m_sprite.setTextureRect({ 80, 64, 8, 8 });
 	m_sprite.setOrigin(4.0f, 4.0f);
 	m_sprite.setScale(2.0f, 2.0f);
+
+	if (!m_bulletThudBuffer.loadFromFile("ASSETS\\AUDIO\\BulletThud.wav"))
+	{
+		std::cout << "Error loading bullet sound. Asset file may be missing" << std::endl;
+	}
+
+	m_bulletThud.setBuffer(m_bulletThudBuffer);
 }
 
 void Paintball::fire(sf::Vector2f t_position, Direction t_direction, sf::Color t_color)
@@ -48,12 +55,14 @@ void Paintball::update(std::vector<MazeSolver*> t_solvers)
 		if (m_sprite.getPosition().y > m_startHeight + 16.0f)
 		{
 			m_active = false;
+			m_bulletThud.play();
 		}
 
 		// Check horisontal maze bounds
 		if (m_sprite.getPosition().x + 4.0f < 0.0f || m_sprite.getPosition().x - 4.0f > static_cast<float>(MAZE_SIZE)* TILE_SIZE)
 		{
 			m_active = false;
+			m_bulletThud.play();
 		}
 
 		for (MazeSolver * solver : t_solvers)
@@ -62,8 +71,9 @@ void Paintball::update(std::vector<MazeSolver*> t_solvers)
 			{
 				if (solver->getSprite().getGlobalBounds().intersects(m_sprite.getGlobalBounds()))
 				{
-					solver->setActive(false);
+					solver->die();
 					m_active = false;
+					m_bulletThud.play();
 					break;
 				}
 			}

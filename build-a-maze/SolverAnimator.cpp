@@ -126,6 +126,12 @@ void SolverAnimator::animateIn(MazeSolver* t_solver)
 			t_solver->reset(0);
 			t_solver->setAnimatingIn(false);
 			t_solver->setTimeModifier(m_timeModifer);
+
+			// Random chance to make a hmm sound
+			if (rand() % 5 == 0)
+			{
+				t_solver->playHmmSound();
+			}
 		}
 	}
 	else
@@ -157,6 +163,7 @@ void SolverAnimator::animateOut(MazeSolver* t_solver)
 		{
 			t_solver->setAnimatingOut(false);
 			t_solver->setActive(false);
+			t_solver->playTriumphSound();
 		}
 	}
 	else

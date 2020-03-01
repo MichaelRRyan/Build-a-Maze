@@ -54,7 +54,7 @@ void Sheep::update()
 
 			break;
 		case Sheep::State::Follow:
-
+			// Check that the follower is alive or out of the maze
 			if (m_followee->getActive()
 				|| m_followee->getPos() == MAZE_EXIT)
 			{
@@ -75,6 +75,7 @@ void Sheep::update()
 				m_followee = nullptr;
 				m_state = State::Idle;
 				m_movementSpeed = static_cast<int>(IDLE_SPEED * m_timeModifier);
+				m_bahSound.play();
 			}
 
 			break;
@@ -102,6 +103,15 @@ void Sheep::loadFiles()
 	m_sprite.setTexture(m_spriteSheet); // Set the character texture
 	m_sprite.setTextureRect({ 16, 384, 16, 32 }); // Set the character
 	m_sprite.setOrigin(0.0f, 16.0f); // Set the origin of the sprite to ignore the head part of the sprite
+
+	// Load audio
+	if (!m_bahBuffer.loadFromFile("ASSETS\\AUDIO\\SheepBah.wav"))
+	{
+		std::cout << "Error loading Sheep sound. Asset file may be missing." << std::endl;
+	}
+
+	m_bahSound.setBuffer(m_bahBuffer);
+	m_bahSound.setPitch(1.2f);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -125,6 +135,7 @@ void Sheep::setFollowing(MazeSolver* t_followee)
 		m_followee = t_followee;
 		m_state = State::Follow;
 		m_moveTimer = 0;
+		m_bahSound.play();
 	}
 }
 

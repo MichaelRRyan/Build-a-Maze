@@ -233,7 +233,7 @@ void Renderer::drawMazeUI(sf::Vector2i t_selectedTile, TileType t_selectedTileTy
 void Renderer::drawMazeHighlights()
 {
 	// Loop through the maze
-	for (int row = 1; row < MAZE_SIZE - 1; row++)
+	for (int row = 0; row < MAZE_SIZE - 1; row++)
 	{
 		for (int col = 1; col < MAZE_SIZE - 1; col++)
 		{
@@ -252,7 +252,7 @@ void Renderer::drawMazeHighlights()
 					m_windowRef.draw(m_highlighter);
 				}
 			}
-			else if (m_mazeRef[row + 1][col] == TileType::TurretWest
+			if (m_mazeRef[row + 1][col] == TileType::TurretWest
 				|| m_mazeRef[row + 1][col] == TileType::TurretWest)
 			{
 				if (!m_mazeRef[row + 1][col].getAnimating())
